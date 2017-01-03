@@ -1,0 +1,221 @@
+\documentclass{book}
+
+\usepackage{times}
+\usepackage{helvet}
+\usepackage{courier}
+\usepackage{comment}
+\usepackage{subfig}
+\usepackage{relsize}
+\usepackage{mathtools}
+\usepackage{amsmath}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{adjustbox}
+\usepackage{rotating}
+\usepackage{multirow}
+\usepackage[ruled,boxed,linesnumbered,noend]{algorithm2e}
+\setcounter{secnumdepth}{2}
+%\frenchspacing
+
+\newtheorem{definition}{Definition}
+
+
+
+\title{ヒューリスティック探索}
+
+\author{陣内　佑 \\
+東京大学　総合文化研究科}
+
+
+
+\begin{document}
+
+\maketitle
+
+\section*{まえがき}
+ヒューリスティック探索はグラフ探索のサブフィールドであり、解こうとしている問題の知識を探索方法に反映させることでより効率的に探索をしよう、という分野です。
+以前、さる国内のAI関連分野で高名な研究者がご講演で「ヒューリスティック探索は終わった技術であり、Toy Problemしか解けない」と仰っておりました。
+これは全くの勘違いであり、私は密かに呆れてしまったのですが、思い返すと仕方がないことかと思いました。
+というのも、日本には探索分野、特にヒューリスティック探索の研究者というのは数えるほどしかいないのです。
+大御所の方々は大変忙しく、他分野、ましては自分では終わったと思っている分野の英語論文など読まないのでしょう。
+こうなると、その分野の知識は古いままで、なおのこと終わった分野だと思ってしまいがちです。
+そこで、ヒューリスティック探索のイントロダクションと現在どこまで発展しているのかというのをまとめてみようかと思い、本文を執筆しました。
+
+
+\chapter{イントロダクション}
+\section{探索}
+
+人は色々な問題を探索によって考えております。
+自宅から大学までの電車の乗り換え方などは身近な例でしょうか。あるいは飛行機で成田からロンドンに行く安い/速い方法などを調べたりします。
+
+一昔前は探索こそが人類の知であるという価値観が広くあり、囲碁、将棋、チェスなどのゲームはそれを競う競技であります。
+囲碁、将棋、チェスなども自分が有利な局面につながる次の一手を探索します。
+詰碁、詰将棋などでは詰みまでの手順を探索します。
+
+
+
+\section{状態空間問題}
+探索問題は初期状態とゴール条件が与えられたとき、ゴール条件を満たすための経路を返すのが探索問題です。
+このテキストでは探索問題の主な対象として状態空間問題を考えます。状態空間問題$P = (S, A, s, T)$は状態の集合$S$、初期状態$s \in S$、ゴール集合$T \in S$、アクション集合$A = {a_1, ....,a_n}$、$a_i : S \rightarrow S$がある。アクションはある状態を次の状態に遷移させる。
+状態空間問題の解は初期状態からゴール状態へ遷移させるアクションの列を求めることである。
+
+よって、状態空間問題はグラフにモデルすることで考えやすくなる。
+状態空間グラフは以下のように定義される。
+
+\begin{definition}
+問題グラフ$G = (V, E, s, T)$は状態空間問題$P = (S, A, s, T)$に対して以下のように定義される。$V = S$
+\end{definition}
+
+
+
+
+\subsection{経路探索問題 Path-finding problem}
+
+\subsection{15パズル 15-puzzle}
+
+Sliding-tile puzzleは有名な問題で
+
+\subsection{倉庫番 Sokoban}
+Sokobanは日本発のパズルゲームでして、倉庫の荷物を押していくことで指定された位置に置くというゲームです。
+このゲームで面白い/難しいのは、「荷物の後ろに回って押す」ことしか出来ず、引っ張ったり、横から動かしたりすることが出来ないという点です。
+
+\subsection{Traveling Salesperson Problem (TSP)}
+
+セールスパーソンはいくつかの都市に回って営業を行わなければならない。都市間の距離は事前に与えられている。
+TSPは全ての都市を最短距離で回ってはじめの都市に戻る経路を求める、という問題です。
+
+\subsection{Multiple Sequence Alignment (MSA)}
+
+生物学・進化学では遺伝子配列・アミノ酸配列の「距離」を比較することで二種・ニ個体がどれだけ親しいかを推定することが広く研究されている。
+MSAは複数の遺伝子・アミノ酸配列が与えられた時、それらの配列間の距離を最小にするような変異の
+PAM250という表が与えられる。
+
+\chapter{Blind Search}
+\label{ch:blind-search}
+最もシンプルなグラフ探索は問題（ドメイン）の知識を利用しない探索である。
+すなわち、何も情報を見ずに探索を行うという意味でBlind Searchと言われる。
+Blind searchの例としては幅優先探索・深さ優先探索などがあり、問題を選べばこれらの手法によって十二分に効率的な探索を行うことが出来る。
+これらの探索手法は競技プログラミングでもよく解法として使われる（らしい）。
+
+\section{幅優先探索}
+
+
+\subsection{コード}
+
+\section{深さ優先探索}
+ゴールがある程度深い所にあり、浅い場所にはないと事前に分かっている場合に上手く行く。
+
+\subsection{コード}
+
+\section{ダイクストラ法}
+
+\subsection{コード}
+
+
+\chapter{Informed Search}
+\ref{ch:blind-search}章では問題の知識を利用しないグラフ探索手法について解説した。
+本章では問題の知識を利用することでより効率的なグラフ探索を行う手法、特にヒューリスティック探索について解説する。
+
+\section{ヒューリスティック関数}
+ヒューリスティック関数はある状態からゴールまでの距離の見積もりである。
+
+Admissible heuristic
+Consistent heuristic
+
+\section{貪欲最良優先探索 (Greedy Best-First Search)}
+ヒューリスティック
+
+\subsection{コード}
+
+\section{A*探索}
+A*
+
+Shakey the Robot
+Optimality
+
+
+
+\subsection{コード}
+
+
+\subsection{重み付きA*探索}
+
+\subsection{コード}
+
+\section{関連研究}
+
+% TODO: 基礎の説明が出来たら
+\begin{comment}
+\chapter{ヒューリスティック探索}
+\section{IDA*}
+
+\subsection{コード}
+
+\section{External Search}
+\subsection{External A*}
+
+\subsection{コード}
+
+\section{Symbolic Search}
+BDDを用いたヒューリスティック探索
+
+\subsection{Binary Decision Diagram}
+\subsection{Symbolic Blind Search}
+\subsection{Symbolic Heuristic Search}
+
+\subsection{コード}
+
+\section{Parallel Search}
+\subsection{Hash Distributed A*}
+
+\subsection{コード}
+\subsection{GPU-based Search}
+
+\subsection{コード}
+
+\section{Online Search}
+工事中
+\subsection{コード}
+
+\end{comment}
+
+% TODO: 一般向けではない？
+\begin{comment}
+\chapter{ヒューリスティック関数}
+\section{ドメイン固有のヒューリスティック}
+\section{Pattern Database Heuristic}
+\subsection{Merge-and-Shrink Heuristic}
+
+\section{Landmark Cut Heuristic}
+\end{comment}
+
+% TODO: これがあった方が興味を惹く？
+\begin{comment}
+\chapter{アプリケーション}
+\section{古典的プランニング問題}
+
+\section{Model Checking}
+工事中
+
+\section{Multiple Sequence Alignment}
+工事中
+
+\section{Black-box Search}
+Atari 2600
+General Video Game Playing
+
+\chapter{関連分野}
+\subsection{ゲーム木探索}
+工事中
+
+\section{制約充足問題}
+工事中
+
+\end{comment}
+
+
+\bibliographystyle{jsai}
+
+\bibliography{ref-jf16}
+\end{document}
+
