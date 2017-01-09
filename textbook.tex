@@ -13,9 +13,13 @@
 \usepackage{adjustbox}
 \usepackage{rotating}
 \usepackage{multirow}
+\usepackage{amssymb}
 \usepackage[ruled,boxed,linesnumbered,noend]{algorithm2e}
 \SetKwInOut{Input}{Input}
 \SetKwInOut{Output}{Output}
+\SetKwInOut{Side}{Side effect}
+\SetKwComment{Comment}{$\triangleright$\ }{}
+
 \setcounter{secnumdepth}{2}
 %\frenchspacing
 
@@ -67,28 +71,53 @@
 よって、状態空間問題はグラフにモデルすることで考えやすくなる。
 状態空間グラフは以下のように定義される。
 
-\begin{definition}
-問題グラフ$G = (V, E, s, T)$は状態空間問題$P = (S, A, s, T)$に対して以下のように定義される。$V = S$
+\begin{definition}[状態空間グラフ]
+問題グラフ$G = (V, E, s, T)$は状態空間問題$P = (S, A, s, T)$に対して以下のように定義される。ノード集合 $V = S$、初期ノード$s \in S$、ゴールノード集合$T$、エッジ集合$E\subseteq V \times V$。エッジ$u,v\in E$は$a(u) = v$となる$a\in A$が存在する場合に存在し、そしてその場合にのみ存在する(iff)。
+\end{definition}
+
+状態空間問題の解は以下の定義である。
+
+\begin{definition}[解]
+解$\pi = (a_1,a_2...,a_k)$はアクション$a_i \in A$の(順序付)配列であり、初期状態$s$からゴール状態$t \in T$へ遷移させる。すなわち、$u_i \in S$,$i \in \{0,1,...,k\}$, $u_0 = s, u_k = t$が存在し、$u_i = a_i(u_{i-1})$となる。
+\end{definition}
+
+どのような解を見つけたいかは問題に依存する。どのような解でもよいのか、経路を最短にする解が良いのか、様々な問題が考えられる。
+多くの問題では経路の{\bf コスト}の合計を最小にすることを目的とする。
+すなわち、アクションに対して
+
+\begin{definition}[コスト付き状態空間問題]
+コスト付き状態空間問題$P = (S, A, s, T, w)$は状態空間問題の定義に加え、コスト関数$w: A \rightarrow \mathbb{R}$がある。経路$(a_1,...,a_k)$のコストは$\sum^k_{i=1}w(a_i)$と定義される。ある解が可能なすべての解の中でコストが最小である場合、その解を最適解(optimal cost)であると言う。
+\end{definition}
+
+コスト付き状態空間問題は重み付き(コスト付き)グラフとしてモデルすることが出来る。すなわち、$G = (V, E, s, T, w)$は状態空間グラフの定義に加え、エッジの重み$w: E \leftarrow \mathbb{R}$を持つ。
+
+\begin{definition}[Implicit 状態空間グラフ]
+Implicit状態空間グラフは初期状態$s \in V$、ゴール条件Goal: $V \rightarrow B = \{false, true\}$、ノード展開関数Expand: $V \rightarrow 2^V$によって与えられる。
 \end{definition}
 
 
 
+\section{探索問題}
 
 \subsection{グリッド経路探索 Grid Path-finding}
+$n$次元(多くの場合$n=2$)のグリッド
+ゲーム
+Starcraft
 
 
-\subsection{15パズル 15-puzzle}
+\subsection{スライディングタイル}
 
 Sliding-tile puzzleは有名な問題で
 
+
 \subsection{倉庫番 Sokoban}
-Sokobanは日本発のパズルゲームでして、倉庫の荷物を押していくことで指定された位置に置くというゲームです。
-このゲームで面白い/難しいのは、「荷物の後ろに回って押す」ことしか出来ず、引っ張ったり、横から動かしたりすることが出来ないという点です。
+Sokobanは日本発のパズルゲームであり、倉庫の荷物を押していくことで指定された位置に置くというゲームである。
+このゲームで面白い/難しいのは、「荷物の後ろに回って押す」ことしか出来ず、引っ張ったり、横から動かしたりすることが出来ないという点である。
 
 \subsection{Traveling Salesperson Problem (TSP)}
 
 セールスパーソンはいくつかの都市に回って営業を行わなければならない。都市間の距離は事前に与えられている。
-TSPは全ての都市を最短距離で回ってはじめの都市に戻る経路を求める、という問題です。
+TSPは全ての都市を最短距離で回ってはじめの都市に戻る経路を求める、という問題である。
 
 \subsection{Multiple Sequence Alignment (MSA)}
 
@@ -96,70 +125,179 @@ TSPは全ての都市を最短距離で回ってはじめの都市に戻る経�
 MSAは複数の遺伝子・アミノ酸配列が与えられた時、それらの配列間の距離を最小にするような変異の
 PAM250という表が与えられる。
 
-\chapter{Blind Search}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% CHAPTER: Blind Search
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{情報なし探索 (Blind Search)}
 \label{ch:blind-search}
 最もシンプルなグラフ探索は問題（ドメイン）の知識を利用しない探索である。
 すなわち、何も情報を見ずに探索を行うという意味でBlind Searchと言われる。
 Blind searchの例としては幅優先探索・深さ優先探索などがあり、問題を選べばこれらの手法によって十二分に効率的な探索を行うことが出来る。
 これらの探索手法は競技プログラミングでもよく解法として使われる（らしい）。
 
-\section{Implicit グラフ探索アルゴリズム}
+
+\section{Implicit 木探索アルゴリズム}
 
 Implicitなグラフはノードを展開するまで子ノードの情報がないグラフである。
 
-\subsection{コード}
+
+
+\begin{algorithm}
+\caption{Implicit Tree Search}
+\label{alg:implicit-tree-search}
+	\Input{Implicit problem tree with initial node $s$, weight function $w$, successor generation function $Expand$, goal function $Goal$}
+	\Output{Path from $s$ to a goal node $t \in T$, or $\emptyset$ if no such path exists}
+	$Open \leftarrow \{s\}$\;
+	\While{$Open \neq \emptyset$} {
+		$u \leftarrow Open.pop()$\;
+		\If {$Goal(u)$} {
+			\Return $Path(u)$\;
+		}
+		$Succ(u) \leftarrow Expand(u)$\;
+		\For {each $v \in Succ(u)$} {
+			$Open.insert(v)$\;
+			$parent(v) \leftarrow u$\;
+		}
+ 	}
+	\Return $\emptyset$\;
+\end{algorithm}
+
+
+
+\section{Implicit グラフ探索アルゴリズム}
+
 
 \begin{algorithm}
 \caption{Implicit Graph Search}
 \label{alg:implicit-graph-search}
-
-	
+	\Input{Implicit problem graph with initial node $s$, weight function $w$, successor generation function $Expand$, goal function $Goal$}
+	\Output{Path from $s$ to a goal node $t \in T$, or $\emptyset$ if no such path exists}
+	$Closed \leftarrow \emptyset$\;
+	$Open \leftarrow \{s\}$\;
+	\While{$Open \neq \emptyset$} {
+		$u \leftarrow Open.pop()$\;
+		$Closed.insert(u)$\;
+		\If {$Goal(u)$} {
+			\Return $Path(u)$\;
+		}
+		$Succ(u) \leftarrow Expand(u)$\;
+		\For {each $v \in Succ(u)$} {
+			$Improve(u, v)$\;
+		}
+ 	}
+	\Return $\emptyset$\;
 \end{algorithm}
 
-\section{幅優先探索}
+\begin{algorithm}
+\caption{$Improve(u,v)$}
+\label{alg:improve}
+	\Input{Node u and its successor $v$}
+	\Side{Update parent of $v$, $Open$, and $Closed$}
+	\If{$v \notin Closed \cup Open$} {
+		$Open.insert(v)$\;
+		$parent(v) \leftarrow u$\;
+	}
+\end{algorithm}
 
+\section{幅優先探索 (Breadth-First Search)}
 
-\subsection{コード}
+Open listはPriority queueであり、何らかの基準によってセットからpopするノードを決めている。
+幅優先探索は探索の「幅」を最大化するようにノードを選択する。
 
-\section{深さ優先探索}
+初期状態から現在状態にたどり着くまでのコストをノードの$g$値と定義する。
+
+\begin{algorithm}
+\caption{Breadth-First Search: $Open.pop()$}
+\label{alg:brfs-open}
+	\Output{Node $u$}
+	\Return $\arg \min_n g(n)$
+\end{algorithm}
+
+\section{深さ優先探索 (Depth-First Search)}
 ゴールがある程度深い所にあり、浅い場所にはないと事前に分かっている場合に上手く行く。
 
-\subsection{コード}
 
-\section{ダイクストラ法}
+\begin{algorithm}
+\caption{Depth-First Search: $Open.pop()$}
+\label{alg:dfs-open}
+	\Output{Node $u$}
+	\Return $\arg \max_n g(n)$
+\end{algorithm}
 
-\subsection{コード}
+%\section{ダイクストラ法}
 
 
-\chapter{Informed Search}
+
+\chapter{ヒューリスティック探索}
 \ref{ch:blind-search}章では問題の知識を利用しないグラフ探索手法について解説した。
 本章では問題の知識を利用することでより効率的なグラフ探索を行う手法、特にヒューリスティック探索について解説する。
 
 \section{ヒューリスティック関数}
 ヒューリスティック関数はある状態からゴールまでの距離の見積もりである。
 
-Admissible heuristic
-Consistent heuristic
+\begin{definition}[ヒューリスティック関数]
+ヒューリスティック関数$h$はノードの評価関数である。$h: V \rightarrow \mathbb{R}_{\geq 0}$
+\end{definition}
 
-\section{貪欲最良優先探索 (Greedy Best-First Search)}
-ヒューリスティック
+\begin{definition}[許容的なヒューリスティック]
+ヒューリスティック関数$h$は最適解のコストの下界である場合、許容的である。すなわち、全てのノード$u \in V$に対して$h(u) \leq \delta(u, T)$が成り立つ。
+\end{definition}
 
-\subsection{コード}
+\begin{definition}[無矛盾なヒューリスティック]
+ヒューリスティック関数$h$は全てのエッジ$e = (u, v) \in E$に対して$h(u) \leq h(v) + w(u,v)$が成り立つ場合、無矛盾である。
+\end{definition}
+
 
 \section{A*探索}
-A*
+A*探索はヒューリスティック探索の代名詞である、最もドミナントな手法である。
+A*探索は以下のf値が最小となるノードを優先して探索を行う。
+
+\begin{equation}
+	f(n) = g(n) + h(n)
+\end{equation}
+
+\begin{algorithm}
+\caption{A*: $Open.pop()$}
+\label{alg:astar-open}
+	\Output{Node $u$}
+	\Return $\arg \min_n f(n)$
+\end{algorithm}
 
 Shakey the Robot
 Optimality
 
 
 
-\subsection{コード}
 
 
 \subsection{重み付きA*探索}
 
-\subsection{コード}
+\begin{equation}
+	f'(n) = g(n) + w h(n)
+\end{equation}
+
+\begin{algorithm}
+\caption{w A*: $Open.pop()$}
+\label{alg:wastar-open}
+	\Output{Node $u$}
+	\Return $\arg \min_n f'(n)$
+\end{algorithm}
+
+\section{貪欲最良優先探索 (Greedy Best-First Search)}
+
+\begin{algorithm}
+\caption{Greedy Best-First Search: $Open.pop()$}
+\label{alg:gfs-open}
+	\Output{Node $u$}
+	\Return $\arg \min_n h(n)$
+\end{algorithm}
+
+
+\section{Iterative Deepening A*}
+
+
 
 \section{関連研究}
 
@@ -168,12 +306,10 @@ Optimality
 \chapter{ヒューリスティック探索}
 \section{IDA*}
 
-\subsection{コード}
 
 \section{External Search}
 \subsection{External A*}
 
-\subsection{コード}
 
 \section{Symbolic Search}
 BDDを用いたヒューリスティック探索
@@ -182,30 +318,22 @@ BDDを用いたヒューリスティック探索
 \subsection{Symbolic Blind Search}
 \subsection{Symbolic Heuristic Search}
 
-\subsection{コード}
 
 \section{Parallel Search}
 \subsection{Hash Distributed A*}
 
-\subsection{コード}
 \subsection{GPU-based Search}
 
-\subsection{コード}
 
 \section{Online Search}
 工事中
-\subsection{コード}
 
 \end{comment}
 
-% TODO: 一般向けではない？
 \begin{comment}
 \chapter{ヒューリスティック関数}
 \section{ドメイン固有のヒューリスティック}
-\section{Pattern Database Heuristic}
-\subsection{Merge-and-Shrink Heuristic}
-
-\section{Landmark Cut Heuristic}
+\section{緩和問題}
 \end{comment}
 
 % TODO: これがあった方が興味を惹く？
