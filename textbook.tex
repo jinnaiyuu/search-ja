@@ -149,6 +149,7 @@ PAM250という表が与えられる。
 
 
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% CHAPTER: Blind Search
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -189,7 +190,16 @@ Blind searchの例としては幅優先探索・深さ優先探索などがあ�
 	\Return $\emptyset$\;
 \end{algorithm}
 
+\begin{enumerate}
+\item 展開済みノード: $Expand(u)$によって子ノードが参照されたノードを指す。
+\item 生成済みノード: $Open.insert(v)$によってOpenに一度でも入れられたノードを指す。
 
+\end{enumerate}
+
+反復深化A*の問題は停止性を満たさないことである。すなわち、問題に解がなく、グラフにループがある場合、単純な木探索は停止しない。よって、この手法は解が間違いなく存在することが分かっている問題に対して適用される。あるいは、解が存在することを判定してから用いる。
+\begin{definition}[ループありグラフ]
+ループがあるよ
+\end{definition}
 
 \section{グラフ探索アルゴリズム (Graph Search Algorithm)}
 \label{sec:graph-search-algorithm}
@@ -354,19 +364,76 @@ Optimality
 \end{algorithm}
 
 
-\section{反復深化A* (Iterative Deepening A*)}
-\label{sec:iterative-deepening-astar}
-
-
-\subsection{Transposition Table}
 
 \section{関連研究}
 
 % TODO: 基礎の説明が出来たら
-\chapter{ヒューリスティック探索}
-
+\chapter{ヒューリスティック探索 variants}
+\label{ch:heuristic-serach-variants}
 A*探索などのヒューリスティック探索は時間と空間の両方がボトルネックとなりうる。
+すなわち、A*はノードを一つずつ展開していかなければならないので、その数だけExpandを実行しなければならない。また、A*は重複検出のために展開済みノードをすべてClosedに保存する。なので、必要な空間も展開ノード数に応じて増えていく。
 
+残念ながら、ほぼ正しいコストを返すヒューリスティック関数を使っても、A*が展開するノードの数は指数的に増加することが知られている\cite{}。
+
+そのため、ヒューリスティックの改善のみならず、アルゴリズム自体の工夫をしなければならない。
+この章では時間・空間制約がある場合のA*の代わりとなるヒューリスティック探索の発展を紹介する。
+これらのアルゴリズムはメリット・デメリットがあり、問題・計算機環境によって有効な手法が異なる。よって、A*を完全に取って代わるものは一つもないと言える。
+
+\section{反復深化A* (Iterative Deepening A*)}
+\label{sec:iterative-deepening-astar}
+
+A*探索は時間・空間の両方がボトルネックになるが、現代の計算機環境では多くの場合空間制約がよりネックになる。
+これはA*が重複検出のために展開済みノードをすべてClosedに保存していることに起因する。
+
+\ref{sec:graph-search-algorithm}節で述べたように、重複検出は正しい解を返すためには必須ではない。グラフに対して木探索を行うことも出来る。
+しかしながら、単純な幅優先木探索・深さ優先木探索はパフォーマンスの問題がある。
+
+反復深化A*は木探索に対してヒューリスティックを用いた、非常にメモリ効率の良いアルゴリズムである。反復深化A*は最適解を返すことを保証する。
+
+
+反復深化A*をはじめとする重複検出のないアルゴリズムを用いる際の問題は、停止性を満たさないことである。すなわち、問題に解がなく、グラフにループがある場合、単純な木探索は停止しない。よって、この手法は解が間違いなく存在することが分かっている問題に対して適用される。あるいは、解が存在することを判定してから用いる。
+例えば15-puzzleは解が存在するか非常に高速に判定することが出来る。
+
+
+
+\begin{algorithm}
+\caption{Iterative Deepening A*}
+\label{alg:iterative-deepening-astar}
+	\Input{Implicit problem graph with initial node $s$, weight function $w$, successor generation function $Expand$, goal function $Goal$}
+	\Output{Path from $s$ to a goal node $t \in T$, or $\emptyset$ if no such path exists}
+	\For {$cost$ from $0$ to $\infty$} {
+		$found \leftarrow CLA*(s, cost)$\;
+		\If {$found \neq \emptyset$} {
+			\Return $found$;
+		}
+	}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{CLA*: Cost Limited A*}
+\label{alg:implicit-graph-search}
+	\Input{Initial node $s$, cost $c$}
+	\Output{Path from $s$ to a goal node $t \in T$, or $\emptyset$ if no such path with cost $\leq cost$}
+	\If {$Goal(s)$} {
+		\Return $s$\;
+	}
+	\For {each $child \in Expand(s)$} {
+		$found \leftarrow CLA*(child, cost - 1)$\;
+		\If {$found \neq \emptyset$} {
+			\Return sequence $(s, found)$\;
+		}
+	}
+	\Return $\emptyset$\;
+\end{algorithm}
+
+\subsection{Transposition Table}
+
+反復深化A*で必要な空間は最適解のコストに対して線形である。
+そうすると、むしろかなりの量のメモリが余ることになる。
+そこで、メモリの余った分だけを使って重複検出をするというTransposition Tableという手法がある。
+A*で用いられるClosedと異なり、このテーブルはすべての生成済みノードを保持しない。
+
+ここでもミソは重複検出は生成済み
 
 \section{External Search}
 
