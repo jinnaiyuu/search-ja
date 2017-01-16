@@ -25,7 +25,7 @@
 
 \newtheorem{definition}{Definition}
 
-
+%\newcommand{\citeauthor[1]}{\cite{#1}}
 
 \title{ヒューリスティック探索}
 
@@ -49,7 +49,9 @@
 
 
 \chapter{イントロダクション}
+\label{ch:introduction}
 \section{探索とは？}
+\label{sec:search}
 
 人は色々な問題を探索によって考えている。
 自宅から大学までの電車の乗り換え方などは身近な例だろう。あるいは飛行機で成田からロンドンに行く安い/速い方法などを調べたりする。
@@ -58,23 +60,29 @@
 囲碁、将棋、チェスなども自分が有利な局面につながる次の一手を探索をする。
 詰碁、詰将棋などでは詰みまでの手順を探索する。
 
+% This chapter is ...
+この章ではまず、\ref{sec:state-space-problem}節ではグラフ探索手法が用いられる問題として状態空間問題を定義する。
+状態空間問題は様々な応用問題を含む。
+次に\ref{sec:search-problem}節でグラフ探索で解くことの出来る問題をいくつか紹介する。
+経路探索問題や倉庫番問題など、応用がありつつ、かつ分かりやすい問題を選んだ。これらの問題はすべて探索研究界隈でベンチマークとして広く使われているものである。
 
 
-\section{状態空間問題}
+\section{状態空間問題 (State-Space Problem)}
+\label{sec:state-space-problem}
 探索問題は初期状態とゴール条件が与えられたとき、ゴール条件を満たすための経路を返すのが探索問題である。
-このテキストでは探索問題の主な対象として状態空間問題を考える。状態空間問題$P = (S, A, s, T)$は状態の集合$S$、初期状態$s \in S$、ゴール集合$T \in S$、アクション集合$A = {a_1, ....,a_n}$、$a_i : S \rightarrow S$がある。アクションはある状態を次の状態に遷移させる。
+このテキストでは探索問題の主な対象として状態空間問題(State-space problem)を考える。状態空間問題$P = (S, A, s, T)$は状態の集合$S$、初期状態$s \in S$、ゴール集合$T \in S$、アクション集合$A = {a_1, ....,a_n}$、$a_i : S \rightarrow S$がある。アクションはある状態を次の状態に遷移させる関数である。
 状態空間問題の解は初期状態からゴール状態へ遷移させるアクションの列を求めることである。
 
 よって、状態空間問題はグラフにモデルすることで考えやすくなる。
 状態空間グラフは以下のように定義される。
 
-\begin{definition}[状態空間グラフ]
+\begin{definition}[状態空間グラフ、State-space graph]
 問題グラフ$G = (V, E, s, T)$は状態空間問題$P = (S, A, s, T)$に対して以下のように定義される。ノード集合 $V = S$、初期ノード$s \in S$、ゴールノード集合$T$、エッジ集合$E\subseteq V \times V$。エッジ$u,v\in E$は$a(u) = v$となる$a\in A$が存在する場合に存在し、そしてその場合にのみ存在する(iff)。
 \end{definition}
 
 状態空間問題の解は以下の定義である。
 
-\begin{definition}[解]
+\begin{definition}[解、Solution]
 解$\pi = (a_1,a_2...,a_k)$はアクション$a_i \in A$の(順序付)配列であり、初期状態$s$からゴール状態$t \in T$へ遷移させる。すなわち、$u_i \in S$,$i \in \{0,1,...,k\}$, $u_0 = s, u_k = t$が存在し、$u_i = a_i(u_{i-1})$となる。
 \end{definition}
 
@@ -82,32 +90,49 @@
 多くの問題では経路の{\bf コスト}の合計を最小にすることを目的とする。
 すなわち、アクションに対して
 
-\begin{definition}[コスト付き状態空間問題]
+\begin{definition}[コスト付き状態空間問題、Weighted state-space problem]
 コスト付き状態空間問題$P = (S, A, s, T, w)$は状態空間問題の定義に加え、コスト関数$w: A \rightarrow \mathbb{R}$がある。経路$(a_1,...,a_k)$のコストは$\sum^k_{i=1}w(a_i)$と定義される。ある解が可能なすべての解の中でコストが最小である場合、その解を最適解(optimal cost)であると言う。
 \end{definition}
 
 コスト付き状態空間問題は重み付き(コスト付き)グラフとしてモデルすることが出来る。すなわち、$G = (V, E, s, T, w)$は状態空間グラフの定義に加え、エッジの重み$w: E \leftarrow \mathbb{R}$を持つ。
 
-\begin{definition}[Implicit 状態空間グラフ]
-Implicit状態空間グラフは初期状態$s \in V$、ゴール条件Goal: $V \rightarrow B = \{false, true\}$、ノード展開関数Expand: $V \rightarrow 2^V$によって与えられる。
+%ただし、状態空間グラフをすべて陽に変換し、すべてのノード・エッジを保持することは効率が良くないことが多い。
+ただし、探索アルゴリズムは状態空間グラフのノード・エッジ全てを保持する必要はない。
+全てのノード・エッジを保持した状態空間グラフを特に陽状態空間グラフ(explicit state-space graph)と呼ぶとする\footnote{他に対訳を見つけることが出来なかったため、陽・陰状態空間グラフという訳は筆者がつけた。}。このようなグラフは、例えば隣接行列を用いて表すことが出来る。隣接行列$M$は行と列の大きさが$|V|$である正方行列であり、エッジ$(v_i, v_j)$が存在するならば$M_{i,j}=1$、なければ$M_{i,j}=0$とする行列である。
+このような表現方法の問題点は行列の大きさが$|V|^2$であるため、大きな状態空間を保持することが出来ないことである。
+例えば、\index{sec:search-problem}節で紹介する15-puzzleは状態の数が$|V|=15!/2$であるため、隣接行列を保持することは現在のコンピュータでは非常に困難である。
+
+そこで、探索アルゴリズムは多くの場合初期ノードとノード展開関数による陰状態空間グラフで表せられる。
+
+\begin{definition}[陰状態空間グラフ、Implicit state-space graph]
+陰状態空間グラフは初期状態$s \in V$、ゴール条件Goal: $V \rightarrow B = \{false, true\}$、ノード展開関数Expand: $V \rightarrow 2^V$によって与えられる。
 \end{definition}
 
+探索の開始時、エージェントは初期ノードのみを保持する。エージェントは保持しているノードに対してExpandを適用することによって、新しいノードとエッジをグラフに加える。これを求める解を見つけるまで繰り返す。
+
+%\begin{example}
+
+%\end{example}
+
+これによって、エージェントは解を見つけるまでのノード・エッジだけ保持して必要な解を見つけることが出来る。
+大まかには、情報なし探索による陰グラフは陽グラフよりも指数的に小さく、ヒューリスティック探索による陰グラフは情報なし探索による陰グラフよりも更に指数的に小さいことが多い。
 
 
 \section{探索問題}
+\label{sec:search-problem}
 
-\subsection{グリッド経路探索 Grid Path-finding}
+\subsection{グリッド経路探索 (Grid Path-finding)}
 $n$次元(多くの場合$n=2$)のグリッド
 ゲーム
 Starcraft
 
 
-\subsection{スライディングタイル}
+\subsection{スライディングタイル (Sliding-tile Puzzle)}
 
 Sliding-tile puzzleは有名な問題で
 
 
-\subsection{倉庫番 Sokoban}
+\subsection{倉庫番 (Sokoban)}
 Sokobanは日本発のパズルゲームであり、倉庫の荷物を押していくことで指定された位置に置くというゲームである。
 このゲームで面白い/難しいのは、「荷物の後ろに回って押す」ことしか出来ず、引っ張ったり、横から動かしたりすることが出来ないという点である。
 
@@ -135,10 +160,13 @@ Blind searchの例としては幅優先探索・深さ優先探索などがあ�
 これらの探索手法は競技プログラミングでもよく解法として使われる（らしい）。
 
 
-\section{Implicit 木探索アルゴリズム}
-
-Implicitなグラフはノードを展開するまで子ノードの情報がないグラフである。
-
+\section{木探索アルゴリズム (Tree Search Algorithm)}
+\label{sec:tree-search-algorithm}
+木は
+木探索はグラフに対して適用することが出来る。
+図\ref{X}は木探索の例である。
+陽グラフのあるノードが初期状態から複数の経路でたどり着ける場合、同じ状態を表すノードが木探索による陰グラフに複数現れるということが生じる。このようなノードを重複(duplicate)と呼ぶ。ノードの重複は計算資源を無駄にするだけなのでなんとかして避けたいものであり、重複の効率的な検出方法は探索研究の大きなヤマの一つである。
+%同じ状態を複数回展開すると計算資源を無駄にすることになるのでなるべく重複を避けたい。
 
 
 \begin{algorithm}
@@ -163,8 +191,10 @@ Implicitなグラフはノードを展開するまで子ノードの情報がな
 
 
 
-\section{Implicit グラフ探索アルゴリズム}
+\section{グラフ探索アルゴリズム (Graph Search Algorithm)}
+\label{sec:graph-search-algorithm}
 
+木探索がノードの重複を無視して探索を行うのに対して、グラフ探索アルゴリズムはノードの重複を確認して探索を行う。
 
 \begin{algorithm}
 \caption{Implicit Graph Search}
@@ -199,6 +229,7 @@ Implicitなグラフはノードを展開するまで子ノードの情報がな
 \end{algorithm}
 
 \section{幅優先探索 (Breadth-First Search)}
+\label{sec:breadth-first-search}
 
 Open listはPriority queueであり、何らかの基準によってセットからpopするノードを決めている。
 幅優先探索は探索の「幅」を最大化するようにノードを選択する。
@@ -213,6 +244,8 @@ Open listはPriority queueであり、何らかの基準によってセットか
 \end{algorithm}
 
 \section{深さ優先探索 (Depth-First Search)}
+\label{sec:depth-first-search}
+
 ゴールがある程度深い所にあり、浅い場所にはないと事前に分かっている場合に上手く行く。
 
 
@@ -231,10 +264,28 @@ Open listはPriority queueであり、何らかの基準によってセットか
 
 
 \chapter{ヒューリスティック探索}
+\label{ch:heuristic-search}
+
 \ref{ch:blind-search}章では問題の知識を利用しないグラフ探索手法について解説した。
 本章では問題の知識を利用することでより効率的なグラフ探索を行う手法、特にヒューリスティック探索について解説する。
 
+\section{ヒューリスティックとは？}
+\label{sec:heursitic}
+
+経路探索問題を幅優先探索で解くことを考えよう。
+図\ref{fig:grid}の初期状態からゴールへの最短経路の長さはXである。このとき、幅優先探索は図\ref{fig:grid-brfs}の領域を探索する。
+
+しかし人間が経路探索を行うときにこんなに広い領域を探索しないだろう。なぜか。
+それは人間が問題の特徴を利用して、このノードを探索したほうがよいだろう、という推論を働かせているからである。
+
+問題の特徴を利用してノードの{\bf 有望さ}をヒューリスティック関数として定量化し、ヒューリスティック関数を利用した探索アルゴリズムをヒューリスティック探索と呼ぶ。
+
+ヒューリスティック関数は人間が自分の知識を利用してコーディングする場合もあるが、特にプランニング問題などでは自動的にヒューリスティックを生成する手法も広く使われている。
+
+
 \section{ヒューリスティック関数}
+\label{sec:heuristic-function}
+
 ヒューリスティック関数はある状態からゴールまでの距離の見積もりである。
 
 \begin{definition}[ヒューリスティック関数]
@@ -251,6 +302,8 @@ Open listはPriority queueであり、何らかの基準によってセットか
 
 
 \section{A*探索}
+\label{sec:astar-search}
+
 A*探索はヒューリスティック探索の代名詞である、最もドミナントな手法である。
 A*探索は以下のf値が最小となるノードを優先して探索を行う。
 
@@ -273,6 +326,7 @@ Optimality
 
 
 \subsection{重み付きA*探索}
+\label{sec:weighted-astar-search}
 
 許容的なヒューリスティックを用いた場合、最適解のコスト$f^*$に対して、発見される解のコストが$w f^*$以下であることを保証する。
 
@@ -288,6 +342,7 @@ Optimality
 \end{algorithm}
 
 \section{貪欲最良優先探索 (Greedy Best-First Search)}
+\label{sec:greedy-best-first-search}
 
 解のクオリティに保証がない。
 
@@ -299,28 +354,59 @@ Optimality
 \end{algorithm}
 
 
-\section{Iterative Deepening A*}
+\section{反復深化A* (Iterative Deepening A*)}
+\label{sec:iterative-deepening-astar}
 
 
+\subsection{Transposition Table}
 
 \section{関連研究}
 
 % TODO: 基礎の説明が出来たら
-\begin{comment}
 \chapter{ヒューリスティック探索}
 
 A*探索などのヒューリスティック探索は時間と空間の両方がボトルネックとなりうる。
 
 
 \section{External Search}
+
+A*探索は重複検出のために今までに展開したノードをすべて保持しなければならない。
+よって、保持できるノードの量によって解ける問題が決まってくる。
+
+External Searchは外部記憶、HDDやSDDを用いて
+
 \subsection{External A*}
 
 
 \section{Symbolic Search}
-BDDを用いたヒューリスティック探索
+
+Binary Decision Diagram (BDD)は二分木によってブーリアンvectorからブーリアンへの関数$(x_0,x_1,...,x_n) \rightarrow \{0, 1\}$を効率良く表すグラフ構造である。
+Symbolic SearchではBDDを使って状態の集合、アクションの集合を表し、BDD同士の演算によって状態の集合を一気に同時に展開していく。
+A*探索がノードを一つずつ展開していき、一つずつ生成していく手間と比較して非常に効率的に演算が出来るポテンシャルを秘めている。
+最新のInternational Planning Competition (2014)のSequential Optimal部門(最適解を見つけるパフォーマンスを競う部門)の一位から三位までをSymbolic Searchが総なめした。現在(2017年)のstate-of-the-artの手法であるといえるだろう。
 
 \subsection{Binary Decision Diagram}
+
+%Binary Decision Diagram (BDD)は関数$(x_0,x_1,...,x_n) \rightarrow \{0, 1\}$を表す二分木である。
+BDDを使う準備として、状態をブーリアンvectorに変換する。
+状態空間問題の状態$s$が定数長のvectorであるとすると、例えばそのビットvectorをBDDに使うブーリアンvectorとして使うことが出来る。
+
+\begin{definition}[特徴関数]
+特徴関数$\phi: s \rightarrow \{0, 1\}$は状態の集合を表すために用いられ、状態$s$が集合に含まれれば1を返し、なければ0を返す。
+\end{definition}
+
+
+\subsubsection{例: Sliding-token puzzle}
+
+説明のためにシンプルな問題を考える。
+
+\begin{figure}
+\end{figure}
+
+
 \subsection{Symbolic Blind Search}
+
+
 \subsection{Symbolic Heuristic Search}
 
 
@@ -328,15 +414,49 @@ BDDを用いたヒューリスティック探索
 
 \subsection{Hash Distributed A*}
 
-\subsection{GPU-A*}
+Hash Distributed A* (HDA*) \cite{kishimotofb13} is a parallel A* algorithm 
+which incorporates the idea of hash-based work distribution from  PRA* \cite{evett1995massively} and asynchronous communication from TDS \cite{romein1999transposition}.
+In HDA*, 
+each processor has its own OPEN and CLOSED.
+A global hash function assigns a unique owner thread to every search node.
+Each thread $T$ repeatedly executes the following: 
+\begin{enumerate}
+	\item 
+           $T$ checks its message queue if any new nodes are in. For all new nodes $n$ in $T$'s message queue, if it is not in CLOSED (not a duplicate), put $n$ in OPEN. %For all nodes in message queue, check for duplicate detection with closed list. If it is not duplicate then put the node into OPEN.
+	\item 
+           Expand node $n$ with the highest priority in OPEN. For every generated node $c$, compute hash value $H(c)$, and send $c$ to the thread that owns $H(c)$. %Thread expands the node with the highest priority. For all nodes generated, it calculates the hash value $K(s)$. It sends node $s$ to the message queue of the thread which owns $K(s)$. 
+\end{enumerate}
+
+
+HDA* has two distinguishing features compared to preceding parallel A* variants.
+First, there is little coordination overhead because HDA* communicates asynchronously, and %Threads do not have to wait for other threads to go to the next instruction.
+locks for an access to shared OPEN/CLOSED are not required because each thread has its own local OPEN/CLOSED.
+%, which are the bottlenecks for some parallel algorithms. 
+%However, contention for the memory bus, which can be considered a form of coordination overhead on multicore machines,  can have a significant impact on performance \cite{kishimotofb13}. -> put on Parallel Overheads
+Second, the work distribution mechanism is simple, requiring only a hash function.
+%Unlike work-stealing approaches, nodes are not reassigned among threads.
+However, the effect of the hash function was not evaluated empirically, and the importance of the choice of hash function was not fully understood or appreciated --
+at least one subsequent work which evaluated HDA* used an implementation of HDA* which failed to achieve uniform distribution of the nodes (see Section \ref{sec:hdavspbnf}).% XXX where to put this sentence...
+
+\subsection{GPU-based Parallelization}
 
 
 \section{Online Search}
-工事中
+\emph{Online, planning}  is a  real-time search  problem \cite{Korf90}, where we are given an initial black-box planning instance $B_0$, and a resource limit (e.g., time limit, limit on number of node generations, etc.).
+An agent for online black-box planning behaves as follows:
+\begin{enumerate}
+\item [initialization]: $I$ is initialized to $I_0$.
+\item [termination check]: If some termination condition has been met, then terminate.
+\item [planning episode]: The agent applies a planning algorithm $P$ until the resource limit is exhausted, at which point the agent selects an action $a$ to execute.
+\item [world update]: The agent executes $a$, resulting in an updated world state $s' = Apply(a,s)$. In black-box domains where the simulator $Sim$ is a perfect model of  the actual world inhabited by the agent, then $Apply(a,s) = Sim(a,s)$. 
+\item Set $I= s$, and go to step 2.
+\end{enumerate}
+
+In step 3 (planning episode), after the planning algorithm is terminated, the selection of the action to execute in step 4 can be implemented in many different ways.
+In a satisficing problem, if a path has been found to a goal (maximal utility) state, then the first step on that path should be selected. However, in most cases, such a path is unavailable, so the action is chosen based on the search space that has been explored so far, e.g., choose the first step in the path with the highest utility frontier node.
 
 \section{関連研究}
 
-\end{comment}
 
 \begin{comment}
 \chapter{ヒューリスティック関数}
@@ -346,10 +466,44 @@ BDDを用いたヒューリスティック探索
 
 % TODO: これがあった方が興味を惹く？
 \chapter{アプリケーション}
+
+この章では
+
 \section{古典的プランニング問題}
 
+Classical planning is a framework in which many application problems are modelled, including logistics \cite{helmert2010scanalyzer,sousa2013toward}, cell assembly \cite{asai2014fully}, genome rearrangement \cite{erdem2005genome}, and arcade games \cite{Lipovetzky2015a,jinnai2017learning}.
+A world in classical planning is described in logic \cite{fikes:71}. Atomic propositions $AP$ describe what can be true of false in each state of the world. By applying operations to a state, the state transition to another state where different atomic propositions might be true or false. The goal of a classical planning problem is to find a sequence of operations which leads to goal condition from the initial state.
+We follow the definition by \cite{edelkamp:2010:hst:1875144}:
+
+\begin{definition}
+A classical planning problem is a finite-state space problem $P = (S,A,s_0,T)$ where $S \subseteq 2^{AP}$ is the set of states, $s_0 \in S$ is the initial state, $T \subseteq S$ is the set of goal states, and $A$ is the set of actions (operations) that transform states into states.
+\end{definition}
+
+Specifically, in STRIPS formalization, a goal is described as a list of propositions $Goal \subseteq AP$. $T$ is a set of states which all propositions in $Goal$ are true.
+Actions $a \in A$ have propositional preconditions $pre(a)$, and propositional effects ($add(a)$, $del(a)$), where $pre(a) \subseteq AP$ is the precondition of $a$, $add(a) \subseteq AP$ is the add list, $del(a) \subseteq AP$ is the delete list. Given a state $s$ with $pre(a) \subseteq s$, then its successor $s' = succ(s, a)$ is defined as $s' = (s \ del(a)) \cup add(a)$.
+As such, a classical planning problem can be solved by an A* search ($G(V', E', w'), s_0', T'$); $V' = S$, $e(v_i, v_j) \in E'$ exists if there exists $a$ such that $v_j = succ(v_i, a)$, $s_0' = s_0$, $T' = T$.
+We discuss classical planning in detail in Section \ref{sec:domain-independent}.
+
 \section{Black-box Search in Video Game}
-工事中
+A black box planning problem is a tuple $B=  (V, A, Sim, I, U)$.
+$V$ is a set of variables, each with a discrete domain $D(v_i)$. A state is a combination of $v_i$ for each $V$.
+$A$ is the set of \emph{available actions}. Any action in $A$ can be applied at any state. The effects of $a \in A$ are computed using the black box simulation function $Sim$.
+$Sim$ is a function which takes two parameters. $Sim(a,s)$ returns the state resulting from applying $a$ to state $s$.
+$I$ is an initial assignment of values to $V$.
+$U$ is a utility function.
+%{\bf [TODO:define ``state''.]}
+The objective is to find a state $s$ which maximizes $U(s)$ (satisficing, black-box planning uses a $U$  which is maximal when desired (goal) attributes are satisfied, zero otherwise).
+In this paper, we assume that the environment is deterministic, i.e., $Sim$ is deterministic.
+
+The lack of useful knowledge  makes search difficult.
+Brute-force, exhaustive search algorithms such as breadth-first search %`best-first search with a blind heuristic function'' (uniform-cost search),  
+can be applied, but does not scale well \cite{Bellemare2013}. 
+More focused search techniques which do not depend on heuristics are needed. % (aggressive pruning) is needed. % to guide search to expand more promising node.
+Iterative Width \cite{Lipovetzky2015a} is breadth-first search with novelty-based pruning: a newly generated state is pruned if it does not make a new atom true. IW(1) has been shown to perform well in classical planning \cite{LipovetzkyG12}, Atari games in the ALE environment \cite{Lipovetzky2015a}, and General video game playing \cite{Geffner2015}.
+%Plain MCTS methods does not exploit the structure of the problem, whereas classic planning, SAT, and CSP solvers often make use of them and use for heuristic function and other effective uses.
+%Using the notation of novelty, IW(1) prunes state with novelty bigger than 1, only expanding nodes with structural uniqueness.
+%Prioritized iterative width search.
+p-IW \cite{ShleyfmanTD16} further improves the pruning by considering the reward in addition to novelty.
 
 \begin{comment}
 \section{Multiple Sequence Alignment}
@@ -372,8 +526,8 @@ BDDを用いたヒューリスティック探索
 \end{comment}
 
 
-\bibliographystyle{jsai}
+\bibliographystyle{spmpsci}
 
-\bibliography{ref-jf16}
+\bibliography{ref-jf17}
 \end{document}
 

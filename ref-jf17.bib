@@ -1,20 +1,29 @@
-@STRING{aaai	= "Proceedings of the National Conference on Artificial
-		  Intelligence AAAI" }
-%@STRING{aaai	= "Proceedings of the National Conference on Artificial 
-%		  Intelligence (AAAI)" }
+@STRING{aaai	= "Proceedings of the AAAI Conference on Artificial
+		  Intelligence (AAAI)" }
+@STRING{aaai	= "Proceedings of the AAAI Conference on Artificial %
+		  Intelligence (AAAI)" }
+@STRING{aaai	= {{Proc. AAAI}} }
 @STRING{aij	= "Artificial Intelligence" }
 @STRING{ecai	= {{European Conference on Artificial Intelligence}} }
+@STRING{ecai	= {{Proc. ECAI}} }
+@STRING{icaps	= "Proceedings of the International Conference on Automated
+		  Planning and Scheduling (ICAPS)" }
 @STRING{icaps	= {{Proc. ICAPS}} }
 @STRING{ijcai	= "Proceedings of the International Joint Conference on
 		  Artificial Intelligence IJCAI" }
-%@STRING{ijcai	= "Proceedings of the International Joint Conference on 
-%		  Artificial Intelligence (IJCAI)" }
+@STRING{ijcai	= "Proceedings of the International Joint Conference on %
+		  Artificial Intelligence (IJCAI)" }
+@STRING{ijcai	= {{Proc. IJCAI}} }
 @STRING{jair	= "Journal of Artificial Intelligence Research" }
+@STRING{jair	= {{Journal of Artificial Intelligence Research (JAIR)}} }
+@STRING{keps	= {{Proceedings of the ICAPS Workshop on Knowledge
+		  Engineering for Planning and Scheduling (KEPS)}} }
 @STRING{keps	= {{Proceedings of the ICAPS Workshop on Knowledge
 		  Engineering for Planning and Scheduling(KEPS)}} }
+@STRING{socs	= "Proceedings of the Annual Symposium on Combinatorial
+		  Search" }
 @STRING{spark	= {{Scheduling and Planning Applications Workshop}} }
-@string{socs = "Proceedings of the Symposium on Combinatorial Search (SoCS)"}
-
+@STRING{spark	= {{Scheduling and Planning Applications Workshop}} }
 
 @InProceedings{	  akagikf2010,
   author	= {Y. Akagi and A. Kishimoto and A. Fukunaga},
@@ -65,6 +74,22 @@
   opt_keywords	= "multi-agent planning, path planning",
   cindynote	= "Good explanation on decomposing path planning into the
 		  global and then local tasks, one agent at a time."
+}
+
+@InProceedings{	  asai2014fully,
+  title		= {Fully Automated Cyclic Planning for Large-Scale
+		  Manufacturing Domains.},
+  author	= {Asai, Masataro and Fukunaga, Alex},
+  booktitle	= icaps,
+  year		= {2014}
+}
+
+@InProceedings{	  asai2016tiebreaking,
+  title		= {Tiebreaking Strategies for A* Search: How to Explore the
+		  Final Frontier},
+  author	= {Asai, Masataro and Fukunaga, Alex},
+  booktitle	= aaai,
+  year		= {2016}
 }
 
 @Article{	  bacchus:00,
@@ -148,24 +173,6 @@
   year		= "1995"
 }
 
-@InProceedings{	  barnat:2001,
-  author	= {Barnat, Jiri and Brim, Lubos and St\v{r}\'{\i}brn\'{a},
-		  Jitka},
-  title		= {Distributed {LTL} Model-Checking in {SPIN}},
-  booktitle	= {Proceedings of the 8th international SPIN Workshop on
-		  Model Checking of Software},
-  optseries	= {SPIN '01},
-  year		= {2001},
-  isbn		= {3-540-42124-6},
-  location	= {Toronto, Ontario, Canada},
-  pages		= {200--216},
-  numpages	= {17},
-  _url		= {http://dl.acm.org/citation.cfm?id=380921.380940},
-  acmid		= {380940},
-  _publisher	= {Springer-Verlag New York, Inc.},
-  _address	= {New York, NY, USA}
-}
-
 @Article{	  barraquand91,
   author	= {J\'{e}r\^{\i}me Barraquand and Jean-Claude Latombe},
   title		= {Robot motion planning: a distributed representation
@@ -190,6 +197,45 @@
   pages		= "78--87",
   year		= "2001",
   url		= "citeseer.ist.psu.edu/beacham01constraint.html"
+}
+
+@Article{	  bellemare2013,
+  abstract	= {In this article we introduce the Arcade Learning
+		  Environment (ALE): both a challenge problem and a platform
+		  and methodology for evaluating the development of general,
+		  domain-independent AI technology. ALE provides an interface
+		  to hundreds of Atari 2600 game environments, each one
+		  different, interesting, and designed to be a challenge for
+		  human players. ALE presents significant research challenges
+		  for reinforcement learning, model learning, model-based
+		  planning, imitation learning, transfer learning, and
+		  intrinsic motivation. Most importantly, it provides a
+		  rigorous testbed for evaluating and comparing approaches to
+		  these problems. We illustrate the promise of ALE by
+		  developing and benchmarking domain-independent agents
+		  designed using well-established AI techniques for both
+		  reinforcement learning and planning. In doing so, we also
+		  propose an evaluation methodology made possible by ALE,
+		  reporting empirical results on over 55 different games. All
+		  of the software, including the benchmark agents, is
+		  publicly available.},
+  archiveprefix	= {arXiv},
+  arxivid	= {1207.4708},
+  author	= {Bellemare, Marc G. and Naddaf, Yavar and Veness, Joel and
+		  Bowling, Michael},
+  doi		= {10.1613/jair.3912},
+  eprint	= {1207.4708},
+  file		= {:D$\backslash$:/mendeley/Bellemare et al. - 2012 - The
+		  Arcade Learning Environment An Evaluation Platform for
+		  General Agents.pdf:pdf},
+  pages		= {253--279},
+  journal	= {Journal of Artificial Intelligence Research},
+  title		= {The Arcade Learning Environment: An Evaluation Platform
+		  for General Agents},
+  url		= {http://arxiv.org/abs/1207.4708
+		  http://dx.doi.org/10.1613/jair.3912},
+  volume	= {47},
+  year		= {2013}
 }
 
 @Article{	  bennewitz02planning,
@@ -226,6 +272,22 @@
   howpublished	= {\url{http://www.bioware.com/games/baldurs\_gate}}
 }
 
+@Article{	  bhonker2016,
+  author	= {{Bhonker}, N. and {Rozenberg}, S. and {Hubara}, I.},
+  title		= "{Playing SNES in the Retro Learning Environment}",
+  journal	= {ArXiv e-print},
+  archiveprefix	= "arXiv",
+  eprint	= {1611.02205},
+  primaryclass	= "cs.LG",
+  keywords	= {Computer Science - Learning, Computer Science - Artificial
+		  Intelligence},
+  volume	= {1611.02205},
+  year		= 2016,
+  month		= nov,
+  adsurl	= {http://adsabs.harvard.edu/abs/2016arXiv161102205B},
+  adsnote	= {Provided by the SAO/NASA Astrophysics Data System}
+}
+
 @TechReport{	  biddle:01,
   author	= {R. Biddle and J. Noble and E. Tempero},
   title		= {{Sokoban}: {A} {S}ystem {O}bject {C}ase {S}tudy},
@@ -234,18 +296,19 @@
   month		= {September}
 }
 
-@inproceedings{Bleiweiss08,
-  author    = {Avi Bleiweiss},
-  title     = {{GPU} Accelerated Pathfinding},
-  booktitle = {Proceedings of the {EUROGRAPHICS/ACM} {SIGGRAPH} Conference on Graphics
-               Hardware 2008, Sarajevo, Bosnia and Herzegovina, 2008},
-  pages     = {65--74},
-  year      = {2008},
-  url       = {http://dx.doi.org/10.2312/EGGH/EGGH08/065-074},
-  doi       = {10.2312/EGGH/EGGH08/065-074},
-  timestamp = {Thu, 26 Nov 2015 12:06:43 +0100},
-  biburl    = {http://dblp2.uni-trier.de/rec/bib/conf/egh/Bleiweiss08},
-  bibsource = {dblp computer science bibliography, http://dblp.org}
+@InProceedings{	  bleiweiss08,
+  author	= {Avi Bleiweiss},
+  title		= {{GPU} Accelerated Pathfinding},
+  booktitle	= {Proceedings of the {EUROGRAPHICS/ACM} {SIGGRAPH}
+		  Conference on Graphics Hardware 2008, Sarajevo, Bosnia and
+		  Herzegovina, 2008},
+  pages		= {65--74},
+  year		= {2008},
+  url		= {http://dx.doi.org/10.2312/EGGH/EGGH08/065-074},
+  doi		= {10.2312/EGGH/EGGH08/065-074},
+  timestamp	= {Thu, 26 Nov 2015 12:06:43 +0100},
+  biburl	= {http://dblp2.uni-trier.de/rec/bib/conf/egh/Bleiweiss08},
+  bibsource	= {dblp computer science bibliography, http://dblp.org}
 }
 
 @Article{	  blum:97,
@@ -431,8 +494,10 @@
   institution	= {University of Alberta, CMPUT 608},
   type		= {presentation},
   address	= {Edmonton, Alberta},
-  url		= {http://ircl.cs.ualberta.ca/files/webfm/lrts/pres/2005-09-14-CMPUT608-640-H264.mov},
-  pdf		= {http://ircl.cs.ualberta.ca/files/webfm/lrts/pres/2005-09-14-CMPUT608.pdf},
+  url		= {http://ircl.cs.ualberta.ca/files/webfm/lrts/pres/2005-09-14-CMPUT608-640-H264.mov}
+		  ,
+  pdf		= {http://ircl.cs.ualberta.ca/files/webfm/lrts/pres/2005-09-14-CMPUT608.pdf}
+		  ,
   author	= {Vadim Bulitko}
 }
 
@@ -449,6 +514,7 @@
   opt_type	= {inproceedings},
   opt_address	= {Providence, Rhode Island},
   opt_pdf	= {http://ircl.cs.ualberta.ca/files/webfm/lrts/pubs/ICAPS07BulitkoV.pdf}
+		  
 }
 
 @Article{	  bulucc2013recent,
@@ -464,7 +530,8 @@
   author	= {Burns, Ethan Andrew and Hatem, Matthew and Leighton,
 		  Michael J and Ruml, Wheeler},
   booktitle	= socs,
-  file		= {:home/yuu/Documents/papers/Search/2012\_Implementing\_Fast\_Heuristic\_Search\_Code.pdf:pdf},
+  file		= {:home/yuu/Documents/papers/Search/2012\_Implementing\_Fast\_Heuristic\_Search\_Code.pdf:pdf}
+		  ,
   title		= {Implementing Fast Heuristic Search Code},
   pages		= {25--32},
   year		= {2012}
@@ -654,7 +721,8 @@
   priority	= {2},
   publisher	= {The MIT Press},
   title		= {Introduction to Algorithms, Second Edition},
-  url		= {http://www.amazon.ca/exec/obidos/redirect?tag=citeulike09-20{\&}path=ASIN/0262531968},
+  url		= {http://www.amazon.ca/exec/obidos/redirect?tag=citeulike09-20{\&}path=ASIN/0262531968}
+		  ,
   year		= {2001}
 }
 
@@ -689,7 +757,8 @@
   title		= {{SOKOBAN} is {PSPACE}-complete},
   institution	= {Department of Computing Science, University of Alberta,
 		  Edmonton, Alberta, Canada},
-  note		= "{\url{ftp://ftp.cs.ualberta.ca/pub/TechReports/1997/TR97-02}}",
+  note		= "{\url{ftp://ftp.cs.ualberta.ca/pub/TechReports/1997/TR97-02}}"
+		  ,
   year		= {1997},
   optkey	= {},
   volume	= {},
@@ -902,6 +971,14 @@
   pages		= {821--826}
 }
 
+@InProceedings{	  erdem2005genome,
+  title		= {Genome rearrangement and planning},
+  author	= {Erdem, Esra and Tillier, Elisabeth},
+  booktitle	= aaai,
+  pages		= {1139--1144},
+  year		= {2005}
+}
+
 @InProceedings{	  erdmann86multiple,
   author	= {Michael Erdmann and Tomas Lozano-Perez},
   title		= {On multiple moving objects},
@@ -1071,6 +1148,19 @@
   year		= 2012
 }
 
+@InProceedings{	  fox1999,
+  author	= {Fox, Maria and Long, Derek},
+  file		= {:D$\backslash$:/mendeley/Fox, Long - 1999 - The detection
+		  and exploitation of symmetry in planning problems.pdf:pdf},
+  issn		= {10450823},
+  journal	= ijcai,
+  pages		= {956--961},
+  title		= {The detection and exploitation of symmetry in planning
+		  problems},
+  volume	= {2},
+  year		= {1999}
+}
+
 @InProceedings{	  fox:02,
   author	= {M. Fox and D. Long},
   title		= {{T}he {T}hird {I}nternational {P}lanning {C}ompetition:
@@ -1101,6 +1191,16 @@
   pages		= "956--961"
 }
 
+@InProceedings{	  foxl99,
+  author	= {Fox, Maria and Long, Derek},
+  booktitle	= ijcai,
+  title		= {The detection and exploitation of symmetry in planning
+		  problems},
+  pages		= {956--961},
+  volume	= {2},
+  year		= {1999}
+}
+
 @InProceedings{	  frigo:98,
   author	= {M. Frigo and C. E. Leiserson and K. H. Randall},
   title		= {The Implementation of the Cilk-5 Multithreaded Language},
@@ -1126,10 +1226,20 @@
 		  Clusters},
   booktitle	= aaai,
   year		= {2012},
-  url		= {http://www.aaai.org/ocs/index.php/AAAI/AAAI12/paper/view/5054},
+  url		= {http://www.aaai.org/ocs/index.php/AAAI/AAAI12/paper/view/5054}
+		  ,
   timestamp	= {Thu, 31 Jul 2014 11:17:14 +0200},
   biburl	= {http://dblp.uni-trier.de/rec/bib/conf/aaai/FukunagaKB12},
   bibsource	= {dblp computer science bibliography, http://dblp.org}
+}
+
+@InProceedings{	  furcy:05,
+  author	= {D. Furcy and S. Koenig},
+  title		= {Limited Discrepancy Beam Search},
+  booktitle	= {Proceedings of the International Joint Conference on
+		  Artificial Intelligence},
+  year		= 2005,
+  pages		= {125--131}
 }
 
 @InProceedings{	  garavelms01,
@@ -1140,6 +1250,18 @@
   year		= {2001},
   pages		= {217--234},
   bibsource	= {DBLP, http://dblp.uni-trier.de}
+}
+
+@InProceedings{	  geffner2015,
+  author	= {Geffner, Tomas and Geffner, Hector},
+  file		= {:D$\backslash$:/mendeley/Geffner, Geffner - 2015 -
+		  Width-based Planning for General Video-Game
+		  Playing.pdf:pdf},
+  booktitle	= {The IJCAI-15 Workshop on General Game Playing},
+  keywords	= {Research Papers},
+  pages		= {15--21},
+  title		= {Width-based Planning for General Video-Game Playing},
+  year		= {2015}
 }
 
 @Book{		  ghallab:04,
@@ -1220,6 +1342,20 @@
   publisher	= {Elsevier}
 }
 
+@Article{	  guo2014,
+  author	= {Guo, Xiaoxiao and Lee, Honglak and Wang, Xiaoshi and
+		  Lewis, Richard L},
+  file		= {:D$\backslash$:/mendeley/Guo et al. - 2014 - Deep learning
+		  for real-time Atari game play using offline Monte Carlo
+		  tree search planning.pdf:pdf},
+  journal	= {Nips},
+  pages		= {1--9},
+  title		= {{Deep learning for real-time Atari game play using offline
+		  Monte Carlo tree search planning}},
+  volume	= {2600},
+  year		= {2014}
+}
+
 @Article{	  hamadijs09,
   author	= {Y. Hamadi and S. Jabbour and L. Sais},
   title		= {{ManySAT}: a Parallel {SAT} Solver},
@@ -1269,19 +1405,6 @@
   pages		= {140--149}
 }
 
-@InProceedings{	  haslumg00,
-  author	= {Patrik Haslum and Hector Geffner},
-  title		= {Admissible Heuristics for Optimal Planning},
-  booktitle	= icaps,
-  pages		= {140--149},
-  year		= 2000,
-  _crossref	= {DBLP:conf/aips/2000},
-  url		= {http://www.aaai.org/Library/AIPS/2000/aips00-015.php},
-  timestamp	= {Thu, 19 Nov 2015 08:52:35 +0100},
-  biburl	= {http://dblp.uni-trier.de/rec/bib/conf/aips/HaslumG00},
-  bibsource	= {dblp computer science bibliography, http://dblp.org}
-}
-
 @Article{	  helmert2006,
   archiveprefix	= {arXiv},
   arxivid	= {arXiv:1109.6051v1},
@@ -1306,6 +1429,14 @@
   booktitle	= icaps,
   pages		= {176--183},
   year		= {2007}
+}
+
+@InProceedings{	  helmert2010scanalyzer,
+  title		= {The Scanalyzer Domain: Greenhouse Logistics as a Planning
+		  Problem.},
+  author	= {Helmert, Malte and Lasinger, Hauke},
+  booktitle	= icaps,
+  year		= {2010}
 }
 
 @Article{	  helmert2014merge,
@@ -1602,7 +1733,8 @@
   number	= {10},
   year		= {2007},
   pages		= {659--674},
-  ee		= {http://doi.ieeecomputersociety.org/10.1109/TSE.2007.70724},
+  ee		= {http://doi.ieeecomputersociety.org/10.1109/TSE.2007.70724}
+		  ,
   bibsource	= {DBLP, http://dblp.uni-trier.de}
 }
 
@@ -1713,7 +1845,8 @@
 @Misc{		  ipc:04,
   author	= "J. Hoffmann and S. Edelkamp",
   title		= "",
-  note		= "{\url{http://ls5-www.cs.uni-dortmund.de/~edelkamp/ipc-4/}}",
+  note		= "{\url{http://ls5-www.cs.uni-dortmund.de/~edelkamp/ipc-4/}}"
+		  ,
   year		= "",
   url		= "http://ls5-www.cs.uni-dortmund.de/~edelkamp/ipc-4/"
 }
@@ -1744,15 +1877,31 @@
   year		= {2016}
 }
 
-
-
-
-@Article{jinnai2017work,
+@InProceedings{	  jinnai2017,
+  title		= {Learning to Prune Dominated Action Sequences in Online
+		  Black-box Domain},
   author	= {Jinnai, Yuu and Fukunaga, Alex},
-  title = 	 {On Work Distribution Functions for Parallel Best-First Search},
-  journal = 	 jair,
-  year = 	 2017,
-  note = 	 {(to appear)}}
+  booktitle	= aaai,
+  year		= {2017}
+}
+
+@InProceedings{	  jinnai2017learning,
+  title		= {Learning to Prune Dominated Action Sequences in Online
+		  Black-box Domain},
+  author	= {Jinnai, Yuu and Fukunaga, Alex},
+  booktitle	= aaai,
+  year		= {2017},
+  note		= {(to appear)}
+}
+
+@Article{	  jinnai2017work,
+  author	= {Jinnai, Yuu and Fukunaga, Alex},
+  title		= {On Work Distribution Functions for Parallel Best-First
+		  Search},
+  journal	= jair,
+  year		= 2017,
+  note		= {(to appear)}
+}
 
 @Article{	  jonsson1998state,
   title		= {State-variable planning under structural restrictions:
@@ -1901,6 +2050,15 @@
   optannote	= {}
 }
 
+@InCollection{	  karp1972reducibility,
+  title		= {Reducibility among combinatorial problems},
+  author	= {Karp, Richard M},
+  booktitle	= {Complexity of computer computations},
+  pages		= {85--103},
+  year		= {1972},
+  publisher	= {Springer}
+}
+
 @InProceedings{	  karpz88,
   author	= {R. Karp and Y. Zhang},
   title		= {A randomized parallel branch-and-bound procedure},
@@ -1962,21 +2120,6 @@
   pages		= {61--62}
 }
 
-@Article{	  kishimotofb13,
-  author	= {Kishimoto, Akihiro and Fukunaga, Alex and Botea, Adi},
-  doi		= {10.1016/j.artint.2012.10.007},
-  file		= {:home/yuu/Documents/papers/Search/2013\_Evaluation\_of\_a\_simple\_scalable\_parallel\_best-first\_search\_strategy.pdf:pdf},
-  issn		= {00043702},
-  journal	= {Artificial Intelligence},
-  pages		= {222--248},
-  publisher	= {Elsevier B.V.},
-  title		= {Evaluation of a simple, scalable, parallel best-first
-		  search strategy},
-  url		= {http://linkinghub.elsevier.com/retrieve/pii/S0004370212001294},
-  volume	= {195},
-  year		= {2013}
-}
-
 @InProceedings{	  kishimoto:02,
   author	= {A. Kishimoto and J. Schaeffer},
   title		= {Distributed Game-Tree Search Using Transposition Table
@@ -1987,18 +2130,21 @@
   year		= 2002
 }
 
-@InProceedings{	  kishimotofb09,
-  author	= {Akihiro Kishimoto and Alex S. Fukunaga and Adi Botea},
-  title		= {Scalable, Parallel Best-First Search for Optimal
-		  Sequential Planning},
-  booktitle	= icaps,
-  pages		= {201--208},
-  year		= {2009},
-  _crossref	= {DBLP:conf/aips/2009},
-  url		= {http://aaai.org/ocs/index.php/ICAPS/ICAPS09/paper/view/705},
-  timestamp	= {Thu, 13 Dec 2012 14:15:16 +0100},
-  biburl	= {http://dblp.uni-trier.de/rec/bib/conf/aips/KishimotoFB09},
-  bibsource	= {dblp computer science bibliography, http://dblp.org}
+@Article{	  kishimotofb13,
+  author	= {Kishimoto, Akihiro and Fukunaga, Alex and Botea, Adi},
+  doi		= {10.1016/j.artint.2012.10.007},
+  file		= {:home/yuu/Documents/papers/Search/2013\_Evaluation\_of\_a\_simple\_scalable\_parallel\_best-first\_search\_strategy.pdf:pdf}
+		  ,
+  issn		= {00043702},
+  journal	= {Artificial Intelligence},
+  pages		= {222--248},
+  publisher	= {Elsevier B.V.},
+  title		= {Evaluation of a simple, scalable, parallel best-first
+		  search strategy},
+  url		= {http://linkinghub.elsevier.com/retrieve/pii/S0004370212001294}
+		  ,
+  volume	= {195},
+  year		= {2013}
 }
 
 @InProceedings{	  kitano99robocuprescue,
@@ -2039,6 +2185,14 @@
   url		= "citeseer.nj.nec.com/knoblock94automatically.html"
 }
 
+@Book{		  knuth73,
+  title		= {"Sorting and Searching", The Art of Computer Programming},
+  author	= {Donald E. Knuth},
+  year		= {1973},
+  volume	= {3},
+  publisher	= {Addison-Wesley}
+}
+
 @Book{		  knuth86,
   author	= {Donald E. Knuth},
   title		= {The \TeX book},
@@ -2048,19 +2202,12 @@
   series	= {Computers and Typesetting}
 }
 
-@Book{		  knuth73,
-  title		= {"Sorting and Searching", The Art of Computer Programming},
-  author	= {Donald E. Knuth},
-  year		= {1973},
-  volume        = {3},
-  publisher	= {Addison-Wesley}
-}
-
 @InProceedings{	  kobayashi2011evaluations,
   author	= {Kobayashi, Yoshikazu and Kishimoto, Akihiro and Watanabe,
 		  Osamu},
   booktitle	= ijcai,
-  file		= {:home/yuu/Documents/papers/Search/2011\_HDAstar\_alignment.pdf:pdf},
+  file		= {:home/yuu/Documents/papers/Search/2011\_HDAstar\_alignment.pdf:pdf}
+		  ,
   pages		= {584--590},
   title		= {Evaluations of {Hash Distributed A*} in Optimal Sequence
 		  Alignment},
@@ -2108,7 +2255,8 @@
 @Article{	  korf2002,
   author	= {Korf, Richard E. and Felner, Ariel},
   doi		= {10.1016/S0004-3702(01)00092-3},
-  file		= {:home/yuu/Documents/papers/Search/2002\_Disjoint\_pattern\_database\_heuristics.pdf:pdf},
+  file		= {:home/yuu/Documents/papers/Search/2002\_Disjoint\_pattern\_database\_heuristics.pdf:pdf}
+		  ,
   issn		= {00043702},
   journal	= {Artificial Intelligence},
   keywords	= {1,a classic challenge for,databases,fifteen
@@ -2120,7 +2268,8 @@
   number	= {1},
   pages		= {9--22},
   title		= {Disjoint pattern database heuristics},
-  url		= {http://linkinghub.elsevier.com/retrieve/pii/S0004370201000923},
+  url		= {http://linkinghub.elsevier.com/retrieve/pii/S0004370201000923}
+		  ,
   volume	= {134},
   year		= {2002}
 }
@@ -2143,6 +2292,21 @@
   booktitle	= aaai,
   pages		= {1380--1385},
   year		= {2005}
+}
+
+@Article{	  korf90,
+  author	= {Richard E. Korf},
+  title		= {Real-Time Heuristic Search},
+  journal	= {Artif. Intell.},
+  volume	= {42},
+  number	= {2-3},
+  pages		= {189--211},
+  year		= {1990},
+  url		= {http://dx.doi.org/10.1016/0004-3702(90)90054-4},
+  doi		= {10.1016/0004-3702(90)90054-4},
+  timestamp	= {Thu, 30 Jun 2011 16:00:29 +0200},
+  biburl	= {http://dblp.uni-trier.de/rec/bib/journals/ai/Korf90},
+  bibsource	= {dblp computer science bibliography, http://dblp.org}
 }
 
 @InProceedings{	  korf:2000,
@@ -2248,7 +2412,8 @@
 @InProceedings{	  kumar1988parallel,
   author	= {Kumar, Vipin and Ramesh, K and Rao, V Nageshwara},
   booktitle	= aaai,
-  file		= {:home/yuu/Documents/papers/Search/1988\_Parallel\_A*.pdf:pdf},
+  file		= {:home/yuu/Documents/papers/Search/1988\_Parallel\_A*.pdf:pdf}
+		  ,
   pages		= {122--127},
   title		= {Parallel Best-First Search of State-Space Graphs: A
 		  Summary of Results.},
@@ -2389,12 +2554,66 @@
   opt_bibsource	= {DBLP, http://dblp.uni-trier.de}
 }
 
+@InProceedings{	  liang2016state,
+  title		= {State of the art control of atari games using shallow
+		  reinforcement learning},
+  author	= {Liang, Yitao and Machado, Marlos C and Talvitie, Erik and
+		  Bowling, Michael},
+  booktitle	= {Proceedings of the 2016 International Conference on
+		  Autonomous Agents \& Multiagent Systems},
+  pages		= {485--493},
+  year		= {2016},
+  organization	= {International Foundation for Autonomous Agents and
+		  Multiagent Systems}
+}
+
 @Book{		  lin:09,
   author	= {C. Lin and L. Snyder},
   title		= {Principles of parallel programming},
   publisher	= {Addison--Wesley},
   hide_address	= {Reading, Massachusetts},
   year		= {2009}
+}
+
+@InProceedings{	  lipovetzky2015a,
+  author	= {Lipovetzky, Nir and Ramirez, Miquel and Geffner, Hector},
+  file		= {:D$\backslash$:/mendeley/Lipovetzky, Ramirez, Geffner -
+		  2015 - Classical planning with simulators Results on the
+		  atari video games.pdf:pdf},
+  isbn		= {9781577357384},
+  issn		= {10450823},
+  booktitle	= ijcai,
+  pages		= {1610--1616},
+  title		= {Classical planning with simulators: Results on the {Atari}
+		  video games},
+  year		= {2015}
+}
+
+###InProceedings{ lipovetzky2015a,
+  author	= {Lipovetzky, Nir and Ramirez, Miquel and Geffner, Hector},
+  file		= {:D$\backslash$:/mendeley/Lipovetzky, Ramirez, Geffner -
+		  2015 - Classical planning with simulators Results on the
+		  atari video games.pdf:pdf},
+  isbn		= {9781577357384},
+  issn		= {10450823},
+  booktitle	= ijcai,
+  pages		= {1610--1616},
+  title		= {Classical planning with simulators: Results on the {Atari}
+		  video games},
+  year		= {2015}
+}
+
+@InProceedings{	  lipovetzkyg12,
+  author	= {Nir Lipovetzky and Hector Geffner},
+  title		= {Width and Serialization of Classical Planning Problems},
+  pages		= {540--545},
+  year		= {2012},
+  booktitle	= ecai,
+  url		= {http://dx.doi.org/10.3233/978-1-61499-098-7-540},
+  doi		= {10.3233/978-1-61499-098-7-540},
+  timestamp	= {Thu, 06 Sep 2012 14:47:21 +0200},
+  biburl	= {http://dblp.uni-trier.de/rec/bib/conf/ecai/LipovetzkyG12},
+  bibsource	= {dblp computer science bibliography, http://dblp.org}
 }
 
 @Article{	  littman:02,
@@ -2535,6 +2754,7 @@
   institution	= {Technion},
   type		= {Technical report},
   url		= {http://www.cs.technion.ac.il/~shaulm/papers/pdf/Markovitch-CIS9907.pdf}
+		  
 }
 
 @Article{	  marsland,
@@ -2619,6 +2839,7 @@
   year		= {1998},
   month		= {},
   note		= "{\url{ftp://ftp.cs.yale.edu/pub/mcdermott/software/pddl.tar.gz}}"
+		  
 }
 
 @Article{	  mcdermott:98oldold,
@@ -2631,6 +2852,7 @@
   number	= {},
   pages		= {},
   note		= "{\url{http://www.cs.yale.edu/HTML/YALE/CS/HyPlans/mcdermott.html}}"
+		  
 }
 
 @Misc{		  meehan:97,
@@ -2639,27 +2861,6 @@
 		  Constraints}},
   note		= "\url{citeseer.ist.psu.edu/433222.html}",
   year		= "1997"
-}
-
-@Article{	  melatti:2009,
-  author	= {Melatti, I. and Palmer, R. and Sawaya, G. and Yang, Y. and
-		  Kirby, R. M. and Gopalakrishnan, G.},
-  title		= {Parallel and Distributed Model Checking in {Eddy}},
-  journal	= {International Journal on Software Tools for Technology
-		  Transfer},
-  issue_date	= {January 2009},
-  volume	= {11},
-  number	= {1},
-  month		= jan,
-  year		= {2009},
-  issn		= {1433-2779},
-  pages		= {13--25},
-  numpages	= {13},
-  _url		= {http://dx.doi.org/10.1007/s10009-008-0094-x},
-  _doi		= {10.1007/s10009-008-0094-x},
-  acmid		= {1501676},
-  _publisher	= {Springer-Verlag},
-  _address	= {Berlin, Heidelberg}
 }
 
 @InProceedings{	  minton:85,
@@ -2701,6 +2902,15 @@
   publisher	= {Kluwer Academic Publishers},
   optnote	= {},
   optannote	= {}
+}
+
+@Article{	  mnih,
+  author	= {Mnih, Volodymyr and Silver, David and Riedmiller, Martin},
+  file		= {:D$\backslash$:/mendeley/Mnih, Silver, Riedmiller -
+		  Unknown - Playing Atari with Deep Reinforcement
+		  Learning.pdf:pdf},
+  pages		= {1--9},
+  title		= {{Playing Atari with Deep Reinforcement Learning}}
 }
 
 @InProceedings{	  mooney:88,
@@ -2878,16 +3088,24 @@
   note		= {\url{http://www.cs.ualberta.ca/~games/pathfind/}}
 }
 
-@InProceedings{	  phillipslk14,
-  author	= {Mike Phillips and Maxim Likhachev and Sven Koenig},
-  title		= {{PA*SE}: Parallel {A*} for Slow Expansions},
-  booktitle	= icaps,
-  year		= {2014},
-  _crossref	= {DBLP:conf/aips/2014},
-  url		= {http://www.aaai.org/ocs/index.php/ICAPS/ICAPS14/paper/view/7952},
-  timestamp	= {Thu, 19 Nov 2015 08:52:28 +0100},
-  biburl	= {http://dblp.uni-trier.de/rec/bib/conf/aips/PhillipsLK14},
-  bibsource	= {dblp computer science bibliography, http://dblp.org}
+@InProceedings{	  pochter2006,
+  author	= {Pochter, Nir and Rosenschein, Jeffrey S},
+  file		= {:D$\backslash$:/mendeley/Pochter, Rosenschein - 2006 -
+		  Exploiting Problem Symmetries in State-Based
+		  Planners.pdf:pdf},
+  isbn		= {9781577355090},
+  keywords	= {Reasoning about Plans, Processes, and Actions},
+  pages		= {1004--1009},
+  title		= {{Exploiting Problem Symmetries in State-Based Planners}},
+  year		= {2006}
+}
+
+@InProceedings{	  pochter2011exploiting,
+  author	= {Pochter, Nir and Zohar, Aviv and Rosenschein, Jeffrey S},
+  booktitle	= aaai,
+  title		= {Exploiting Problem Symmetries in State-Based Planners},
+  year		= {2011},
+  pages		= {1004--1009}
 }
 
 @Article{	  pohl:70,
@@ -2958,7 +3176,8 @@
   opt_number	= {6},
   pdf		= {JavaScript:PopIt('Warning!','This material may be subject
 		  to copyright restrictions. Only personal use is
-		  allowed.','ftp://www.piaggio.ccii.unipi.it/pub/papers/vehicles-TRO06.pdf')},
+		  allowed.','ftp://www.piaggio.ccii.unipi.it/pub/papers/vehicles-TRO06.pdf')}
+		  ,
   keywords	= {Autonomous Vehicles, Navigation and Planning, Air Traffic
 		  Management Systems, Hybrid and Embedded Control Systems,
 		  Nonlinear Control Systems},
@@ -3394,6 +3613,29 @@
   url		= "citeseer.nj.nec.com/shekhar97materialization.html"
 }
 
+@inproceedings{sherstov2005improving,
+  title={Improving action selection in MDP's via knowledge transfer},
+  author={Sherstov, Alexander A and Stone, Peter},
+  booktitle=AAAI,
+  volume={5},
+  pages={1024--1029},
+  year={2005}
+}
+
+@InProceedings{	  shleyfmantd16,
+  author	= {Alexander Shleyfman and Alexander Tuisov and Carmel
+		  Domshlak},
+  booktitle	= ijcai,
+  title		= {Blind Search for {Atari}-Like Online Planning Revisited},
+  pages		= {3251--3257},
+  year		= {2016},
+  url		= {http://www.ijcai.org/Abstract/16/460},
+  timestamp	= {Fri, 15 Jul 2016 15:58:28 +0200},
+  biburl	= {http://dblp.uni-trier.de/rec/bib/conf/ijcai/ShleyfmanTD16}
+		  ,
+  bibsource	= {dblp computer science bibliography, http://dblp.org}
+}
+
 @InProceedings{	  silver05,
   author	= {David Silver},
   title		= {Cooperative Pathfinding},
@@ -3430,6 +3672,18 @@
   author	= {A. Junghanns},
   title		= {{Sokoban Website}},
   note		= {\url{http://www.cs.ualberta.ca/~games/Sokoban/}}
+}
+
+@Article{	  sousa2013toward,
+  title		= {Toward Automated Planning Algorithms Applied to Production
+		  and Logistics},
+  author	= {Sousa, AR and Tavares, JJPZS},
+  journal	= {IFAC Proceedings Volumes},
+  volume	= {46},
+  number	= {24},
+  pages		= {165--170},
+  year		= {2013},
+  publisher	= {Elsevier}
 }
 
 @InProceedings{	  stergiou:99,
@@ -3531,21 +3785,20 @@
 		  planning}
 }
 
-@inproceedings{SulewskiEK11,
-  author    = {Damian Sulewski and
-               Stefan Edelkamp and
-               Peter Kissmann},
-  title     = {Exploiting the Computational Power of the Graphics Card: Optimal State
-               Space Planning on the {GPU}},
-  booktitle = {Proceedings of the 21st International Conference on Automated Planning
-               and Scheduling, {ICAPS} 2011, Freiburg, Germany June 11-16, 2011},
-  year      = {2011},
-  url       = {http://aaai.org/ocs/index.php/ICAPS/ICAPS11/paper/view/2699},
-  timestamp = {Tue, 28 Jun 2011 14:30:02 +0200},
-  biburl    = {http://dblp.uni-trier.de/rec/bib/conf/aips/SulewskiEK11},
-  bibsource = {dblp computer science bibliography, http://dblp.org}
+@InProceedings{	  sulewskiek11,
+  author	= {Damian Sulewski and Stefan Edelkamp and Peter Kissmann},
+  title		= {Exploiting the Computational Power of the Graphics Card:
+		  Optimal State Space Planning on the {GPU}},
+  booktitle	= {Proceedings of the 21st International Conference on
+		  Automated Planning and Scheduling, {ICAPS} 2011, Freiburg,
+		  Germany June 11-16, 2011},
+  year		= {2011},
+  url		= {http://aaai.org/ocs/index.php/ICAPS/ICAPS11/paper/view/2699}
+		  ,
+  timestamp	= {Tue, 28 Jun 2011 14:30:02 +0200},
+  biburl	= {http://dblp.uni-trier.de/rec/bib/conf/aips/SulewskiEK11},
+  bibsource	= {dblp computer science bibliography, http://dblp.org}
 }
-
 
 @Article{	  sutton:99,
   author	= {R. Sutton and D. Precup and S. Singh},
@@ -3603,11 +3856,24 @@
   optannote	= {}
 }
 
+@InProceedings{	  taylork93,
+  author	= {Larry A. Taylor and Richard E. Korf},
+  title		= {Pruning Duplicate Nodes in Depth-First Search},
+  booktitle	= aaai,
+  pages		= {756--761},
+  year		= {1993},
+  url		= {http://www.aaai.org/Library/AAAI/1993/aaai93-113.php},
+  timestamp	= {Tue, 11 Dec 2012 17:40:42 +0100},
+  biburl	= {http://dblp.uni-trier.de/rec/bib/conf/aaai/TaylorK93},
+  bibsource	= {dblp computer science bibliography, http://dblp.org}
+}
+
 @Article{	  thompson2005,
   author	= {Thompson, Julie D. and Koehl, Patrice and Ripp, Raymond
 		  and Poch, Olivier},
   doi		= {10.1002/prot.20527},
-  file		= {:home/yuu/Documents/papers/2005\_BAliBASE3.0\_Multiple\_Sequence\_Alignment\_Benchmark.pdf:pdf},
+  file		= {:home/yuu/Documents/papers/2005\_BAliBASE3.0\_Multiple\_Sequence\_Alignment\_Benchmark.pdf:pdf}
+		  ,
   isbn		= {1097-0134 (Electronic)$\backslash$r0887-3585 (Linking)},
   issn		= {08873585},
   journal	= {Proteins: Structure, Function and Genetics ({PROTEINS})},
@@ -3668,6 +3934,17 @@
   optannote	= {}
 }
 
+@InProceedings{	  trutman2015,
+  author	= {Trutman, Michal and Schiffel, Stephan},
+  booktitle	= {The IJCAI-15 Workshop on General Game Playing},
+  file		= {:D$\backslash$:/mendeley/2015 Creating Action Heuristics
+		  for General Game Playing Agents.pdf:pdf},
+  pages		= {39--46},
+  title		= {Creating Action Heuristics for General Game Playing
+		  Agents},
+  year		= {2015}
+}
+
 @InCollection{	  unruh:96,
   author	= "A. Unruh and R. Washington and P. Rosenbloom",
   title		= "{A} {F}ramework for {A}utomatic {A}bstraction",
@@ -3722,19 +3999,6 @@
 		  Processing Symposium (IPDPS 2009)",
   year		= "2009",
   publisher	= "IEEE"
-}
-
-@InProceedings{	  vbh:socs2010,
-  author	= {Vidal, Vincent and Bordeaux, Lucas and Hamadi, Youssef},
-  title		= {Adaptive K-Parallel Best-First Search: A Simple but
-		  Efficient Algorithm for Multi-Core Domain-Independent
-		  Planning},
-  booktitle	= {Proceedings of the 3rd Symposium on Combinatorial Search
-		  (SOCS'10)},
-  year		= {2010},
-  _publisher	= {AAAI Press},
-  _address	= {Stone Mountain, GA, USA},
-  month		= jul
 }
 
 @InBook{	  veloso:93,
@@ -3813,6 +4077,20 @@
   volume	= 13,
   number	= 3,
   pages		= {211-226}
+}
+
+@Article{	  wehrle2013,
+  author	= {Wehrle, Martin and Helmert, Malte and Alkhazraji, Yusra
+		  and Mattm{\"{u}}ller, Robert},
+  file		= {:home/yuu/Dropbox/papers/Planning/2013 The Relative
+		  Pruning Power of Strong Stubborn Sets and Expansion
+		  Core.pdf:pdf},
+  isbn		= {9781577356097},
+  journal	= icaps,
+  pages		= {1--9},
+  title		= {The Relative Pruning Power of Strong Stubborn Sets and
+		  Expansion Core},
+  year		= {2013}
 }
 
 @Article{	  wilkins:01,
@@ -3918,7 +4196,8 @@
 
 @InProceedings{	  zhou2006,
   author	= {Zhou, Rong and Hansen, Eric A},
-  file		= {:home/yuu/Documents/papers/Search/2006\_Domain-Independent\_Structured\_Duplicate\_Detection.pdf:pdf},
+  file		= {:home/yuu/Documents/papers/Search/2006\_Domain-Independent\_Structured\_Duplicate\_Detection.pdf:pdf}
+		  ,
   isbn		= {1577352904},
   booktitle	= aaai,
   keywords	= {game playing,search},
@@ -3964,6 +4243,7 @@
   pages		= {1248-1255},
   keywords	= {A* Search; GPGPU; Massive Parallel},
   url		= {http://www.aaai.org/ocs/index.php/AAAI/AAAI15/paper/view/9620}
+		  
 }
 
 @InProceedings{	  zhou:04,
@@ -4013,19 +4293,6 @@
   bibsource	= {dblp computer science bibliography, http://dblp.org}
 }
 
-@Article{	  zobrist1970,
-  author	= {Zobrist, A L},
-  file		= {:home/yuu/Documents/papers/Search/1970\_zobrist\_hashing.pdf:pdf},
-  journal	= {{reprinted in} {I}nternational Computer Chess Association
-		  Journal ({ICCA})},
-  number	= {2},
-  pages		= {69--73},
-  title		= {A new hashing method with application for game playing},
-  _url		= {http://scholar.google.com/scholar?hl=en\&btnG=Search\&q=intitle:A+New+Hashing+Method+with+Application+for+Game+Playing\#0},
-  volume	= {13},
-  year		= {1970}
-}
-
 @TechReport{	  zobrist:70,
   author	= {A. L. Zobrist},
   title		= {A New Hashing Method with Applications for Game Playing},
@@ -4036,10 +4303,3 @@
   note		= {Reprinted in {\it International Computer Chess Association
 		  Journal}, 13(2):169-173, 1990}
 }
-@InProceedings{	  furcy:05,
-  author = 	 {D. Furcy and S. Koenig},
-  title = 	 {Limited Discrepancy Beam Search},
-  booktitle = {Proceedings of the International Joint Conference on Artificial Intelligence},
-  year = 	 2005,
-  pages = 	 {125--131}}
-
