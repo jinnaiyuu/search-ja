@@ -1,4 +1,4 @@
-\documentclass{book}
+\documentclass{report}
 
 \usepackage{times}
 \usepackage{helvet}
@@ -9,12 +9,16 @@
 \usepackage{mathtools}
 \usepackage{amsmath}
 \usepackage{enumitem}
-\usepackage{graphicx}
+\usepackage[dvipdfmx]{graphicx}
 \usepackage{adjustbox}
 \usepackage{rotating}
 \usepackage{multirow}
 \usepackage{amssymb}
 \usepackage{url}
+\usepackage{listings}
+\usepackage{lstlang0}
+
+\usepackage{tikz} % Drawing sliding-tile
 
 \usepackage[ruled,boxed,linesnumbered,noend]{algorithm2e}
 \SetKwInOut{Input}{Input}
@@ -48,20 +52,19 @@
 
 ヒューリスティック探索のイントロダクションと現在どのように発展しているのかというのをまとめてみようかと思い、本文を執筆した。
 以前、さる国内の高名なAI研究者がご講演で「ヒューリスティック探索は終わった技術であり、Toy Problemしか解けない」とおっしゃった。これは全くの勘違いであるが、思い返すと仕方がないことかと思われる。というのも、日本には探索分野、特にヒューリスティック探索の研究者というのは数えるほどしかいない。大御所の方々は大変忙しく、他分野、ましては自分では終わったと思っている分野の英語論文など読まないだろう。こうなると、その分野の知識は古いままで、なおのこと終わった分野だと思ってしまいがちである、と想像される。
-そこで、若輩者ながら、希少な日本語の書けるグラフ探索アルゴリズムの研究者として、日本のAI研究に微力を添えようと日本語のグラフ探索の教科書を書こうと思った次第である。
+そこで、若輩者ながら、数少ない日本語の書けるヒューリスティック探索アルゴリズムの研究者として、日本のAI研究に微力を添えようと日本語の教科書を書こうと思った次第である。
 
 
 \chapter{イントロダクション}
 \label{ch:introduction}
-\section{探索とは？}
-\label{sec:search}
 
-人は色々な問題を探索によって考えている。
-自宅から大学までの電車の乗り換え方などは身近な例だろう。あるいは飛行機で成田からロンドンに行く安い/速い方法などを調べたりする。
-
+人は様々な問題を探索によって解決している。
+例えば飛行機で成田からロンドンに行く安い/速い方法などを計画するのは探索の一つである。
 %一昔前は探索こそが人類の知であるという価値観が広くあり、囲碁、将棋、チェスなどのゲームはそれを競う競技であるとして。
-囲碁、将棋、チェスなども自分が有利な局面につながる次の一手を探索をする。
-詰碁、詰将棋などでは詰みまでの手順を探索する。
+あるいは囲碁、将棋、チェスなどのゲームも、ある手を選んだ時にどのような局面につながるのかを先読みし、選ぶべき次の一手を探索する。
+このような様々な問題はグラフ探索問題として統合してモデルすることが出来る。
+%もちろん、それぞれの問題はそれぞれの特徴があり、それぞれで効率的な解法が異なる。
+
 
 % This chapter is ...
 この章ではまず、\ref{sec:state-space-problem}節ではグラフ探索手法が用いられる問題として状態空間問題を定義する。
@@ -121,12 +124,19 @@
 大まかには、情報なし探索による陰グラフは陽グラフよりも指数的に小さく、ヒューリスティック探索による陰グラフは情報なし探索による陰グラフよりも更に指数的に小さいことが多い。
 
 
-\section{探索問題}
+\section{探索問題の例}
 \label{sec:search-problem}
 
+グラフ探索によって効率的に解くことが出来ると知られているドメインをいくつか紹介する。
+
+
 \subsection{グリッド経路探索 (Grid Path-finding)}
-$n$次元(多くの場合$n=2$)のグリッド
-ゲーム
+
+グリッド経路探索問題は2次元のグリッド上で初期配置からゴール位置までの経路を求める問題である。グリッドには障害物がおかれ、通れない箇所がある。
+
+グリッド経路探索はゲームAIなどで問題となる。
+
+
 Starcraft 1ではA*探索が使われていた。
 %しかしマルチエージェント
 マルチエージェント経路探索の場合はflocking / swarm AIが使われている。
@@ -135,23 +145,101 @@ Starcraft 2では
 
 \subsection{スライディングタイル (Sliding-tile Puzzle)}
 
-Sliding-tile puzzleは有名な問題で
+多くの一人ゲームはグラフ探索問題に帰着することが出来る。スライディングタイルはその例であり、ヒューリスティック探索研究においてメジャーなベンチマーク問題でもある (図\ref{fig:15-puzzle})\footnote{機械学習・画像処理におけるところのMNISTだろうか}。
+$1$から$(n^2)-1$までの数字が振られたタイルが$n\times n$の正方形に並べられている。正方形には一つだけ{\it ブランク}と呼ばれるタイルのない位置があり、四方に隣り合うタイルのいずれかをその位置に移動する(スライドする)ことが出来る。スライディングタイル問題は、与えられた初期状態からスライドを繰り返し、ゴール状態にたどり着く経路を求める問題である。
 
+\begin{figure}
+\centering
+\includegraphics[width=0.4\textwidth]{figures/15-puzzle.pdf}
+\caption{15パズルのゴール状態の例}
+\label{fig:15-puzzle}
+\end{figure}
 
-\subsection{倉庫番 (Sokoban)}
-Sokobanは日本発のパズルゲームであり、倉庫の荷物を押していくことで指定された位置に置くというゲームである。
-このゲームで面白い/難しいのは、「荷物の後ろに回って押す」ことしか出来ず、引っ張ったり、横から動かしたりすることが出来ないという点である。
+スライディングタイルの到達可能な状態の数は$|V| = (n^2)!/2$\footnote{スライディングタイルは偶奇性があり、到達不可能な状態がある\cite{TODO}。}であり、$n$に対して指数的に増加する。
+可能なアクションは$A= \{up, down, left, right\}$の４つであり、アクションにかかるコストはすべて同じとする。
 
-\subsection{巡回セールスパーソン問題 (Travelling Salesperson Problem)}
+後述するが、ヒューリスティック探索のためには状態からゴール状態までの距離(コスト)の下界（lower bound）を計算する必要がある。
+スライディングタイルにおける下界の求め方として最もシンプルなものは{\it マンハッタン距離ヒューリスティック}である。マンハッタン距離ヒューリスティックは各タイルの現在状態の位置とゴール状態の位置のマンハッタン距離の総和を取る。可能なアクションはすべて一つしかタイルを動かさないので、一回のアクションでマンハッタン距離は最大で１しか縮まらない。よって、マンハッタン距離はゴールまでの距離の下界である。
 
-セールスパーソンはいくつかの都市に回って営業を行わなければならない。都市間の距離は事前に与えられている。
-TSPは全ての都市を最短距離で回ってはじめの都市に戻る経路を求める、という問題である。
+%ちなみに、スライディングタイルはpermutation problemの一つである。
 
 \subsection{Multiple Sequence Alignment (MSA)}
 
-生物学・進化学では遺伝子配列・アミノ酸配列の「距離」を比較することで二種・ニ個体がどれだけ親しいかを推定することが広く研究されている。
-MSAは複数の遺伝子・アミノ酸配列が与えられた時、それらの配列間の距離を最小にするような変異の
-PAM250という表が与えられる。
+生物学・進化学では遺伝子配列・アミノ酸配列の編集距離(edit distance)を比較することでニ個体がどれだけ親しいかを推定することが広く研究されている。
+MSAは複数の遺伝子・アミノ酸配列が与えられた時、それらの配列間の編集距離とその時出来上がった配列を求める問題である。
+２つの配列に対してそれぞれコストの定義された編集操作を繰り返し、同一の配列に並べ替える手続きをアライメントと呼ぶ。
+２つの配列の編集距離はアライメントのコストの最小値である。
+３つ以上の配列における距離の定義は様々考えられるが、ここでは全ての配列のペアの編集距離の総和を用いる。
+
+MSAにおける可能な編集操作は置換と挿入である。置換は配列のある要素(DNAかアミノ酸)を別の要素に入れ替える操作であり、挿入は配列のある位置に要素を挿入する操作である。例えば(ABC, BCB, CB)の３つの配列のアライメントを考える。図\ref{fig:msa-cost}は置換と編集に対するコストの例である。-は欠損、すなわち挿入操作が行われたことを示す。アミノ酸配列における有名なコスト表としてPAM250があるが、ここでは簡単のため仮のコスト表を用いる\cite{MSA}。
+図\ref{fig:msa-solution}はこのコスト表を用いたアライメントの例である。
+このとき、例えば配列ABC-と-BCBの編集距離は(A,-)、 (B,B)、 (C,C)、 (-,B)のコストの総和であるので、図\ref{fig:msa-cost}を参照し、$5+0+1+5=11$である。(-BCB, --CB)の距離は$6$, (--CB, ABC-)の距離は$16$であるので、３配列の編集距離は$11+6+16=33$である。
+
+$n$配列のMSAは$n$次元のグリッドの経路探索問題に帰着することが出来る(図\ref{fig:msa-to-grid})。
+
+
+\begin{figure}
+\centering
+\subfloat[MSAの解の例]{
+\begin{tabular}{ccccc}
+	A & B & C & - \\
+	- & B & C & B \\
+	- & - & C & B \\
+\end{tabular}
+\label{fig:msa-solution}
+} \hspace{4pt}
+\subfloat[操作コスト表の例]{
+\begin{tabular}{c|cccc}
+	  & A & B & C & - \\ \hline
+	A & 0 & 1 & 2 & 5 \\
+	B &   & 0 & 3 & 5 \\
+	C &   &   & 1 & 5 \\
+	- &   &   &   & 0 \\	
+\end{tabular}
+\label{fig:msa-cost}
+} \hspace{4pt}
+\subfloat[グリッド経路探索への帰着]{
+\begin{tabular}{c|cccc}
+	  &   & A & B & C \\ \hline
+	  & X & X &   &   \\
+	B &   &   & X &   \\
+	C &   &   &   & X \\
+	B &   &   &   & X \\
+\end{tabular}
+\label{fig:msa-to-grid}
+}
+\end{figure}
+
+
+
+\subsection{倉庫番 (Sokoban)}
+倉庫番(Sokoban)は日本発のパズルゲームであり、倉庫の荷物を押していくことで指定された位置に置くというゲームである。現在でも様々なゲームでゲーム内ミニゲームとして親しまれている。
+プレイヤーは「荷物の後ろに回って押す」ことしか出来ず、引っ張ったり、横から動かしたりすることが出来ない。また、荷物の上を通ることも出来ない。
+
+グラフ探索問題として倉庫番を考えるときに重要であるのは、倉庫番は{\it 不可逆な}アクション(irreversible)があることである。
+グリッド経路探索やスライディングタイルは{\it 可逆な} (reversible)問題である。
+全てのアクション$a \in A$に対して$a^{-1} \in A$が存在し、$a(a^{-1}(s)) = s$かつ$a^{-1}(a(s)) = s$となる場合、問題は可逆であると言う。
+可逆な問題は対応するアクションのコストが同じであれば無向グラフとしてモデルすることも出来、初期状態から到達できる状態は、すべて初期状態に戻ることが出来る。
+一方、不可逆な問題ではこれが保証されず、詰み(trap)状態に陥る可能性がある。
+
+倉庫番では荷物を押すことは出来ても引っ張ることが出来ないため、不可逆な問題である。例えば、荷物を部屋の隅に置いてしまうと戻すことが出来ないため、詰み状態に陥る可能性がある問題である。
+このような性質を持つ問題では特にグラフ探索による先読みが効果的である。
+
+
+%倉庫の中には荷物がおかれ、エージェント(プレイヤー)は迷路を動き回り、
+%このゲームで面白い/難しいのは、「荷物の後ろに回って押す」ことしか出来ず、引っ張ったり、横から動かしたりすることが出来ないという点である。
+
+\subsection{巡回セールスパーソン問題 (Travelling Salesperson Problem)}
+
+セールスパーソンはいくつかの都市に回って営業を行わなければならない。都市間の距離(=コスト)は事前に与えられている。
+TSPは全ての都市を最短距離で回ってはじめの都市に戻る経路を求める、という問題である。
+
+$n$個の都市があるとすると(最適・非最適含む)解の数は$(n-1)!/2$個である。
+TSPはNP完全であることが知られている。
+TSPの下界としては{\it 最小全域木} (minimum spanning tree)のコストがよく用いられる。
+グラフの{\it 全域木} (spanning tree)は全てのノードを含むループを含まない部分グラフである。
+最小全域木は全域木のうち最もエッジコストの総和が小さいものである。
+未訪問の都市によるグラフの最小全域木はTSPの下界となることが知られている。
 
 
 
@@ -204,15 +292,15 @@ Blind searchの例としては幅優先探索・深さ優先探索などがあ�
 
 \end{enumerate}
 
-反復深化A*の問題は停止性を満たさないことである。すなわち、問題に解がなく、グラフにループがある場合、単純な木探索は停止しない。よって、この手法は解が間違いなく存在することが分かっている問題に対して適用される。あるいは、解が存在することを判定してから用いる。
-\begin{definition}[ループありグラフ]
-ループがあるよ
-\end{definition}
+木探索ベースのアルゴリズムの問題は、解が存在しない場合に停止性を満たさないことである。
+よって、この手法は解が間違いなく存在することが分かっている問題に対して適用される。あるいは、解が存在することを判定してから用いる。
 
 \section{グラフ探索アルゴリズム (Graph Search Algorithm)}
 \label{sec:graph-search-algorithm}
 
 木探索がノードの重複を無視して探索を行うのに対して、グラフ探索アルゴリズムはノードの重複を確認して探索を行う。
+ノードの重複の確認にはいくつかメリットがある。一つは、停止性を満たすことである。すなわち、最悪グラフのノードをすべて展開して停止する。もう一つは、重複して同じ状態を展開せずにすむことである。
+
 
 \begin{algorithm}
 \caption{Implicit Graph Search}
@@ -277,8 +365,6 @@ Open listはPriority queueであり、何らかの基準によってセットか
 %\section{ダイクストラ法}
 
 
-
-\section{関連研究}
 
 \chapter{ヒューリスティック探索}
 \label{ch:heuristic-search}
@@ -372,12 +458,10 @@ Optimality
 
 
 
-\section{関連研究}
-
 
 \chapter{探索の高速化}
 \label{ch:search-performance}
-
+工事中
 \section{Open}
 \section{Closed}
 \section{キャッシュ効率}
@@ -569,67 +653,164 @@ In a satisficing problem, if a path has been found to a goal (maximal utility) s
 \section{緩和問題}
 \end{comment}
 
-% TODO: これがあった方が興味を惹く？
-\chapter{アプリケーション}
 
-この章では
+\chapter{古典的プランニング問題}
+\label{ch:classical-planning}
+この章では古典的プランニング問題について説明する。
+古典的プランニング問題はエージェントの自動行動計画を行うための問題の一つである\cite{}。
 
-\section{古典的プランニング問題}
+ロジスティック\cite{helmert2010scanalyzer,sousa2013toward}、セルアセンブリ\cite{asai2014fully}、遺伝子距離計算\cite{erdem2005genome}、ビデオゲーム\cite{Lipovetzky2015a}など、様々な応用問題を含むフレームワークである。
 
-Classical planning is a framework in which many application problems are modelled, including logistics \cite{helmert2010scanalyzer,sousa2013toward}, cell assembly \cite{asai2014fully}, genome rearrangement \cite{erdem2005genome}, and arcade games \cite{Lipovetzky2015a,jinnai2017learning}.
-A world in classical planning is described in logic \cite{fikes:71}. Atomic propositions $AP$ describe what can be true of false in each state of the world. By applying operations to a state, the state transition to another state where different atomic propositions might be true or false. The goal of a classical planning problem is to find a sequence of operations which leads to goal condition from the initial state.
-We follow the definition by \cite{edelkamp:2010:hst:1875144}:
+環境が決定的であり、完全情報を仮定する。
+これらの仮定を緩和した問題（確率的モデルや不完全情報モデル）もグラフ探索によって解かれることが多いが、本文の範囲外とする\cite{}。
 
-\begin{definition}
-A classical planning problem is a finite-state space problem $P = (S,A,s_0,T)$ where $S \subseteq 2^{AP}$ is the set of states, $s_0 \in S$ is the initial state, $T \subseteq S$ is the set of goal states, and $A$ is the set of actions (operations) that transform states into states.
+なお、プランニング問題はA*などの状態空間探索アルゴリズム以外にも、SATやCSPなどの制約充足問題に変換して解く方法もある\cite{}。
+
+\section{定義}
+
+
+古典的プランニングは述語論理によって世界が記述される\cite{fikes:71}。
+Proposition $AP$は世界の状態において何が真・偽であるかを記述する。
+世界の状態はエージェントがアクションを行うことによって遷移し、遷移後の状態は遷移前の状態と異なるpropositionが真・偽でありうる。
+古典的プランニングの目的は与えられた初期状態からゴール条件を満たすまでのアクションの列を求めることにある。
+以下、定義は\cite{edelkamp:2010:hst:1875144}に従う。
+
+\begin{definition}[古典的プランニング問題、Classical Planning Problem]
+古典的プランニング問題は有限状態空間問題$P = (S,A,s_0,T)$の一つである。
+$S \subseteq 2^{AP}$は状態の集合であり、$s_0 \in S$は初期状態、$T \subseteq S$はゴール状態の集合、$A: S \rightarrow S$は可能なアクションの集合である。
 \end{definition}
 
-Specifically, in STRIPS formalization, a goal is described as a list of propositions $Goal \subseteq AP$. $T$ is a set of states which all propositions in $Goal$ are true.
-Actions $a \in A$ have propositional preconditions $pre(a)$, and propositional effects ($add(a)$, $del(a)$), where $pre(a) \subseteq AP$ is the precondition of $a$, $add(a) \subseteq AP$ is the add list, $del(a) \subseteq AP$ is the delete list. Given a state $s$ with $pre(a) \subseteq s$, then its successor $s' = succ(s, a)$ is defined as $s' = (s \ del(a)) \cup add(a)$.
+古典的プランニング問題の最も基本となるSTRIPSモデル\cite{fikes:71}の場合、ゴールはpropositionのリストで表せられる$Goal \subseteq AP$。ゴール状態の集合$T$は$p \in Goal$となるすべての$p$が真である状態の集合である。
+アクション$a \in A$は条件$pre(a)$、効果($add(a)$, $del(a)$)で表せられる。条件$pre(a) \subseteq AP$はアクション$a$を実行するために状態が満たすべきpropositionの集合である。効果$add(a)$はアクション$a$を適用後に真になるpropositionの集合であり、$del(a)$は偽になる集合である。
+従って、アクション$a$を状態$s$に適用後の状態$s' = suc(s,a)$は
+\begin{equation}
+	s' = (s \cup add(a)) \setminus del(a)
+\end{equation}
+である。
+このようにして、古典的プランニング問題は後述のグラフ探索問題に帰着することが出来る。
+
 As such, a classical planning problem can be solved by an A* search ($G(V', E', w'), s_0', T'$); $V' = S$, $e(v_i, v_j) \in E'$ exists if there exists $a$ such that $v_j = succ(v_i, a)$, $s_0' = s_0$, $T' = T$.
-We discuss classical planning in detail in Section \ref{sec:domain-independent}.
 
-\section{Black-box Search in Video Game}
-A black box planning problem is a tuple $B=  (V, A, Sim, I, U)$.
-$V$ is a set of variables, each with a discrete domain $D(v_i)$. A state is a combination of $v_i$ for each $V$.
-$A$ is the set of \emph{available actions}. Any action in $A$ can be applied at any state. The effects of $a \in A$ are computed using the black box simulation function $Sim$.
-$Sim$ is a function which takes two parameters. $Sim(a,s)$ returns the state resulting from applying $a$ to state $s$.
-$I$ is an initial assignment of values to $V$.
-$U$ is a utility function.
-%{\bf [TODO:define ``state''.]}
-The objective is to find a state $s$ which maximizes $U(s)$ (satisficing, black-box planning uses a $U$  which is maximal when desired (goal) attributes are satisfied, zero otherwise).
-In this paper, we assume that the environment is deterministic, i.e., $Sim$ is deterministic.
-
-The lack of useful knowledge  makes search difficult.
-Brute-force, exhaustive search algorithms such as breadth-first search %`best-first search with a blind heuristic function'' (uniform-cost search),  
-can be applied, but does not scale well \cite{Bellemare2013}. 
-More focused search techniques which do not depend on heuristics are needed. % (aggressive pruning) is needed. % to guide search to expand more promising node.
-Iterative Width \cite{Lipovetzky2015a} is breadth-first search with novelty-based pruning: a newly generated state is pruned if it does not make a new atom true. IW(1) has been shown to perform well in classical planning \cite{LipovetzkyG12}, Atari games in the ALE environment \cite{Lipovetzky2015a}, and General video game playing \cite{Geffner2015}.
-%Plain MCTS methods does not exploit the structure of the problem, whereas classic planning, SAT, and CSP solvers often make use of them and use for heuristic function and other effective uses.
-%Using the notation of novelty, IW(1) prunes state with novelty bigger than 1, only expanding nodes with structural uniqueness.
-%Prioritized iterative width search.
-p-IW \cite{ShleyfmanTD16} further improves the pruning by considering the reward in addition to novelty.
-
-\begin{comment}
-\section{Multiple Sequence Alignment}
-工事中
-
-\section{Model Checking}
-工事中
-
-\end{comment}
+\section{Planning Domain Definition Language}
+Planning Domain Definition Language (PDDL) \cite{aeronautiques1998pddl}はプランニング問題を記述されるために用いられる言語の一つである。PDDLはdomainファイルとinstanceファイルの２つのファイルによって一つの入力となる。domainファイルはpredicateとアクションが定義され、instanceファイルは初期状態、ゴール状態とオブジェクトが定義される。
+図\ref{fig:pddl-domain}はblocks-worldのdomainファイルである。
+図\ref{fig:pddl-instance}はblocks-worldのinstanceファイルである。
 
 
-\begin{comment}
-\chapter{関連分野}
-\subsection{ゲーム木探索}
-工事中
+\begin{figure}
+\begin{adjustbox}{width=\textwidth,keepaspectratio}
+\lstset{language=pddl}
+\begin{lstlisting}
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; 4 Op-blocks world
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-\section{制約充足問題}
-工事中
+(define (domain BLOCKS)
+  (:requirements :strips)
+  (:predicates (on ?x ?y)
+	       (ontable ?x)
+	       (clear ?x)
+	       (handempty)
+	       (holding ?x)
+	       )
 
-\end{comment}
+  (:action pick-up
+	     :parameters (?x)
+	     :precondition (and (clear ?x) (ontable ?x) (handempty))
+	     :effect
+	     (and (not (ontable ?x))
+		   (not (clear ?x))
+		   (not (handempty))
+		   (holding ?x)))
 
+  (:action put-down
+	     :parameters (?x)
+	     :precondition (holding ?x)
+	     :effect
+	     (and (not (holding ?x))
+		   (clear ?x)
+		   (handempty)
+		   (ontable ?x)))
+  (:action stack
+	     :parameters (?x ?y)
+	     :precondition (and (holding ?x) (clear ?y))
+	     :effect
+	     (and (not (holding ?x))
+		   (not (clear ?y))
+		   (clear ?x)
+		   (handempty)
+		   (on ?x ?y)))
+  (:action unstack
+	     :parameters (?x ?y)
+	     :precondition (and (on ?x ?y) (clear ?x) (handempty))
+	     :effect
+	     (and (holding ?x)
+		   (clear ?y)
+		   (not (clear ?x))
+		   (not (handempty))
+		   (not (on ?x ?y)))))
+\end{lstlisting}
+\end{adjustbox}
+\caption{blocks-worldのdomainファイル}
+\label{fig:pddl-domain}
+\end{figure}
+
+\begin{figure}
+\begin{adjustbox}{width=\textwidth,keepaspectratio}
+\lstset{language=pddl}
+\begin{lstlisting}
+(define (problem BLOCKS-4-0)
+(:domain BLOCKS)
+(:objects D B A C )
+(:INIT (CLEAR C) (CLEAR A) (CLEAR B) (CLEAR D) (ONTABLE C) (ONTABLE A)
+ (ONTABLE B) (ONTABLE D) (HANDEMPTY))
+(:goal (AND (ON D C) (ON C B) (ON B A)))
+)
+
+\end{lstlisting}
+\end{adjustbox}
+\caption{blocks-worldのinstanceファイル}
+\label{fig:pddl-instance}
+\end{figure}
+
+\section{ブラックボックスプランニング}
+
+プランナーはPDDLを用いることでドメインの知識を吸い出し、それを利用して探索を効率化する。しかしながら、完全なモデルを得るのが難しい問題の場合、PDDLのような記述を得ることが出来ない。
+例えばビデオゲームのような環境では、ゲームをクラックしない限り、完全なモデルを得ることは出来ない。
+このような中身を見ることの出来ない環境でのプランニング問題をブラックボックスプランニング問題と呼ぶ。
+
+ブラックボックスプランニングはAtari 2600や\cite{lipovetzky2015a}や、General Video Game Playing \cite{geffner2015}などのビデオゲームなどの環境に応用されている。
+
+ブラックボックスプランニング問題は状態空間問題である。状態$s$は有限長の配列$V$で表せられ、$v \in V$の値域は$D(v)$とする。ただし、$V$の各変数がどのような意味を持つのかは未知である。
+Expand関数、Goal関数はブラックボックスとして与えられる。また、ある状態に対して$A$のうち実行可能なアクションの集合が既知とは限らない\footnote{厳密にブラックボックスである場合は既知とするべきではないが、多くの研究ではオラクルによって実行可能なアクションが知らされるというモデルを用いている。}。
+
+このようなドメインではドメインの知識を得ることが出来ないので、\ref{ch:heuristic-search}章で解説したようなヒューリスティック関数を用いることは出来ない。
+
+幅優先探索などによってBrute-forceに探索しつくす方法を取ることも出来るが問題のサイズが大きい場合に解くことが出来ない\cite{Bellemare2013}。
+Iterative Width探索 (IW search)\cite{lipovetzky2015a}は幅優先探索に新奇性による枝刈りを加えた手法である\footnote{Iterative Width探索はドメインモデルのある場合でも有用であることが知られている\cite{lipovetzkyg12}。}。IW(1)は新しく生成された状態は新しいatomを真にしない場合、枝刈りされる。
+
+
+\section{アプリケーション}
+
+\subsection{クエリ最適化}
+
+\subsection{ロジスティック}
+
+\subsection{セルアセンブリ}
+
+\subsection{宇宙探査車}
+
+\subsection{サイバーセキュリティ}
+
+\subsection{ゲノムリアレンジメント}
+
+\subsection{グリッドコンピューティング}
+
+\subsection{プリンタースケジュリング}
+
+\subsection{ビデオゲーム}
+Atari
+General Video Game Playing
 
 \bibliographystyle{spmpsci}
 
