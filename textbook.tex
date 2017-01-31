@@ -68,10 +68,10 @@
 
 % This chapter is ...
 この章ではまず、\ref{sec:state-space-problem}節ではグラフ探索手法が用いられる問題として状態空間問題を定義する。
-状態空間問題は様々な応用問題を含む。
-次に\ref{sec:search-problem}節でグラフ探索で解くことの出来る問題をいくつか紹介する。
-経路探索問題や倉庫番問題など、応用がありつつ、かつ分かりやすい問題を選んだ。これらの問題はすべて探索研究界隈でベンチマークとして広く使われているものである。
+次に\ref{sec:search-problem}節で状態空間問題の例をいくつか紹介する。
+経路探索問題や倉庫番問題など、応用がありつつ、かつ分かりやすい問題を選んだ。これらの問題はすべてヒューリスティック探索研究でベンチマークとして広く使われているものである。
 
+\ref{sec:state-space-problem}節における定式化は\cite{russelln03}、\cite{pearl84}、\cite{edelkamp:2010:hst:1875144}を参考にしている。本文は入門の内容であるので、研究の詳細が知りたい方はこれらの教科書を読むべきである。
 
 \section{状態空間問題 (State-Space Problem)}
 \label{sec:state-space-problem}
@@ -100,7 +100,9 @@
 コスト付き状態空間問題$P = (S, A, s, T, w)$は状態空間問題の定義に加え、コスト関数$w: A \rightarrow \mathbb{R}$がある。経路$(a_1,...,a_k)$のコストは$\sum^k_{i=1}w(a_i)$と定義される。ある解が可能なすべての解の中でコストが最小である場合、その解を最適解(optimal cost)であると言う。
 \end{definition}
 
+コストの定義されていない状態空間問題を特に区別してユニットコスト問題(ユニットコストドメイン)と呼ぶ。
 コスト付き状態空間問題は重み付き(コスト付き)グラフとしてモデルすることが出来る。すなわち、$G = (V, E, s, T, w)$は状態空間グラフの定義に加え、エッジの重み$w: E \leftarrow \mathbb{R}$を持つ。
+
 
 %ただし、状態空間グラフをすべて陽に変換し、すべてのノード・エッジを保持することは効率が良くないことが多い。
 ただし、探索アルゴリズムは状態空間グラフのノード・エッジ全てを保持する必要はない。
@@ -132,15 +134,17 @@
 
 \subsection{グリッド経路探索 (Grid Path-finding)}
 
-グリッド経路探索問題は2次元のグリッド上で初期配置からゴール位置までの経路を求める問題である。グリッドには障害物がおかれ、通れない箇所がある。
+グリッド経路探索問題は$k$(多くの場合$k=2$)次元のグリッド上で初期配置からゴール位置までの経路を求める問題である。グリッドには障害物がおかれ、通れない箇所がある。
+グリッド経路探索はゲームAIなどで応用されることが多い。ストラテジーゲームなどでユニット（エージェント）を動かすために使われる。
 
-グリッド経路探索はゲームAIなどで問題となる。
+web上に簡単に試せるデモがあるので、参照されたい：\url{http://qiao.github.io/PathFinding.js/visual/}。とてもよくできており、この文章で説明する様々なグラフ探索手法をグリッド経路探索に試すことが出来る。
 
+グリッド経路探索問題は、様々な問題が経路探索に帰着して解くことができるという意味でも重要である。例えばMultiple Sequence Alignmentは経路探索に帰着して解くことが出来る(後述)。
+あるいはロボットのモーションプランニングなども経路探索となる。すなわち、$k$個の関節の角度を変えて、現在状態からゴール状態へ遷移させたい。各関節の角度がグリッドの各次元に相当する。ロボットの物理的な構造により、関節のある角度の組み合わせは不可能である。不可能な組み合わせが、障害物の置かれたグリッドに相当する。よって、障害物を避けた経路というのが関節の動かし方ということになる。
 
-Starcraft 1ではA*探索が使われていた。
+%Starcraft 1ではA*探索が使われていた。
 %しかしマルチエージェント
-マルチエージェント経路探索の場合はflocking / swarm AIが使われている。
-Starcraft 2では
+%マルチエージェント経路探索の場合はflocking / swarm AIが使われている。Starcraft 2では
 
 
 \subsection{スライディングタイル (Sliding-tile Puzzle)}
@@ -201,10 +205,10 @@ $n$配列のMSAは$n$次元のグリッドの経路探索問題に帰着する�
 \subfloat[グリッド経路探索への帰着]{
 \begin{tabular}{c|cccc}
 	  &   & A & B & C \\ \hline
-	  & X & X &   &   \\
-	B &   &   & X &   \\
-	C &   &   &   & X \\
-	B &   &   &   & X \\
+	  & $\rightarrow$ & $\searrow$ &   &   \\
+	B &   &   & $\searrow$ &   \\
+	C &   &   &   & $\downarrow$ \\
+	B &   &   &   & $\searrow$ \\
 \end{tabular}
 \label{fig:msa-to-grid}
 }
@@ -225,11 +229,18 @@ $n$配列のMSAは$n$次元のグリッドの経路探索問題に帰着する�
 倉庫番では荷物を押すことは出来ても引っ張ることが出来ないため、不可逆な問題である。例えば、荷物を部屋の隅に置いてしまうと戻すことが出来ないため、詰み状態に陥る可能性がある問題である。
 このような性質を持つ問題では特にグラフ探索による先読みが効果的である。
 
+\begin{figure}
+\centering
+\includegraphics[width=0.4\textwidth]{figures/sokoban.pdf}
+\caption{Sokoban: 画像はwikipediaより。}
+\label{fig:sokoban}
+\end{figure}
+
 
 %倉庫の中には荷物がおかれ、エージェント(プレイヤー)は迷路を動き回り、
 %このゲームで面白い/難しいのは、「荷物の後ろに回って押す」ことしか出来ず、引っ張ったり、横から動かしたりすることが出来ないという点である。
 
-\subsection{巡回セールスパーソン問題 (Travelling Salesperson Problem)}
+\subsection{巡回セールスパーソン問題 (Traveling Salesperson Problem, TSP)}
 
 セールスパーソンはいくつかの都市に回って営業を行わなければならない。都市間の距離(=コスト)は事前に与えられている。
 TSPは全ての都市を最短距離で回ってはじめの都市に戻る経路を求める、という問題である。
@@ -241,7 +252,7 @@ TSPの下界としては{\it 最小全域木} (minimum spanning tree)のコス�
 最小全域木は全域木のうち最もエッジコストの総和が小さいものである。
 未訪問の都市によるグラフの最小全域木はTSPの下界となることが知られている。
 
-
+TSPはヒューリスティック探索に限らず、様々なアプローチで研究されている問題ドメインである\cite{applegate2006traveling}。この問題ドメインについて特に詳しく知りたい方はそちらの教科書を参照されたい。
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -259,17 +270,34 @@ Blind searchの例としては幅優先探索・深さ優先探索などがあ�
 
 \section{木探索アルゴリズム (Tree Search Algorithm)}
 \label{sec:tree-search-algorithm}
-木は
-木探索はグラフに対して適用することが出来る。
-図\ref{X}は木探索の例である。
-陽グラフのあるノードが初期状態から複数の経路でたどり着ける場合、同じ状態を表すノードが木探索による陰グラフに複数現れるということが生じる。このようなノードを重複(duplicate)と呼ぶ。ノードの重複は計算資源を無駄にするだけなのでなんとかして避けたいものであり、重複の効率的な検出方法は探索研究の大きなヤマの一つである。
+木探索アルゴリズムはグラフ探索アルゴリズムの基礎となるフレームワークであり、本文で紹介する手法のほとんどがこのフレームワークを基礎としているといえる。
+
+アルゴリズム\ref{alg:implicit-tree-search}は木探索の疑似コードである。以下、(k)と書いて疑似コードのk行目を指すことにする。
+木探索はオープンリスト\footnote{歴史的な経緯でリストと呼ばれているが、データ構造がリストで実装されるという意味ではない。}と呼ばれるノードの集合を保持する。探索の開始時には、初期状態のみがオープンリストに入っている(1)。
+木探索は、このオープンリストから一つノード$u$を選び(3)、ゴール条件を満たしているかを確認する(4)。満たしていれば初期状態から$u$への経路を返す。満たしていなければ、そのノードを展開する(6-)。展開とは、そのノードの子ノードを列挙し、オープンリストに入れる(8)ことを指す。
+
+探索の進行によってエージェントが保持する情報は変化していく。ここでは探索がどのように進行するかを記述するため、以下の３つの言葉を定義する：
+
+\begin{enumerate}
+\item 展開済みノード: $Expand(u)$によって子ノードが参照されたノードを指す。$Open$からは省かれる。
+\item 生成済みノード: $Open.insert(v)$によってOpenに一度でも入れられたノードを指す。
+\item 未生成ノード: まだ生成されていないノード。よって、陰グラフに保持されていない。
+
+\end{enumerate}
+
+陰グラフ木探索の強みは、生成済みノードのうち展開済みではないもののみを$Open$に保持すればよいことにある。
+$Open$はPriority queueであり、何らかの基準によって$Open$から取り出してくるノードを決める。
+
+木探索アルゴリズムは名前の通り木を探索する場合により効率的であることが多いが(後述)、グラフ一般に対して適用することが出来る。
+
+
 %同じ状態を複数回展開すると計算資源を無駄にすることになるのでなるべく重複を避けたい。
 
 
 \begin{algorithm}
 \caption{Implicit Tree Search}
 \label{alg:implicit-tree-search}
-	\Input{Implicit problem tree with initial node $s$, weight function $w$, successor generation function $Expand$, goal function $Goal$}
+	\Input{initial node $s$, weight function $w$, successor generation function $Expand$, goal function $Goal$}
 	\Output{Path from $s$ to a goal node $t \in T$, or $\emptyset$ if no such path exists}
 	$Open \leftarrow \{s\}$\;
 	\While{$Open \neq \emptyset$} {
@@ -286,21 +314,58 @@ Blind searchの例としては幅優先探索・深さ優先探索などがあ�
 	\Return $\emptyset$\;
 \end{algorithm}
 
-\begin{enumerate}
-\item 展開済みノード: $Expand(u)$によって子ノードが参照されたノードを指す。
-\item 生成済みノード: $Open.insert(v)$によってOpenに一度でも入れられたノードを指す。
 
-\end{enumerate}
+%木探索ベースのアルゴリズムの問題は、解が存在しない場合に停止性を満たさないことである。よって、この手法は解が間違いなく存在することが分かっている問題に対して適用される。あるいは、解が存在することを判定してから用いる。
 
-木探索ベースのアルゴリズムの問題は、解が存在しない場合に停止性を満たさないことである。
-よって、この手法は解が間違いなく存在することが分かっている問題に対して適用される。あるいは、解が存在することを判定してから用いる。
+
+
+\section{幅優先探索 (Breadth-First Search)}
+\label{sec:breadth-first-search}
+
+木探索のパフォーマンスにおいて重要になるのはどのようにして展開するノードを選択するかにある($Open.pop()$)。
+ヒューリスティック探索の研究の非常に大きな部分はここに費やされているといえる。
+最もシンプルかつ強力なノード選択方法はFirst-in-first-out (FIFO)である。またの名を幅優先探索と言う。
+
+幅優先探索の手順は非常に単純であり、FIFOの順に$Open$から取り出せばいいだけである。
+これをもう少し大きな視点で、{\it どのようなノードを優先して探索しているのか}を考えてみたい。
+初期状態から現在状態にたどり着くまでの経路の長さをノードの$p$値と定義する。
+すると、幅優先探索の$Open.pop()$はアルゴリズム\ref{alg:brfs-open}のように書くことが出来る。
+ユニットコスト問題である場合、$p$値は$g$値と一致する。
+
+\begin{algorithm}
+\caption{Breadth-First Search: $Open.pop()$}
+\label{alg:brfs-open}
+	\Output{Node $u$}
+	\Return $\arg \min_n p(n)$
+\end{algorithm}
+
+\section{深さ優先探索 (Depth-First Search)}
+\label{sec:depth-first-search}
+
+幅優先探索はXXXな時に有力である。
+ゴールがある程度深い所にあり、浅い場所にはないと事前に分かっている場合に上手く行く。
+一方、YYYではうまくいかない。なぜなら、YYYだからである。
+
+\begin{algorithm}
+\caption{Depth-First Search: $Open.pop()$}
+\label{alg:dfs-open}
+	\Output{Node $u$}
+	\Return $\arg \max_n g(n)$
+\end{algorithm}
+
+%\section{ダイクストラ法}
 
 \section{グラフ探索アルゴリズム (Graph Search Algorithm)}
 \label{sec:graph-search-algorithm}
 
 木探索がノードの重複を無視して探索を行うのに対して、グラフ探索アルゴリズムはノードの重複を確認して探索を行う。
-ノードの重複の確認にはいくつかメリットがある。一つは、停止性を満たすことである。すなわち、最悪グラフのノードをすべて展開して停止する。もう一つは、重複して同じ状態を展開せずにすむことである。
 
+陽グラフのあるノードが初期状態から複数の経路でたどり着ける場合、同じ状態を表すノードが木探索による陰グラフに複数現れるということが生じる。このようなノードを重複(duplicate)と呼ぶ。ノードの重複は計算資源を無駄にするだけなのでなんとかして避けたいものであり、重複の効率的な検出方法は探索研究の大きなヤマの一つである。
+
+重複して同じ状態を展開せずにすむことである。
+
+
+%ノードの重複の確認にはいくつかメリットがある。一つは、停止性を満たすことである。すなわち、最悪グラフのノードをすべて展開して停止する。もう一つは、
 
 \begin{algorithm}
 \caption{Implicit Graph Search}
@@ -333,37 +398,6 @@ Blind searchの例としては幅優先探索・深さ優先探索などがあ�
 		$parent(v) \leftarrow u$\;
 	}
 \end{algorithm}
-
-\section{幅優先探索 (Breadth-First Search)}
-\label{sec:breadth-first-search}
-
-Open listはPriority queueであり、何らかの基準によってセットからpopするノードを決めている。
-幅優先探索は探索の「幅」を最大化するようにノードを選択する。
-
-初期状態から現在状態にたどり着くまでのコストをノードの$g$値と定義する。
-
-\begin{algorithm}
-\caption{Breadth-First Search: $Open.pop()$}
-\label{alg:brfs-open}
-	\Output{Node $u$}
-	\Return $\arg \min_n g(n)$
-\end{algorithm}
-
-\section{深さ優先探索 (Depth-First Search)}
-\label{sec:depth-first-search}
-
-ゴールがある程度深い所にあり、浅い場所にはないと事前に分かっている場合に上手く行く。
-
-
-\begin{algorithm}
-\caption{Depth-First Search: $Open.pop()$}
-\label{alg:dfs-open}
-	\Output{Node $u$}
-	\Return $\arg \max_n g(n)$
-\end{algorithm}
-
-%\section{ダイクストラ法}
-
 
 
 \chapter{ヒューリスティック探索}
