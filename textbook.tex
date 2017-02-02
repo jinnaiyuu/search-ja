@@ -491,14 +491,14 @@ Optimality
 \end{algorithm}
 
 
-
-
+\begin{comment}
 \chapter{探索の高速化}
 \label{ch:search-performance}
 工事中
 \section{Open}
 \section{Closed}
 \section{キャッシュ効率}
+\end{comment}
 
 
 % TODO: 基礎の説明が出来たら
@@ -517,14 +517,25 @@ A*探索などのヒューリスティック探索は時間と空間の両方が
 \label{sec:iterative-deepening-astar}
 
 A*探索は時間・空間の両方がボトルネックになるが、現代の計算機環境では多くの場合空間制約がよりネックになる。
-これはA*が重複検出のために展開済みノードをすべてClosedに保存していることに起因する。
+これはA*が重複検出のために展開済みノードをすべてクローズドリストに保存していることに起因する。
 
 \ref{sec:graph-search-algorithm}節で述べたように、重複検出は正しい解を返すためには必須ではない。グラフに対して木探索を行うことも出来る。
 しかしながら、単純な幅優先木探索・深さ優先木探索はパフォーマンスの問題がある。
 
-反復深化A*は木探索に対してヒューリスティックを用いた、非常にメモリ効率の良いアルゴリズムである。反復深化A*は最適解を返すことを保証する。
+反復深化A* (IDA*)は木探索に対してヒューリスティックを用いた、非常にメモリ効率の良いアルゴリズムである\cite{korf:85a}。
+アルゴリズム\ref{alg:iterative-deepening-astar}は反復深化A*の概要を示している。アイディアとしては、閾値$cost$を１ずつ大きくしながら、繰り返しコスト制限付き深さ優先木探索 (CLDFS)を実行する。コスト制限付き深さ優先探索が解を見つければその解を返して停止し、見つけられなければ$cost$を１つ大きくしてもう一度コスト制限付き深さ優先探索を実行する。
+
+反復深化A*は閾値を大きくする度に一つ前のイテレーションで展開・生成したノードをすべて展開・生成しなおさなければならない。各イテレーション内でもクローズドリストを保持していないために重複検出が出来ない。なので、アルゴリズム全体を通して大量の重複ノードが出る可能性がある。
+これは非常に効率が悪いように思えるかもしれないが、様々な状況においてA*よりも有用な手法である。
+
+反復深化A*のメリットはいくつかある。
+まず、コスト$w$が0となるアクションが存在しない場合、必要なメモリ量が最適解のコストに対して線形である。深さ優先木探索は可能な最長経路だけのノードを保持する必要がある。木探索はクローズドリストは保持しない。コスト制限付きの場合、最長経路は$cost$以下である。$0<w<1$となる実数コストがある場合、最小の$w$が$1$となるようにリスケールすることが出来る。 反復深化は$cost$が最適解のコストになった時に停止するので、必要なメモリ量は最適解のコストに対して線形である。
+そのため、A*ではメモリが足りなくなって解けないような難しい問題でも反復深化A*なら解ける可能性がある。
+
+メモリ量と関連してもう一つの重要なメリットはキャッシュ効率である。上述のように反復深化A*は必要なメモリ量が非常にすくない。また、メモリアクセスパターンもかなりリニアである。そのため、ほぼキャッシュミスなく探索を行えるドメインも多い。例えば、15-puzzleなどの状態が少ないビット数で表せられるドメインでは特にキャッシュ効率が良く、1ノードの展開速度の差はTODO倍という実験結果もある\cite{korf:85a}。実際、15-puzzleではIDA*のほうがA*よりも速く解を見つけることが出来る\cite{korf:85a}。何度も何度も重複して同じノードを展開しているのにも関わらずである。
 
 
+反復深化A*は解を返す場合、得られた解が最適解であることを保証する。
 反復深化A*をはじめとする重複検出のないアルゴリズムを用いる際の問題は、停止性を満たさないことである。すなわち、問題に解がなく、グラフにループがある場合、単純な木探索は停止しない。よって、この手法は解が間違いなく存在することが分かっている問題に対して適用される。あるいは、解が存在することを判定してから用いる。
 例えば15-puzzleは解が存在するか非常に高速に判定することが出来る。
 
@@ -533,7 +544,7 @@ A*探索は時間・空間の両方がボトルネックになるが、現代の
 \begin{algorithm}
 \caption{Iterative Deepening A*}
 \label{alg:iterative-deepening-astar}
-	\Input{Implicit problem graph with initial node $s$, weight function $w$, successor generation function $Expand$, goal function $Goal$}
+	\Input{Initial node $s$, weight function $w$, successor generation function $Expand$, goal function $Goal$}
 	\Output{Path from $s$ to a goal node $t \in T$, or $\emptyset$ if no such path exists}
 	\For {$cost$ from $0$ to $\infty$} {
 		$found \leftarrow CLA*(s, cost)$\;
@@ -544,7 +555,7 @@ A*探索は時間・空間の両方がボトルネックになるが、現代の
 \end{algorithm}
 
 \begin{algorithm}
-\caption{CLA*: Cost Limited A*}
+\caption{CLDFS: Cost Limited Depth First Search}
 \label{alg:implicit-graph-search}
 	\Input{Initial node $s$, cost $c$}
 	\Output{Path from $s$ to a goal node $t \in T$, or $\emptyset$ if no such path with cost $\leq cost$}
@@ -552,7 +563,7 @@ A*探索は時間・空間の両方がボトルネックになるが、現代の
 		\Return $s$\;
 	}
 	\For {each $child \in Expand(s)$} {
-		$found \leftarrow CLA*(child, cost - 1)$\;
+		$found \leftarrow CLDFS(child, cost - 1)$\;
 		\If {$found \neq \emptyset$} {
 			\Return sequence $(s, found)$\;
 		}
