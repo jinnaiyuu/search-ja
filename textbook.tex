@@ -52,7 +52,7 @@
 
 ヒューリスティック探索のイントロダクションと現在どのように発展しているのかというのをまとめてみようかと思い、本文を執筆した。
 以前、さる国内の高名なAI研究者がご講演で「ヒューリスティック探索は終わった技術であり、Toy Problemしか解けない」とおっしゃった。これは全くの勘違いであるが、思い返すと仕方がないことかと思われる。というのも、日本には探索分野、特にヒューリスティック探索の研究者というのは数えるほどしかいない。大御所の方々は大変忙しく、他分野、ましては自分では終わったと思っている分野の英語論文など読まないだろう。こうなると、その分野の知識は古いままで、なおのこと終わった分野だと思ってしまいがちである、と想像される。
-そこで、若輩者ながら、数少ない日本語の書けるヒューリスティック探索アルゴリズムの研究者として、日本のAI研究に微力を添えようと日本語の教科書を書こうと思った次第である。
+そこで、若輩者ながら、数少ない日本語の書けるヒューリスティック探索アルゴリズムの研究者として、日本のAI研究に微力を添えようと日本語のテキストを書こうと思った次第である。
 
 
 \chapter{イントロダクション}
@@ -71,7 +71,7 @@
 次に\ref{sec:search-problem}節で状態空間問題の例をいくつか紹介する。
 経路探索問題や倉庫番問題など、応用がありつつ、かつ分かりやすい問題を選んだ。これらの問題はすべてヒューリスティック探索研究でベンチマークとして広く使われているものである。
 
-\ref{sec:state-space-problem}節における定式化は\cite{russelln03}、\cite{pearl84}、\cite{edelkamp:2010:hst:1875144}を参考にしている。本文は入門の内容であるので、研究の詳細が知りたい方はこれらの教科書を読むべきである。
+\ref{sec:state-space-problem}節における定式化は\cite{russelln03}、\cite{pearl84}、\cite{edelkamp:2010:hst:1875144}などを参考にしている。本文は入門の内容であるので、研究の詳細が知りたい方はこれらの教科書を読むべきである。
 
 \section{状態空間問題 (State-Space Problem)}
 \label{sec:state-space-problem}
@@ -94,7 +94,7 @@
 
 どのような解を見つけたいかは問題に依存する。どのような解でもよいのか、経路を最短にする解が良いのか、様々な問題が考えられる。
 多くの問題では経路の{\bf コスト}の合計を最小にすることを目的とする。
-すなわち、アクションに対して
+%すなわち、アクションに対してコストが定義されており、経路
 
 \begin{definition}[コスト付き状態空間問題、Weighted state-space problem]
 コスト付き状態空間問題$P = (S, A, s, T, w)$は状態空間問題の定義に加え、コスト関数$w: A \rightarrow \mathbb{R}$がある。経路$(a_1,...,a_k)$のコストは$\sum^k_{i=1}w(a_i)$と定義される。ある解が可能なすべての解の中でコストが最小である場合、その解を最適解(optimal cost)であると言う。
@@ -129,7 +129,7 @@
 \section{探索問題の例}
 \label{sec:search-problem}
 
-グラフ探索によって効率的に解くことが出来ると知られているドメインをいくつか紹介する。
+ヒューリスティック探索によって効率的に解くことが出来ると知られているドメインをいくつか紹介する。
 
 
 \subsection{グリッド経路探索 (Grid Path-finding)}
@@ -149,7 +149,7 @@ web上に簡単に試せるデモがあるので、参照されたい：\url{htt
 
 \subsection{スライディングタイル (Sliding-tile Puzzle)}
 
-多くの一人ゲームはグラフ探索問題に帰着することが出来る。スライディングタイルはその例であり、ヒューリスティック探索研究においてメジャーなベンチマーク問題でもある (図\ref{fig:15-puzzle})\footnote{機械学習・画像処理におけるところのMNISTだろうか}。
+多くの一人ゲームはグラフ探索問題に帰着することが出来る。スライディングタイルはその例であり、ヒューリスティック探索研究においてメジャーなベンチマーク問題でもある (図\ref{fig:15-puzzle})。
 $1$から$(n^2)-1$までの数字が振られたタイルが$n\times n$の正方形に並べられている。正方形には一つだけ{\it ブランク}と呼ばれるタイルのない位置があり、四方に隣り合うタイルのいずれかをその位置に移動する(スライドする)ことが出来る。スライディングタイル問題は、与えられた初期状態からスライドを繰り返し、ゴール状態にたどり着く経路を求める問題である。
 
 \begin{figure}
@@ -179,7 +179,19 @@ MSAにおける可能な編集操作は置換と挿入である。置換は配�
 図\ref{fig:msa-solution}はこのコスト表を用いたアライメントの例である。
 このとき、例えば配列ABC-と-BCBの編集距離は(A,-)、 (B,B)、 (C,C)、 (-,B)のコストの総和であるので、図\ref{fig:msa-cost}を参照し、$5+0+1+5=11$である。(-BCB, --CB)の距離は$6$, (--CB, ABC-)の距離は$16$であるので、３配列の編集距離は$11+6+16=33$である。
 
-$n$配列のMSAは$n$次元のグリッドの経路探索問題に帰着することが出来る(図\ref{fig:msa-to-grid})。
+$n$配列のMSAは$n$次元のグリッドの経路探索問題に帰着することが出来る。
+図\ref{fig:msa-to-grid}は(ABC)と(BCB)の２つの配列による問題を表す。
+状態$s$は２つの変数によって表現される:$(x_0, x_1)$。$x_0$は配列0のどの位置までアライメントを完了したかを表す変数であり、配列$i$の長さを$l_i$とすると定義域は$0 \leq x_0 \leq l_0$である。
+全てのアライメントが完了した状態$s=(l_0, l_1)$がゴール状態である。
+可能なアクションは$a=(b_0, b_1), (b_i=0, 1)$の形を取り、これは配列$i$に対して欠損を挿入する場合に$b_i=0$となる。
+状態$s$に対してアクション$a$を適用した後の状態$s'$は$s'=(x_0+b_0, x_1+b_1)$となる。例えば図\ref{fig:msa-to-grid}は初期状態$s=(0,0)$に対して$a=(1,0)$を適用している。これは(A), (-)までアライメントを進めた状態に対応する。次に$a=(1,1)$が適用され、アライメントは(A,B), (-,B)という状態に至る。
+
+このようにして、MSAはグリッド経路探索問題に帰着し、グラフ探索アルゴリズムよって解くことが出来る。
+状態空間問題として考えた場合にMSAの難しさはアクションのコストが幅広いことにある。また、分枝数は配列の数$n$に対して$2^n-1$と大きい。
+
+MSAは生物学研究に役立つというモチベーションから非常に熱心に研究されており、様々な定式化による解法が知られている。
+例えば動的計画法が使われている。
+
 
 
 \begin{figure}
@@ -212,6 +224,13 @@ $n$配列のMSAは$n$次元のグリッドの経路探索問題に帰着する�
 \end{tabular}
 \label{fig:msa-to-grid}
 }
+\subfloat[グリッド経路探索への帰着]{
+\begin{tabular}{c|cccc}
+	  & A & B & C & - \\ \hline
+	  & - & B & C & B \\ \hline
+\end{tabular}
+\label{fig:msa-to-grid-align}
+}
 \end{figure}
 
 
@@ -219,6 +238,16 @@ $n$配列のMSAは$n$次元のグリッドの経路探索問題に帰着する�
 \subsection{倉庫番 (Sokoban)}
 倉庫番(Sokoban)は日本発のパズルゲームであり、倉庫の荷物を押していくことで指定された位置に置くというゲームである。現在でも様々なゲームでゲーム内ミニゲームとして親しまれている。
 プレイヤーは「荷物の後ろに回って押す」ことしか出来ず、引っ張ったり、横から動かしたりすることが出来ない。また、荷物の上を通ることも出来ない。
+
+\begin{figure}
+\centering
+\includegraphics[width=0.4\textwidth]{figures/sokoban.pdf}
+\caption{Sokoban: 画像はwikipediaより。}
+\label{fig:sokoban}
+\end{figure}
+
+状態の表現方法は２通りあり、一つはグリッドの各位置に何が置いてあるかを変数とする方法である。もうひとつはプレイヤー、各荷物の位置に対してそれぞれ変数を割り当てる方法である。
+可能なアクションは$\{move-up,move-left,move-down,move-right,push-up,push-left,push-down,push-right\}$の８通りである。$move-*$はプレイヤーが動くアクションに対応し、コストは0である。$push-*$は荷物を押すアクションであり、正のアクションコストが割当てられている。よって、倉庫番はなるべく荷物を押す回数を少なくして荷物を目的の位置に動かすことが目的となる。
 
 グラフ探索問題として倉庫番を考えるときに重要であるのは、倉庫番は{\it 不可逆な}アクション(irreversible)があることである。
 グリッド経路探索やスライディングタイルは{\it 可逆な} (reversible)問題である。
@@ -229,12 +258,8 @@ $n$配列のMSAは$n$次元のグリッドの経路探索問題に帰着する�
 倉庫番では荷物を押すことは出来ても引っ張ることが出来ないため、不可逆な問題である。例えば、荷物を部屋の隅に置いてしまうと戻すことが出来ないため、詰み状態に陥る可能性がある問題である。
 このような性質を持つ問題では特にグラフ探索による先読みが効果的である。
 
-\begin{figure}
-\centering
-\includegraphics[width=0.4\textwidth]{figures/sokoban.pdf}
-\caption{Sokoban: 画像はwikipediaより。}
-\label{fig:sokoban}
-\end{figure}
+もうひとつ重要な問題はゼロコストアクションの存在である。%TODO
+
 
 
 %倉庫の中には荷物がおかれ、エージェント(プレイヤー)は迷路を動き回り、
@@ -244,6 +269,14 @@ $n$配列のMSAは$n$次元のグリッドの経路探索問題に帰着する�
 
 セールスパーソンはいくつかの都市に回って営業を行わなければならない。都市間の距離(=コスト)は事前に与えられている。
 TSPは全ての都市を最短距離で回ってはじめの都市に戻る経路を求める、という問題である。
+
+\begin{figure}
+\centering
+\includegraphics[width=0.4\textwidth]{figures/sokoban.pdf}%TODO
+\caption{巡回セールスパーソン問題: 画像はwikipediaより。}
+\label{fig:sokoban}
+\end{figure}
+
 
 $n$個の都市があるとすると(最適・非最適含む)解の数は$(n-1)!/2$個である。
 TSPはNP完全であることが知られている。
@@ -260,11 +293,23 @@ TSPはヒューリスティック探索に限らず、様々なアプローチ�
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \chapter{情報なし探索 (Blind Search)}
 \label{ch:blind-search}
-最もシンプルなグラフ探索は問題（ドメイン）の知識を利用しない探索である。
-すなわち、何も情報を見ずに探索を行うという意味でBlind Searchと言われる。
-Blind searchの例としては幅優先探索・深さ優先探索などがあり、問題を選べばこれらの手法によって十二分に効率的な探索を行うことが出来る。
+
+\ref{ch:introduction}章では様々な状態空間問題を紹介したが、それぞれの問題の解法はどれも沢山研究されている。
+一つの指針としては、ある問題に特化した解法を研究することでその問題をより高速に解くというモチベーションがある。
+これは例えばMSAのように重要なアプリケーションがある問題の場合に特に熱心に研究されることが多い。
+一方、なるべく広い範囲の問題に対して適用可能な手法を研究するというモチベーションもある。
+特に人工知能の文脈において、なるべく問題の知識を必要とせず、最小限の仮定のみを必要とする解法が求められる。
+%ただしこのような手法はドメインに特化したプログラムと比べてパフォーマンスに劣ることが多い。
+
+\ref{ch:introduction}章で紹介した状態空間問題を広く扱うことの出来る手法としてグラフ探索アルゴリズムがある。
+本章では最もシンプルな問題（ドメイン）の知識を利用しない探索を紹介する。
+情報なし探索 (Blind Search)は状態空間グラフのみに注目し、背景にある問題に関する知識を一切使わないアルゴリズムである。
+情報なし探索で重要なのは1. 重複検知を行うかと 2. ノードの展開順序の二点である。
+重複検知は訪問済みのノードを保存しておくことで同じノードを繰り返し探索することを防ぐ手法である。対価としては、メモリの消費量が非常に大きくなることにある。
+ノードの展開順序とは、例えば幅優先探索・深さ優先探索などのバリエーションを指す。
+効率的な展開順序は問題によって大きく異なり、問題を選べばこれらの手法によって十分に効率的な探索を行うことが出来る。
 これらの探索手法は競技プログラミングでもよく解法として使われる(らしい)\footnote{TODO: 典拠}。また、いわゆるコーディング面接でもグラフ探索アルゴリズムは頻出である（らしい）\footnote{TODO: 典拠}。
-\ref{ch:search-performance}章はグラフ探索の高速化の紹介をするので、特に競技プログラミングに興味がある場合はそちらも参照されたい。
+%\ref{ch:search-performance}章はグラフ探索の高速化の紹介をするので、特に競技プログラミングに興味がある場合はそちらも参照されたい。% TODO
 
 
 
@@ -332,6 +377,9 @@ $Open$はPriority queueであり、何らかの基準によって$Open$から取
 すると、幅優先探索の$Open.pop()$はアルゴリズム\ref{alg:brfs-open}のように書くことが出来る。
 ユニットコスト問題である場合、$p$値は$g$値と一致する。
 
+幅優先探索のメリットは初めに発見した解が最短経路長であることである。
+問題がユニットコストドメインである場合、最短経路が最小コスト経路であるので、最適解が得られる。
+
 \begin{algorithm}
 \caption{Breadth-First Search: $Open.pop()$}
 \label{alg:brfs-open}
@@ -341,6 +389,12 @@ $Open$はPriority queueであり、何らかの基準によって$Open$から取
 
 \section{深さ優先探索 (Depth-First Search)}
 \label{sec:depth-first-search}
+
+幅優先探索が幅を優先するのに対して深さ優先探索はもっとも深いノードを優先して探索する。
+
+深さ優先探索は解がある一定の深さにあることが既知である場合に有効である。
+例えばTSPは全ての街を回ったときのみが解であるので、街の数が$n$であれば全ての解の経路長が$n$である。
+このような問題を幅優先探索で解こうとすると、解は最も深いところにしかないので、最後の最後まで解が一つも得られないということになる。一方、深さ優先探索なら$n$回目の展開で一つ目の解を見つけることが出来る。
 
 幅優先探索はXXXな時に有力である。
 ゴールがある程度深い所にあり、浅い場所にはないと事前に分かっている場合に上手く行く。
@@ -441,7 +495,8 @@ $Open$はPriority queueであり、何らかの基準によって$Open$から取
 \section{A*探索}
 \label{sec:astar-search}
 
-A*探索はヒューリスティック探索の代名詞である、最もドミナントな手法である。
+A*探索はヒューリスティック探索の代名詞である、最も広く知られている
+手法である\cite{astar}。
 A*探索は以下のf値が最小となるノードを優先して探索を行う。
 
 \begin{equation}
@@ -455,8 +510,17 @@ A*探索は以下のf値が最小となるノードを優先して探索を行�
 	\Return $\arg \min_n f(n)$
 \end{algorithm}
 
-Shakey the Robot
-Optimality
+ノードnのf値は、初期状態からnを通過してゴール状態に辿り着くためのコストの見積もりである。g値は初期状態からノードnまでの既知の最短経路コストである。一方h値はヒューリスティック関数によるnからゴール状態までの最短経路の見積もりである。
+
+ヒューリスティックが許容的である時、A*は最適解を返す。
+
+%全てのノードnは展開時にg(n)がnに辿り着くための最短経路コストの値である。%これは無矛盾性か
+許容的なヒューリスティックh(n)はnからゴールへの経路の下限である。よって、ゴール状態のh値は0である。つまりゴール状態のf値はg値と同じである。この解のg(n')値をf*と置こう(解のコストに相当)。
+A*のノードの展開順に従うと、f*のノードを展開する前に全てのf<f*のノードが展開される。
+これらのノードがいずれもゴール状態でなければ、g(n)<=f(n)より、g(n)<f*となるゴール状態がない。すなわち、f*が最適解のコストとなり、n'がその時のゴール状態である。
+
+無矛盾なヒューリスティックである場合、全てのノードnは展開時までにg(n)がnに辿り着くための最短経路コストの値になる。
+
 
 
 
@@ -599,7 +663,7 @@ External Searchは外部記憶、HDDやSDDを用いることでこの問題を�
 すなわち、Open、Closedの一部を外部記憶に保持し、必要に応じて参照しRAMに持ってくる、ということをする。
 External Searchのミソは、外部記憶へのアクセス回数をどのように減らすかにある。
 \url{http://norvig.com/21-days.html#answers}は一般的なコンピュータのキャッシュ・メモリ・ハードディスクへのアクセスレイテンシーを比較した表である。メモリから1MB{\it 逐次に}読みだすオペレーションは250,000 nanosecかかるが、ハードディスクからの読出しは20,000,000 nanosecもかかる。更にハードディスクにランダムアクセスする場合(Disk seek)は8,000,000 nanosecもかかる。
-よって、HDDは工夫して使わなければ実行時間が非常に遅くなってしまう\footnote{同様の理由で、HDDを用いないRAMベースの探索を効率化するためにはキャッシュ効率を工夫しなければならない。詳しくは\cite{burns2012implementing}を参照されたい。}。
+よって、HDDは工夫して使わなければ実行時間が非常に遅くなってしまう\footnote{似たような理由で、HDDを用いないRAMベースの探索を効率化するためにはキャッシュ効率を工夫しなければならない。詳しくは\cite{burns2012implementing}を参照されたい。}。
 
 \subsection{External A*}
 
@@ -638,39 +702,101 @@ BDDを使う準備として、状態をブーリアンvectorに変換する。
 \subsection{Symbolic Heuristic Search}
 
 
-\section{Parallel Search}
+\ecion{Eploraion baed earch}
+
+\section{並列探索 (Parallel Search)}
 近年コンピュータ一台当たりのコア数は増加を続けており、コンピュータクラスタにも比較的容易にアクセスが出来るようになった。Amazon Web Serviceのようなクラウドの計算資源も普及し、将来的には並列化が当然になると考えられる。
 並列化の成功例は枚挙にいとまないが、近年のディープラーニングはまさに効率的な並列計算アーキテクチャによって得られたブレイクスルーであるといえる。
 もしCPU/GPUを利用した効率的なグラフ探索アルゴリズムが開発出来れば、非常に大きなインパクトになるかもしれない。
-残念ながら、探索アルゴリズムの並列化は比較的難しいと考えられる。
+%残念ながら、探索アルゴリズムの並列化は比較的難しいと考えられる。
+%一般に並列アルゴリズムの効率は逐次実行部分と並列実行可能部分に分割される
+%グラフ探索アルゴリズムを並列化するメリットの一つはもちろん実行速度の高速化である。
+グラフ探索アルゴリズムの並列化に考えなければならないオーバーヘッドは様々であり、それらの重要性は問題、インスタンス、マシン、さまざまな状況に依存する。加えてハードウェアは刻々と変化を続けており、数年後にどのような環境がメジャーとなるのかはなかなか想像をすることが出来ないだろう。
+本書ではCPUを用いた分散メモリ並列アルゴリズムとGPU一台を用いた並列アルゴリズムについて説明する。
+CPU並列ではハッシュによってノードを各プロセスにアサインし、各プロセスはアサインされたノードのみを担当して探索を行うというフレームワークが現在のstate-of-the-artである。
+一方、執筆時現在、GPUを用いたアルゴリズムはあまり研究が進んでいない。原因としては、既存のCPUを用いた探索アルゴリズムにはない様々な難しさがあるだろう。
+たとえば、GPUはスレッド当りのメモリ量が非常に少ない。A*探索はメモリが大きなボトルネックであり、メモリ量が少ないとそのまま解ける問題の大きさが制限されてしまう。この問題を解決する方法は提示されていない。
+もうひとつの難しさは、GPUは複数のスレッドが同じ命令を実行するSingle instruction multiple thread (SIMT)という計算モデルであることである。そのため、既知の有力なヒューリスティック関数をGPU環境において効率的に実装する方法が自明ではない。
+パターンデータベースなどのシンプルな命令によるヒューリスティックも考えることが出来るが、このようなヒューリスティックは今度はメモリを沢山消費するという問題点がある。
+効率的なGPU並列化アルゴリズムの開発は大きな成果が期待されるブルーオーシャンであるといえる\footnote{個人の感想である}。
+
+\subsection{並列化オーバーヘッド}
+
+理想的には$n$プロセスで並列化したら$n$倍速くなってほしい。
+逐次アルゴリズムと比較して、プロセス数倍の高速化が得られることを{\it perfect linear speedup}と呼ぶ。
+しかしながら、殆どの場合perfect linear speedupは得られない。
+それは並列化にさいして様々なオーバーヘッドがかかるからである。
+\cite{jinnai2017work}の記法に従うと、並列化オーバーヘッドは主に以下の３つに分けられる。
+
+\noindent {\bf 通信オーべーヘッド (Communication overhead, CO)}:
+通信オーバーヘッドはプロセス間で情報交換を行うことにかかるオーバーヘッドである。
+通信する情報は様々なものが考えられるが、オーバーヘッドとなるものはノードの生成回数に比例した回数通信を必要とするものである。
+すなわち、ノードの生成回数$n$に対して$log(n)$回しか通信を行わない場合、その通信によるオーバーヘッドは無視出来るだろう。
+ここではノードの生成回数に対するメッセージ送信の割合をCOと定義する：
+\begin{equation}
+	CO := \frac{\text{\# messages sent to other threads}}{\text{\# nodes generated}}.
+\end{equation}
+
+例えば、ハッシュなどによってプロセス間でノードの送受信を行いロードバランスを行う手法の場合、通信するメッセージは主にノードである。この場合：
+
+\begin{equation}
+	CO := \frac{\text{\# nodes sent to other threads}}{\text{\# nodes generated}}.
+\end{equation}
+となる。
+COは通信にかかるディレイだけでなく、メッセージキューなどのデータ構造の操作も行わなければならないので、特にノードの展開速度が速いドメインにおいて重要なオーバーヘッドになる。一般に、プロセス数が多いほどCOは大きくなる。
+%If nodes are assigned randomly to the threads, CO will be proportional to $1-\frac{1}{\#thread}$. 
 
 
+\noindent {\bf 探索オーバーヘッド (Search Overhead, SO):}
+一般に並列探索は逐次探索より多くのノードを展開することになる。
+このとき、余分に展開したノードは逐次と比較して増えた仕事量だと言える。
+本書では以下のように探索オーバーヘッドを定義する：
+
+\begin{equation}
+SO := \frac{\text{\# nodes expanded in parallel}}{\text{\#nodes expanded in sequential search}} - 1.
+\end{equation}
+
+SOはロードバランス (load balance, LB)が悪い場合に生じることが多い。
+
+\begin{equation}
+LB := \frac{\text{Maximum number of nodes assigned to a thread}}{\text{Average number of nodes assigned to a thread}}.
+\end{equation}
+
+ロードバランスが悪いと、ノードが集中しているスレッドがボトルネックとなり、他のスレッドはノードがなくなるか、あるいはよりf値の大きい(有望でない)ノードを展開することになり、探索オーバーヘッドになる。
+
+探索オーバーヘッドは実行時間だけでなく、空間オーバーヘッドでもある。ムダに探索をした分だけ、消費するメモリ量も多くなる。分散メモリ環境においてもコア当りのRAM量は大きくなるわけではないので、探索オーバーヘッドによるメモリ消費は問題となる。
+
+
+\noindent {\bf 同期オーバーヘッド (Coordination Overhead)}
+同期オーバーヘッドは他のスレッドの処理を待つためにアイドル状態にならなければならない時に生じるオーバーヘッドを指す。
+アルゴリズム自体が同期を必要としないものだとしても、メモリバスのコンテンションによって同期オーバーヘッドが生じることがある\cite{burnslrz10,kishimotofb13}.
+
+
+これらのオーバーヘッドは独立ではなく、むしろ相互に関係しており、トレードオフの関係にある。
+多くの場合、通信・同期オーバーヘッドと探索オーバーヘッドがトレードオフの関係にあたる。
 
 \subsection{Hash Distributed A*}
 
-Hash Distributed A* (HDA*) \cite{kishimotofb13} is a parallel A* algorithm 
-which incorporates the idea of hash-based work distribution from  PRA* \cite{evett1995massively} and asynchronous communication from TDS \cite{romein1999transposition}.
-In HDA*, 
-each processor has its own OPEN and CLOSED.
-A global hash function assigns a unique owner thread to every search node.
-Each thread $T$ repeatedly executes the following: 
+ハッシュ分配A* (Hash Distributed A*, HDA*) \cite{kishimotofb13}はCPUを用いたstate-of-the-artの並列A*探索アルゴリズムである。
+HDA*の各プロセスはそれぞれローカルなオープンリスト、クローズドリストを保持する。ローカルとは、データ構造を保持するプロセスが独占してアクセスを行い、他のプロセスからはアクセスが不可能であるという意味である。
+グローバルなハッシュ関数によって全ての状態は一意に定まる担当のプロセスが定められる。
+各プロセス$T$の動作は以下を繰り返す：
+
 \begin{enumerate}
 	\item 
-           $T$ checks its message queue if any new nodes are in. For all new nodes $n$ in $T$'s message queue, if it is not in CLOSED (not a duplicate), put $n$ in OPEN. %For all nodes in message queue, check for duplicate detection with closed list. If it is not duplicate then put the node into OPEN.
+		プロセス$T$はメッセージキューを確認し、ノードが届いているかを確認する。届いているノードのうち重複でないものをオープンリストに加える(A*同様、クローズドリストに同じ状態が存在しないか、クローズドリストにある同じ状態のノードよりも$f$値が小さい場合に重複でない)。
 	\item 
-           Expand node $n$ with the highest priority in OPEN. For every generated node $c$, compute hash value $H(c)$, and send $c$ to the thread that owns $H(c)$. %Thread expands the node with the highest priority. For all nodes generated, it calculates the hash value $K(s)$. It sends node $s$ to the message queue of the thread which owns $K(s)$. 
+		オープンリストにあるノードのうち最もプライオリティ($f$値)の高いノードを展開する。生成されたそれぞれのノード$n$についてハッシュ値$H(n)$を計算し、ハッシュ値$H(n)$を担当するプロセスに非同期的に送信される。
 \end{enumerate}
 
+HDA*はそれまでの並列探索
 
-HDA* has two distinguishing features compared to preceding parallel A* variants.
-First, there is little coordination overhead because HDA* communicates asynchronously, and %Threads do not have to wait for other threads to go to the next instruction.
-locks for an access to shared OPEN/CLOSED are not required because each thread has its own local OPEN/CLOSED.
-%, which are the bottlenecks for some parallel algorithms. 
-%However, contention for the memory bus, which can be considered a form of coordination overhead on multicore machines,  can have a significant impact on performance \cite{kishimotofb13}. -> put on Parallel Overheads
-Second, the work distribution mechanism is simple, requiring only a hash function.
-%Unlike work-stealing approaches, nodes are not reassigned among threads.
-However, the effect of the hash function was not evaluated empirically, and the importance of the choice of hash function was not fully understood or appreciated --
-at least one subsequent work which evaluated HDA* used an implementation of HDA* which failed to achieve uniform distribution of the nodes (see Section \ref{sec:hdavspbnf}).% XXX where to put this sentence...
+%HDA* has two distinguishing features compared to preceding parallel A* variants.
+%First, there is little coordination overhead because HDA* communicates asynchronously, and %Threads do not have to wait for other threads to go to the next instruction.
+%locks for an access to shared OPEN/CLOSED are not required because each thread has its own local OPEN/CLOSED.
+%Second, the work distribution mechanism is simple, requiring only a hash function.
+%However, the effect of the hash function was not evaluated empirically, and the importance of the choice of hash function was not fully understood or appreciated --
+%at least one subsequent work which evaluated HDA* used an implementation of HDA* which failed to achieve uniform distribution of the nodes (see Section \ref{sec:hdavspbnf}).
 
 \subsection{GPU-based Parallelization}
 
