@@ -1,0 +1,49 @@
+\lst@definelanguage{pddl}
+{
+    keywords={
+        define,
+    },
+    morekeywords={[2]
+        domain,
+        problem,
+        requirements,
+        predicates,
+        types,
+        objects,
+        action,
+        init,
+        goal,
+    },
+    morekeywords={[3]
+        parameters,
+        vars,
+        precondition,
+        effect,
+    },
+    morekeywords={[4]
+        forall,
+        or,
+        and,
+        not,
+        when,
+        =,
+        exists,
+        imply,
+    },
+    comment=[l]{\;},
+    sensitive=true
+}[keywords, comments]
+
+\lst@definelanguage[mapl]{pddl}[]{pddl}
+{
+    morekeywords={[2]
+      sensor,
+    },
+    morekeywords={[3]
+      sense,
+      replan,
+    },
+    morekeywords={[4]
+      KIF,
+    },
+}

@@ -695,6 +695,8 @@ BDDを使う準備として、状態をブーリアンvectorに変換する。
 \label{fig:sliding-token}
 \end{figure}
 
+\subsection{Symbolic Tree Search}
+
 
 \subsection{Symbolic Blind Search}
 
@@ -702,7 +704,15 @@ BDDを使う準備として、状態をブーリアンvectorに変換する。
 \subsection{Symbolic Heuristic Search}
 
 
-\ecion{Eploraion baed earch}
+\section{Exploration Based Search}
+
+Iterative Width search \cite{lipovetzkyg12}.
+
+Prioritized iterative width search \cite{shleyfmantd16}
+
+Invasion percolation \cite{asai2016tiebreaking}
+
+
 
 \section{並列探索 (Parallel Search)}
 近年コンピュータ一台当たりのコア数は増加を続けており、コンピュータクラスタにも比較的容易にアクセスが出来るようになった。Amazon Web Serviceのようなクラウドの計算資源も普及し、将来的には並列化が当然になると考えられる。
@@ -789,31 +799,69 @@ HDA*の各プロセスはそれぞれローカルなオープンリスト、ク�
 		オープンリストにあるノードのうち最もプライオリティ($f$値)の高いノードを展開する。生成されたそれぞれのノード$n$についてハッシュ値$H(n)$を計算し、ハッシュ値$H(n)$を担当するプロセスに非同期的に送信される。
 \end{enumerate}
 
-HDA*はそれまでの並列探索
+HDA*の重要な特徴は２つある。
+まず、HDA*は非同期通信を行うため、同期オーバーヘッドが非常に小さい。
+各プロセスがそれぞれローカルにオープン・クローズドリストを保持するため、これらのデータ構造へのアクセスにロックを必要としない。
+次に、HDA*は手法が非常にシンプルであり、ハッシュ関数$Hash: S \rightarrow {1..P}$を必要とするだけである ($P$はプロセス数)。
+%並列アルゴリズムにおいて手法がシンプルであることは非常に有用である。
+しかしながらハッシュ関数は通信オーバーヘッドとロードバランスの両方を決定する為、その選択はパフォーマンスに非常に大きな影響を与える。
 
-%HDA* has two distinguishing features compared to preceding parallel A* variants.
-%First, there is little coordination overhead because HDA* communicates asynchronously, and %Threads do not have to wait for other threads to go to the next instruction.
-%locks for an access to shared OPEN/CLOSED are not required because each thread has its own local OPEN/CLOSED.
-%Second, the work distribution mechanism is simple, requiring only a hash function.
-%However, the effect of the hash function was not evaluated empirically, and the importance of the choice of hash function was not fully understood or appreciated --
-%at least one subsequent work which evaluated HDA* used an implementation of HDA* which failed to achieve uniform distribution of the nodes (see Section \ref{sec:hdavspbnf}).
+
+HDA*が提案された論文\cite{kishimotofb13}ではZobrist hashing \cite{zobrist:70}がハッシュ関数として用いられていた。
+状態$s = (x_1,x_2,...,x_n)$に対してZobrist hashingのハッシュ値$Z(s)$は以下のように計算される：
+
+\begin{equation}
+\label{eq:zobrist}
+ 	Z(s) := R_{0}[x_{0}]\; xor\; R_{1}[x_{1}]\; xor\; \cdots\; xor\; R_{n}[x_{n}]%
+\end{equation}
+
+Zobrist hashingは初めにランダムテーブル$R$を初期化する\ref{alg:init-zobrist-hashing}。
+これを用いてハッシュ値を計算する。
+
+\begin{algorithm}
+	\Input{$s = (x_0, x_1,...,x_n)$}
+	$hash \leftarrow 0$\;
+	\For {each $x_i \in s$} {
+		$hash \leftarrow hash \; xor \; R[x_i]$\;
+	}
+	{\bf Return} $hash$\;
+	\caption{\ZHDA{}}
+	\label{alg:zobrist-hashing}
+\end{algorithm}
+
+\begin{algorithm}
+	\Input{$V = (dom(x_0),dom(x_1),...)$}
+	\For {each $x_i$} {
+		\For {each $t \in dom(x_i)$ } {
+			$R_i[t] \leftarrow random()$\;
+		}
+	}
+	{\bf Return} $R = (R_1, R_2,...,R_n)$
+	\caption{Initialize \ZHDA{}}
+	\label{alg:init-zobrist-hashing}
+\end{algorithm}
+
+
+Zobrist hashingを使うメリットは２つある。
+一つは計算が非常に速いことである、XOR命令はCPUの演算で最も速いものの一つである。かつ、状態の差分を参照することでハッシュ値を計算することが出来るので、アクション適用によって値が変化した変数の$R[x]$のみ参照すれば良い。
+もうひとつは、状態が非常にバランスよく分配され、ロードバランスが良いことである。
+一方、この手法の問題点は通信オーバーヘッドが大きくなってしまうことにある。
+この問題を解決するためにState abstractionという手法が提案された\cite{burnslrz10}。
+State abstractionは状態$s = (x_1,x_2,...,x_n)$に対して簡約化状態 (abstract state) $s' = (x_1',x_2',...,x_m'), where m < n, x_i' = x_j (1 \leq j \leq n)$. % TODO: clean up this.
+State abstractionは簡約化状態からハッシュ値への関数の定義はされておらず、単純なlinear congrugent hashingが用いられていた。そのため、ロードバランスが悪かった。
+
+Abstract Zobrist hashing (AZH)はZobrist hashingとAbstractionの良い点を組み合わせた手法である\cite{jinnai2016structured}。
+
+AZHはパラメータとしてabstract featureを設定しなければならない。
+Abstract featureを自動的に生成する手法は複数提案されており、最もシンプルなものはGreedy abstract feature generation \cite{jinnai2016automated}である。
+
+Domain transition graph
+
+Abstract featureの生成方法としてstate-of-the-artの手法はGraph partitioning-based \cite{jinnai2017work}であり、各DTGを与えられた最適化指標下で分割することでabstract featureを生成する。
 
 \subsection{GPU-based Parallelization}
 
 
-\section{Online Search}
-\emph{Online, planning}  is a  real-time search  problem \cite{Korf90}, where we are given an initial black-box planning instance $B_0$, and a resource limit (e.g., time limit, limit on number of node generations, etc.).
-An agent for online black-box planning behaves as follows:
-\begin{enumerate}
-\item [initialization]: $I$ is initialized to $I_0$.
-\item [termination check]: If some termination condition has been met, then terminate.
-\item [planning episode]: The agent applies a planning algorithm $P$ until the resource limit is exhausted, at which point the agent selects an action $a$ to execute.
-\item [world update]: The agent executes $a$, resulting in an updated world state $s' = Apply(a,s)$. In black-box domains where the simulator $Sim$ is a perfect model of  the actual world inhabited by the agent, then $Apply(a,s) = Sim(a,s)$. 
-\item Set $I= s$, and go to step 2.
-\end{enumerate}
-
-In step 3 (planning episode), after the planning algorithm is terminated, the selection of the action to execute in step 4 can be implemented in many different ways.
-In a satisficing problem, if a path has been found to a goal (maximal utility) state, then the first step on that path should be selected. However, in most cases, such a path is unavailable, so the action is chosen based on the search space that has been explored so far, e.g., choose the first step in the path with the highest utility frontier node.
 
 \section{関連研究}
 
@@ -835,7 +883,7 @@ In a satisficing problem, if a path has been found to a goal (maximal utility) s
 環境が決定的であり、完全情報を仮定する。
 これらの仮定を緩和した問題（確率的モデルや不完全情報モデル）もグラフ探索によって解かれることが多いが、本文の範囲外とする\cite{}。
 
-なお、プランニング問題はA*などの状態空間探索アルゴリズム以外にも、SATやCSPなどの制約充足問題に変換して解く方法もある\cite{}。
+なお、プランニング問題はA*などの状態空間探索アルゴリズム以外にも、SATやCSPなどの制約充足問題に変換して解く方法もあるがこれも本書の範囲外とする\cite{}。
 
 \section{定義}
 
