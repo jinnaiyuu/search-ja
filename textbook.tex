@@ -31,7 +31,8 @@
 
 \newtheorem{definition}{Definition}
 
-%\newcommand{\citeauthor[1]}{\cite{#1}}
+% Acronyms
+\newcommand{\ZHDA}{ZHDA*}
 
 \title{ヒューリスティック探索}
 
@@ -850,7 +851,14 @@ Zobrist hashingを使うメリットは２つある。
 State abstractionは状態$s = (x_1,x_2,...,x_n)$に対して簡約化状態 (abstract state) $s' = (x_1',x_2',...,x_m'), where m < n, x_i' = x_j (1 \leq j \leq n)$. % TODO: clean up this.
 State abstractionは簡約化状態からハッシュ値への関数の定義はされておらず、単純なlinear congrugent hashingが用いられていた。そのため、ロードバランスが悪かった。
 
-Abstract Zobrist hashing (AZH)はZobrist hashingとAbstractionの良い点を組み合わせた手法である\cite{jinnai2016structured}。
+Abstract Zobrist hashing (AZH)はZobrist hashingとAbstractionの良い点を組み合わせた手法である\cite{jinnai2016structured}。AZHはfeatureからabstract featureへのマッピングを行い、abstract featureをZobrist hashingへの入力とするという手法である：
+
+\begin{equation}
+\label{eq:abstract-zobrist}
+ 	Z(s) := R_{0}[A_0(x_{0})]\; xor\; R_{1}[A_1(x_{1})]\; xor\; \cdots\; xor\; R_{n}[A_n(x_{n})]%
+\end{equation}
+
+ここで関数$A$はfeatureからabstract featureへのマッピングであり、$R$はabstract featureに対して定義されている。
 
 AZHはパラメータとしてabstract featureを設定しなければならない。
 Abstract featureを自動的に生成する手法は複数提案されており、最もシンプルなものはGreedy abstract feature generation \cite{jinnai2016automated}である。
