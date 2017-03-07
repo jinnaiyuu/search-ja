@@ -34,18 +34,22 @@
 % Acronyms
 \newcommand{\ZHDA}{ZHDA*}
 
-\title{ヒューリスティック探索}
+% Utility macros: would be removed from the final version
+\usepackage{newfloat}
+\DeclareFloatingEnvironment{todo}
 
+
+\title{ヒューリスティック探索}
 \author{陣内　佑 \\
 東京大学　総合文化研究科}
-
 
 
 \begin{document}
 
 \maketitle
-
+\listoftodos
 \tableofcontents
+
 \newpage
 
 \section*{まえがき}
@@ -58,6 +62,7 @@
 
 \chapter{イントロダクション}
 \label{ch:introduction}
+\captionlistentry[todo]{Introduction: なんかいい感じの絵}
 
 人は様々な問題を探索によって解決している。
 例えば飛行機で成田からロンドンに行く安い/速い方法などを計画するのは探索の一つである。
@@ -76,8 +81,8 @@
 
 \section{状態空間問題 (State-Space Problem)}
 \label{sec:state-space-problem}
-探索問題は初期状態とゴール条件が与えられたとき、ゴール条件を満たすための経路を返すのが探索問題である。
-このテキストでは探索問題の主な対象として状態空間問題(State-space problem)を考える。状態空間問題$P = (S, A, s, T)$は状態の集合$S$、初期状態$s \in S$、ゴール集合$T \in S$、アクション集合$A = {a_1, ....,a_n}$、$a_i : S \rightarrow S$がある。アクションはある状態を次の状態に遷移させる関数である。
+この本では主に初期状態とゴール条件が与えられたとき、ゴール条件を満たすための経路を返す問題を探索する手法を考える。
+このテキストでは探索の主な対象として状態空間問題(State-space problem)を考える。状態空間問題$P = (S, A, s, T)$は状態の集合$S$、初期状態$s \in S$、ゴール集合$T \in S$、アクション集合$A = {a_1, ....,a_n}$、$a_i : S \rightarrow S$がある。アクションはある状態を次の状態に遷移させる関数である。
 状態空間問題の解は初期状態からゴール状態へ遷移させるアクションの列を求めることである。
 
 よって、状態空間問題はグラフにモデルすることで考えやすくなる。
@@ -106,41 +111,42 @@
 
 
 %ただし、状態空間グラフをすべて陽に変換し、すべてのノード・エッジを保持することは効率が良くないことが多い。
-ただし、探索アルゴリズムは状態空間グラフのノード・エッジ全てを保持する必要はない。
-全てのノード・エッジを保持した状態空間グラフを特に陽状態空間グラフ(explicit state-space graph)と呼ぶとする\footnote{他に対訳を見つけることが出来なかったため、陽・陰状態空間グラフという訳は筆者がつけた。}。このようなグラフは、例えば隣接行列を用いて表すことが出来る。隣接行列$M$は行と列の大きさが$|V|$である正方行列であり、エッジ$(v_i, v_j)$が存在するならば$M_{i,j}=1$、なければ$M_{i,j}=0$とする行列である。
+\ref{ch:blind-search}章で詳解するが、探索アルゴリズムは状態空間グラフのノード・エッジ全てを保持する必要はない。
+全てのノード・エッジを保持した状態空間グラフを特に明示的状態空間グラフ(explicit state-space graph)と呼ぶとする。このようなグラフは、例えば隣接行列を用いて表すことが出来る。隣接行列$M$は行と列の大きさが$|V|$である正方行列であり、エッジ$(v_i, v_j)$が存在するならば$M_{i,j}=1$、なければ$M_{i,j}=0$とする行列である。
 このような表現方法の問題点は行列の大きさが$|V|^2$であるため、大きな状態空間を保持することが出来ないことである。
 例えば、\index{sec:search-problem}節で紹介する15-puzzleは状態の数が$|V|=15!/2$であるため、隣接行列を保持することは現在のコンピュータでは非常に困難である。
 
-そこで、探索アルゴリズムは多くの場合初期ノードとノード展開関数による陰状態空間グラフで表せられる。
+そこで、探索アルゴリズムは多くの場合初期ノードとノード展開関数による非明示的状態空間グラフで表せられる。
 
-\begin{definition}[陰状態空間グラフ、Implicit state-space graph]
-陰状態空間グラフは初期状態$s \in V$、ゴール条件Goal: $V \rightarrow B = \{false, true\}$、ノード展開関数Expand: $V \rightarrow 2^V$によって与えられる。
+\begin{definition}[非明示的状態空間グラフ、Implicit state-space graph]
+非明示的状態空間グラフは初期状態$s \in V$、ゴール条件Goal: $V \rightarrow B = \{false, true\}$、ノード展開関数Expand: $V \rightarrow 2^V$によって与えられる。
 \end{definition}
 
 探索の開始時、エージェントは初期ノードのみを保持する。エージェントは保持しているノードに対してExpandを適用することによって、新しいノードとエッジをグラフに加える。これを求める解を見つけるまで繰り返す。
+これによって、エージェントは解を見つけるまでのノード・エッジだけ保持して必要な解を見つけることが出来る。
 
 %\begin{example}
 
 %\end{example}
 
-これによって、エージェントは解を見つけるまでのノード・エッジだけ保持して必要な解を見つけることが出来る。
-大まかには、情報なし探索による陰グラフは陽グラフよりも指数的に小さく、ヒューリスティック探索による陰グラフは情報なし探索による陰グラフよりも更に指数的に小さいことが多い。
+%大まかには、情報なし探索による非明示的グラフは明示的グラフよりも指数的に小さく、ヒューリスティック探索による非明示的グラフは情報なし探索による非明示的グラフよりも更に指数的に小さいことが多い。
 
 
-\section{探索問題の例}
+\section{状態空間問題の例}
 \label{sec:search-problem}
 
-ヒューリスティック探索によって効率的に解くことが出来ると知られているドメインをいくつか紹介する。
+グラフ探索アルゴリズムによって効率的に解くことが出来ると知られているドメインをいくつか紹介する。
+%ここで詳解する問題はグラフ探索以外の手法でも解くことが出来る。
 
 
 \subsection{グリッド経路探索 (Grid Path-finding)}
+\captionlistentry[todo]{Grid Pathfinding: なんかいい感じの絵}
+グリッド経路探索問題は$k$(多くの場合$k=2$)次元のグリッド上で初期配置からゴール位置までの経路を求める問題である。グリッドには障害物がおかれ、通れない箇所がある。エージェントが移動できる方向は4方向($A= \{up, down, left, right\}$)か8方向(4方向に加えて斜め移動)とする場合が多い。
 
-グリッド経路探索問題は$k$(多くの場合$k=2$)次元のグリッド上で初期配置からゴール位置までの経路を求める問題である。グリッドには障害物がおかれ、通れない箇所がある。
-グリッド経路探索はゲームAIなどで応用されることが多い。ストラテジーゲームなどでユニット（エージェント）を動かすために使われる。
+Web上に簡単に試せるデモがあるので、参照されたい：\url{http://qiao.github.io/PathFinding.js/visual/}。とてもよくできており、この文章で説明する様々なグラフ探索手法をグリッド経路探索に試すことが出来る。
 
-web上に簡単に試せるデモがあるので、参照されたい：\url{http://qiao.github.io/PathFinding.js/visual/}。とてもよくできており、この文章で説明する様々なグラフ探索手法をグリッド経路探索に試すことが出来る。
-
-グリッド経路探索問題は、様々な問題が経路探索に帰着して解くことができるという意味でも重要である。例えばMultiple Sequence Alignmentは経路探索に帰着して解くことが出来る(後述)。
+グリッド経路探索はゲームAIなどで応用される。ストラテジーゲームなどでユニット（エージェント）を動かすために使われる。
+またグリッドは様々な問題を経路探索に帰着して解くことができるという意味でも重要である。例えばMultiple Sequence Alignmentはグリッド経路探索に帰着して解くことが出来る(後述)。
 あるいはロボットのモーションプランニングなども経路探索となる。すなわち、$k$個の関節の角度を変えて、現在状態からゴール状態へ遷移させたい。各関節の角度がグリッドの各次元に相当する。ロボットの物理的な構造により、関節のある角度の組み合わせは不可能である。不可能な組み合わせが、障害物の置かれたグリッドに相当する。よって、障害物を避けた経路というのが関節の動かし方ということになる。
 
 %Starcraft 1ではA*探索が使われていた。
@@ -277,7 +283,7 @@ TSPは全ての都市を最短距離で回ってはじめの都市に戻る経�
 \caption{巡回セールスパーソン問題: 画像はwikipediaより。}
 \label{fig:sokoban}
 \end{figure}
-
+\captionlistentry[todo]{巡回セールスマン問題: 画像を挿入}
 
 $n$個の都市があるとすると(最適・非最適含む)解の数は$(n-1)!/2$個である。
 TSPはNP完全であることが知られている。
@@ -318,27 +324,7 @@ TSPはヒューリスティック探索に限らず、様々なアプローチ�
 \label{sec:tree-search-algorithm}
 木探索アルゴリズムはグラフ探索アルゴリズムの基礎となるフレームワークであり、本文で紹介する手法のほとんどがこのフレームワークを基礎としているといえる。
 
-アルゴリズム\ref{alg:implicit-tree-search}は木探索の疑似コードである。以下、(k)と書いて疑似コードのk行目を指すことにする。
-木探索はオープンリスト\footnote{歴史的な経緯でリストと呼ばれているが、データ構造がリストで実装されるという意味ではない。}と呼ばれるノードの集合を保持する。探索の開始時には、初期状態のみがオープンリストに入っている(1)。
-木探索は、このオープンリストから一つノード$u$を選び(3)、ゴール条件を満たしているかを確認する(4)。満たしていれば初期状態から$u$への経路を返す。満たしていなければ、そのノードを展開する(6-)。展開とは、そのノードの子ノードを列挙し、オープンリストに入れる(8)ことを指す。
-
-探索の進行によってエージェントが保持する情報は変化していく。ここでは探索がどのように進行するかを記述するため、以下の３つの言葉を定義する：
-
-\begin{enumerate}
-\item 展開済みノード: $Expand(u)$によって子ノードが参照されたノードを指す。$Open$からは省かれる。
-\item 生成済みノード: $Open.insert(v)$によってOpenに一度でも入れられたノードを指す。
-\item 未生成ノード: まだ生成されていないノード。よって、陰グラフに保持されていない。
-
-\end{enumerate}
-
-陰グラフ木探索の強みは、生成済みノードのうち展開済みではないもののみを$Open$に保持すればよいことにある。
-$Open$はPriority queueであり、何らかの基準によって$Open$から取り出してくるノードを決める。
-
-木探索アルゴリズムは名前の通り木を探索する場合により効率的であることが多いが(後述)、グラフ一般に対して適用することが出来る。
-
-
-%同じ状態を複数回展開すると計算資源を無駄にすることになるのでなるべく重複を避けたい。
-
+アルゴリズム\ref{alg:implicit-tree-search}は木探索の疑似コードである。
 
 \begin{algorithm}
 \caption{Implicit Tree Search}
@@ -360,6 +346,29 @@ $Open$はPriority queueであり、何らかの基準によって$Open$から取
 	\Return $\emptyset$\;
 \end{algorithm}
 
+以下、(k)と書いて疑似コードのk行目を指すことにする。
+木探索はオープンリスト\footnote{歴史的な経緯でリストと呼ばれているが、データ構造がリストで実装されるという意味ではない。}と呼ばれるノードの集合を保持する。探索の開始時には、初期状態のみがオープンリストに入っている(1)。
+木探索は、このオープンリストから一つノード$u$を選び(3)、ゴール条件を満たしているかを確認する(4)。満たしていれば初期状態から$u$への経路を返す。満たしていなければ、そのノードを展開する(6-)。展開とは、そのノードの子ノードを列挙し、オープンリストに入れる(8)ことを指す。
+
+探索の進行によってエージェントが保持する情報は変化していく。ここでは探索がどのように進行するかを記述するため、以下の３つの言葉を定義する：
+
+\begin{enumerate}
+\item 展開済みノード: $Expand(u)$によって子ノードが参照されたノードを指す。$Open$からは省かれる。
+\item 生成済みノード: $Open.insert(v)$によってOpenに一度でも入れられたノードを指す。
+\item 未生成ノード: まだ生成されていないノード。よって、非明示的グラフに保持されていない。
+
+\end{enumerate}
+
+非明示的グラフ木探索の強みは、生成済みノードのうち展開済みではないもののみを$Open$に保持すればよいことにある。未生成ノード、展開済みノードはメモリ上に保持する必要がない。
+$Open$はPriority queueであり、何らかの基準によって$Open$から取り出してくるノードを決める。
+
+木探索アルゴリズムは名前の通り木を探索する場合により効率的であることが多いが(後述するが、重複検出をしないため)、グラフ一般に対して適用することが出来る。
+
+
+%同じ状態を複数回展開すると計算資源を無駄にすることになるのでなるべく重複を避けたい。
+
+
+
 
 %木探索ベースのアルゴリズムの問題は、解が存在しない場合に停止性を満たさないことである。よって、この手法は解が間違いなく存在することが分かっている問題に対して適用される。あるいは、解が存在することを判定してから用いる。
 
@@ -379,7 +388,7 @@ $Open$はPriority queueであり、何らかの基準によって$Open$から取
 ユニットコスト問題である場合、$p$値は$g$値と一致する。
 
 幅優先探索のメリットは初めに発見した解が最短経路長であることである。
-問題がユニットコストドメインである場合、最短経路が最小コスト経路であるので、最適解が得られる。
+問題がユニットコストドメインであれば、最短経路が最小コスト経路であるので、最適解が得られる。
 
 \begin{algorithm}
 \caption{Breadth-First Search: $Open.pop()$}
@@ -397,9 +406,6 @@ $Open$はPriority queueであり、何らかの基準によって$Open$から取
 例えばTSPは全ての街を回ったときのみが解であるので、街の数が$n$であれば全ての解の経路長が$n$である。
 このような問題を幅優先探索で解こうとすると、解は最も深いところにしかないので、最後の最後まで解が一つも得られないということになる。一方、深さ優先探索なら$n$回目の展開で一つ目の解を見つけることが出来る。
 
-幅優先探索はXXXな時に有力である。
-ゴールがある程度深い所にあり、浅い場所にはないと事前に分かっている場合に上手く行く。
-一方、YYYではうまくいかない。なぜなら、YYYだからである。
 
 \begin{algorithm}
 \caption{Depth-First Search: $Open.pop()$}
@@ -413,11 +419,11 @@ $Open$はPriority queueであり、何らかの基準によって$Open$から取
 \section{グラフ探索アルゴリズム (Graph Search Algorithm)}
 \label{sec:graph-search-algorithm}
 
-木探索がノードの重複を無視して探索を行うのに対して、グラフ探索アルゴリズムはノードの重複を確認して探索を行う。
 
-陽グラフのあるノードが初期状態から複数の経路でたどり着ける場合、同じ状態を表すノードが木探索による陰グラフに複数現れるということが生じる。このようなノードを重複(duplicate)と呼ぶ。ノードの重複は計算資源を無駄にするだけなのでなんとかして避けたいものであり、重複の効率的な検出方法は探索研究の大きなヤマの一つである。
+明示的グラフのあるノードが初期状態から複数の経路でたどり着ける場合、同じ状態を表すノードが木探索による非明示的グラフに複数現れるということが生じる。このようなノードを重複(duplicate)と呼ぶ。ノードの重複は計算資源を消費してしまうので、重複の効率的な検出方法は重要な研究分野である。
 
-重複して同じ状態を展開せずにすむことである。
+本書ではノードの重複検出を行う探索アルゴリズムを狭義にグラフ探索アルゴリズムと呼び、重複検出を行わない探索を木探索と区別する。
+
 
 
 %ノードの重複の確認にはいくつかメリットがある。一つは、停止性を満たすことである。すなわち、最悪グラフのノードをすべて展開して停止する。もう一つは、
@@ -454,6 +460,7 @@ $Open$はPriority queueであり、何らかの基準によって$Open$から取
 	}
 \end{algorithm}
 
+\captionlistentry[todo]{グラフ探索アルゴリズム: 重複検出に関連して何か付け足す}
 
 \chapter{ヒューリスティック探索}
 \label{ch:heuristic-search}
@@ -466,18 +473,17 @@ $Open$はPriority queueであり、何らかの基準によって$Open$から取
 
 経路探索問題を幅優先探索で解くことを考えよう。
 図\ref{fig:grid}の初期状態からゴールへの最短経路の長さはXである。このとき、幅優先探索は図\ref{fig:grid-brfs}の領域を探索する。
-
 しかし人間が経路探索を行うときにこんなに広い領域を探索しないだろう。なぜか。
 それは人間が問題の特徴を利用して、このノードを探索したほうがよいだろう、という推論を働かせているからである。
-
 問題の特徴を利用してノードの{\bf 有望さ}をヒューリスティック関数として定量化し、ヒューリスティック関数を利用した探索アルゴリズムをヒューリスティック探索と呼ぶ。
-
 ヒューリスティック関数は人間が自分の知識を利用してコーディングする場合もあるが、特にプランニング問題などでは自動的にヒューリスティックを生成する手法も広く使われている。
 
 
+\captionlistentry[todo]{ヒューリスティックとは: grid, grid-brfsの図を挿入}
+
 \section{ヒューリスティック関数}
 \label{sec:heuristic-function}
-
+\captionlistentry[todo]{ヒューリスティック関数： 性質と定義の説明}
 ヒューリスティック関数はある状態からゴールまでの距離の見積もりである。
 
 \begin{definition}[ヒューリスティック関数]
@@ -514,7 +520,7 @@ A*探索は以下のf値が最小となるノードを優先して探索を行�
 ノードnのf値は、初期状態からnを通過してゴール状態に辿り着くためのコストの見積もりである。g値は初期状態からノードnまでの既知の最短経路コストである。一方h値はヒューリスティック関数によるnからゴール状態までの最短経路の見積もりである。
 
 ヒューリスティックが許容的である時、A*は最適解を返す。
-
+\captionlistentry[todo]{A*探索: 最適解の証明}
 %全てのノードnは展開時にg(n)がnに辿り着くための最短経路コストの値である。%これは無矛盾性か
 許容的なヒューリスティックh(n)はnからゴールへの経路の下限である。よって、ゴール状態のh値は0である。つまりゴール状態のf値はg値と同じである。この解のg(n')値をf*と置こう(解のコストに相当)。
 A*のノードの展開順に従うと、f*のノードを展開する前に全てのf<f*のノードが展開される。
@@ -529,7 +535,7 @@ A*のノードの展開順に従うと、f*のノードを展開する前に全�
 
 \subsection{重み付きA*探索}
 \label{sec:weighted-astar-search}
-
+\captionlistentry[todo]{wA*: 解コストの上界の証明}
 許容的なヒューリスティックを用いた場合、最適解のコスト$f^*$に対して、発見される解のコストが$w f^*$以下であることを保証する。
 
 \begin{equation}
@@ -572,7 +578,7 @@ A*のノードの展開順に従うと、f*のノードを展開する前に全�
 A*探索などのヒューリスティック探索は時間と空間の両方がボトルネックとなりうる。
 すなわち、A*はノードを一つずつ展開していかなければならないので、その数だけExpandを実行しなければならない。また、A*は重複検出のために展開済みノードをすべてClosedに保存する。なので、必要な空間も展開ノード数に応じて増えていく。
 
-残念ながら、ほぼ正しいコストを返すヒューリスティック関数を使っても、A*が展開するノードの数は指数的に増加することが知られている\cite{}。
+残念ながら、ほぼ正しいコストを返すヒューリスティック関数を使っても、A*が展開するノードの数は指数的に増加することが知られている\cite{almost perfect heursitic}。
 
 そのため、ヒューリスティックの改善のみならず、アルゴリズム自体の工夫をしなければならない。
 この章では時間・空間制約がある場合のA*の代わりとなるヒューリスティック探索の発展を紹介する。
@@ -637,6 +643,7 @@ A*探索は時間・空間の両方がボトルネックになるが、現代の
 \end{algorithm}
 
 \subsection{Transposition Table}
+\captionlistentry[todo]{Transposition table: なんか説明}
 
 反復深化A*で必要な空間は最適解のコストに対して線形である。
 そうすると、むしろかなりの量のメモリが余ることになる。
@@ -647,6 +654,7 @@ A*で用いられるClosedと異なり、このテーブルはすべての生成
 
 \section{両方向探索 (Bidirectional Search)}
 \label{sec:bidirectional-search}
+\captionlistentry[todo]{両方向探索: 図、説明}
 
 状態空間グラフの特徴を理解するための重要な指標として枝分数(Branching factor)がある。枝分数はExpand関数によって得られる子ノードの数の平均である。
 すなわち、重複検出をしないとすると、枝分数が$b$であるグラフにおいて深さ$d$のノードの数はおおよそ$b^{d-1}$である。
@@ -656,7 +664,7 @@ A*で用いられるClosedと異なり、このテーブルはすべての生成
 
 
 \section{External Search}
-
+\label{sec:external-search}
 A*探索は重複検出のために今までに展開したノードをすべて保持しなければならない。
 よって、保持できるノードの量によって解ける問題が決まってくる。
 
@@ -667,16 +675,17 @@ External Searchのミソは、外部記憶へのアクセス回数をどのよ�
 よって、HDDは工夫して使わなければ実行時間が非常に遅くなってしまう\footnote{似たような理由で、HDDを用いないRAMベースの探索を効率化するためにはキャッシュ効率を工夫しなければならない。詳しくは\cite{burns2012implementing}を参照されたい。}。
 
 \subsection{External A*}
-
-
+\label{sec:external-astar}
+\captionlistentry[todo]{external A*: ALL}
 \section{Symbolic Search}
-
+\label{sec:symbolic-search}
 Binary Decision Diagram (BDD)は二分木によってブーリアンvectorからブーリアンへの関数$(x_0,x_1,...,x_n) \rightarrow \{0, 1\}$を効率良く表すグラフ構造である。
 Symbolic SearchではBDDを使って状態の集合、アクションの集合を表し、BDD同士の演算によって状態の集合を一気に同時に展開していく。
 A*探索がノードを一つずつ展開していき、一つずつ生成していく手間と比較して非常に効率的に演算が出来るポテンシャルを秘めている。
 最新のInternational Planning Competition (2014)のSequential Optimal部門(最適解を見つけるパフォーマンスを競う部門)の一位から三位までをSymbolic Searchが総なめした。現在(2017年)のstate-of-the-artの手法であるといえるだろう。
 
 \subsection{Binary Decision Diagram}
+\label{sec:binary-decision-diagram}
 
 %Binary Decision Diagram (BDD)は関数$(x_0,x_1,...,x_n) \rightarrow \{0, 1\}$を表す二分木である。
 BDDを使う準備として、状態をブーリアンvectorに変換する。
@@ -696,17 +705,16 @@ BDDを使う準備として、状態をブーリアンvectorに変換する。
 \label{fig:sliding-token}
 \end{figure}
 
-\subsection{Symbolic Tree Search}
-
-
-\subsection{Symbolic Blind Search}
-
-
-\subsection{Symbolic Heuristic Search}
+% Not for now
+%\subsection{Symbolic Tree Search}
+%\subsection{Symbolic Blind Search}
+%\subsection{Symbolic Heuristic Search}
 
 
 \section{Exploration Based Search}
-
+\label{sec:exploration-based-search}
+\captionlistentry[todo]{exploration-based search: ALL}
+% TODO: novelty based?
 Iterative Width search \cite{lipovetzkyg12}.
 
 Prioritized iterative width search \cite{shleyfmantd16}
@@ -716,6 +724,8 @@ Invasion percolation \cite{asai2016tiebreaking}
 
 
 \section{並列探索 (Parallel Search)}
+\label{sec:parallel-search}
+
 近年コンピュータ一台当たりのコア数は増加を続けており、コンピュータクラスタにも比較的容易にアクセスが出来るようになった。Amazon Web Serviceのようなクラウドの計算資源も普及し、将来的には並列化が当然になると考えられる。
 並列化の成功例は枚挙にいとまないが、近年のディープラーニングはまさに効率的な並列計算アーキテクチャによって得られたブレイクスルーであるといえる。
 もしCPU/GPUを利用した効率的なグラフ探索アルゴリズムが開発出来れば、非常に大きなインパクトになるかもしれない。
@@ -732,6 +742,7 @@ CPU並列ではハッシュによってノードを各プロセスにアサイ�
 効率的なGPU並列化アルゴリズムの開発は大きな成果が期待されるブルーオーシャンであるといえる\footnote{個人の感想である}。
 
 \subsection{並列化オーバーヘッド}
+\label{sec:parallel-overheads}
 
 理想的には$n$プロセスで並列化したら$n$倍速くなってほしい。
 逐次アルゴリズムと比較して、プロセス数倍の高速化が得られることを{\it perfect linear speedup}と呼ぶ。
@@ -787,6 +798,7 @@ LB := \frac{\text{Maximum number of nodes assigned to a thread}}{\text{Average n
 多くの場合、通信・同期オーバーヘッドと探索オーバーヘッドがトレードオフの関係にあたる。
 
 \subsection{Hash Distributed A*}
+\label{sec:hash-distributed-astar}
 
 ハッシュ分配A* (Hash Distributed A*, HDA*) \cite{kishimotofb13}はCPUを用いたstate-of-the-artの並列A*探索アルゴリズムである。
 HDA*の各プロセスはそれぞれローカルなオープンリスト、クローズドリストを保持する。ローカルとは、データ構造を保持するプロセスが独占してアクセスを行い、他のプロセスからはアクセスが不可能であるという意味である。
@@ -868,10 +880,8 @@ Domain transition graph
 Abstract featureの生成方法としてstate-of-the-artの手法はGraph partitioning-based \cite{jinnai2017work}であり、各DTGを与えられた最適化指標下で分割することでabstract featureを生成する。
 
 \subsection{GPU-based Parallelization}
+\label{sec:gpu-search}
 
-
-
-\section{関連研究}
 
 
 \begin{comment}
@@ -884,16 +894,17 @@ Abstract featureの生成方法としてstate-of-the-artの手法はGraph partit
 \chapter{古典的プランニング問題}
 \label{ch:classical-planning}
 この章では古典的プランニング問題について説明する。
-古典的プランニング問題はエージェントの自動行動計画を行うための問題の一つである\cite{}。
+古典的プランニング問題はエージェントの自動行動計画を行うための問題の一つであり、状態空間問題の一つである \cite{fikes:71}。
 
 ロジスティック\cite{helmert2010scanalyzer,sousa2013toward}、セルアセンブリ\cite{asai2014fully}、遺伝子距離計算\cite{erdem2005genome}、ビデオゲーム\cite{Lipovetzky2015a}など、様々な応用問題を含むフレームワークである。
 
 環境が決定的であり、完全情報を仮定する。
-これらの仮定を緩和した問題（確率的モデルや不完全情報モデル）もグラフ探索によって解かれることが多いが、本文の範囲外とする\cite{}。
+これらの仮定を緩和した問題（確率的モデルや不完全情報モデル）もグラフ探索によって解かれることが多いが、本文の範囲外とする。詳細はAIの教科書を参照されたい\cite{russelln03}。
 
-なお、プランニング問題はA*などの状態空間探索アルゴリズム以外にも、SATやCSPなどの制約充足問題に変換して解く方法もあるがこれも本書の範囲外とする\cite{}。
+なお、プランニング問題はA*などの状態空間探索アルゴリズム以外にも、SATやCSPなどの制約充足問題に変換して解く方法もあるがこれも本書の範囲外とする\cite{SAT planner}。
 
 \section{定義}
+\label{sec:planning-definition}
 
 
 古典的プランニングは述語論理によって世界が記述される\cite{fikes:71}。
@@ -919,6 +930,8 @@ $S \subseteq 2^{AP}$は状態の集合であり、$s_0 \in S$は初期状態、$
 As such, a classical planning problem can be solved by an A* search ($G(V', E', w'), s_0', T'$); $V' = S$, $e(v_i, v_j) \in E'$ exists if there exists $a$ such that $v_j = succ(v_i, a)$, $s_0' = s_0$, $T' = T$.
 
 \section{Planning Domain Definition Language}
+\label{sec:pddl}
+
 Planning Domain Definition Language (PDDL) \cite{aeronautiques1998pddl}はプランニング問題を記述されるために用いられる言語の一つである。PDDLはdomainファイルとinstanceファイルの２つのファイルによって一つの入力となる。domainファイルはpredicateとアクションが定義され、instanceファイルは初期状態、ゴール状態とオブジェクトが定義される。
 図\ref{fig:pddl-domain}はblocks-worldのdomainファイルである。
 図\ref{fig:pddl-instance}はblocks-worldのinstanceファイルである。
@@ -1001,6 +1014,7 @@ Planning Domain Definition Language (PDDL) \cite{aeronautiques1998pddl}はプラ
 \end{figure}
 
 \section{ブラックボックスプランニング}
+\label{sec:black-box-planning}
 
 プランナーはPDDLを用いることでドメインの知識を吸い出し、それを利用して探索を効率化する。しかしながら、完全なモデルを得るのが難しい問題の場合、PDDLのような記述を得ることが出来ない。
 例えばビデオゲームのような環境では、ゲームをクラックしない限り、完全なモデルを得ることは出来ない。
@@ -1016,28 +1030,20 @@ Expand関数、Goal関数はブラックボックスとして与えられる。�
 幅優先探索などによってBrute-forceに探索しつくす方法を取ることも出来るが問題のサイズが大きい場合に解くことが出来ない\cite{Bellemare2013}。
 Iterative Width探索 (IW search)\cite{lipovetzky2015a}は幅優先探索に新奇性による枝刈りを加えた手法である\footnote{Iterative Width探索はドメインモデルのある場合でも有用であることが知られている\cite{lipovetzkyg12}。}。IW(1)は新しく生成された状態は新しいatomを真にしない場合、枝刈りされる。
 
-
+\begin{comment}
 \section{アプリケーション}
-
 \subsection{クエリ最適化}
-
 \subsection{ロジスティック}
-
 \subsection{セルアセンブリ}
-
 \subsection{宇宙探査車}
-
 \subsection{サイバーセキュリティ}
-
 \subsection{ゲノムリアレンジメント}
-
 \subsection{グリッドコンピューティング}
-
 \subsection{プリンタースケジュリング}
-
 \subsection{ビデオゲーム}
 Atari
 General Video Game Playing
+\end{comment}
 
 \bibliographystyle{spmpsci}
 
