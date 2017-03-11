@@ -6,30 +6,36 @@
 \usepackage{comment}
 \usepackage{subfig}
 \usepackage{relsize}
-\usepackage{mathtools}
-\usepackage{amsmath}
-\usepackage{enumitem}
 \usepackage[dvipdfmx]{graphicx}
+
+
+
+\usepackage{enumitem}
 \usepackage{adjustbox}
 \usepackage{rotating}
 \usepackage{multirow}
-\usepackage{amssymb}
 \usepackage{url}
 \usepackage{listings}
 \usepackage{lstlang0}
 
 \usepackage{tikz} % Drawing sliding-tile
 
+% Math
+\usepackage{mathtools}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
 \usepackage[ruled,boxed,linesnumbered,noend]{algorithm2e}
 \SetKwInOut{Input}{Input}
 \SetKwInOut{Output}{Output}
 \SetKwInOut{Side}{Side effect}
 \SetKwComment{Comment}{$\triangleright$\ }{}
 
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+
 \setcounter{secnumdepth}{2}
 %\frenchspacing
-
-\newtheorem{definition}{Definition}
 
 % Acronyms
 \newcommand{\ZHDA}{ZHDA*}
@@ -123,7 +129,9 @@
 \end{definition}
 
 探索の開始時、エージェントは初期ノードのみを保持する。エージェントは保持しているノードに対してExpandを適用することによって、新しいノードとエッジをグラフに加える。これを求める解を見つけるまで繰り返す。
+Expandはある状態からの次の状態の集合を返す関数である。Expand関数は明示的に与えられるのではなく、ルールによって与えられることが多い。例えば将棋であれば、将棋のルールによって定められる合法手によって得られる次の状態の集合がExpand関数によって得られる。
 これによって、エージェントは解を見つけるまでのノード・エッジだけ保持して必要な解を見つけることが出来る。
+
 
 %\begin{example}
 
@@ -131,6 +139,22 @@
 
 %大まかには、情報なし探索による非明示的グラフは明示的グラフよりも指数的に小さく、ヒューリスティック探索による非明示的グラフは情報なし探索による非明示的グラフよりも更に指数的に小さいことが多い。
 
+
+% TODO: 解を早めに定義するべきか、アルゴリズムの説明にそれぞれ置くべきか...
+\section{状態空間問題の解}
+\label{sec:problem-solution}
+\captionlistentry[todo]{状態空間問題の解}
+どういう解が欲しいかによって用いるべきアルゴリズムが異なる。
+
+\subsection{最適解}
+最適解を返す
+\subsection{非最適解}
+
+\subsection{解列挙}
+Graph 500
+BDD
+
+% TODO: アルゴリズムを表にする？
 
 \section{状態空間問題の例}
 \label{sec:search-problem}
@@ -484,50 +508,148 @@ $Open$はPriority queueであり、何らかの基準によって$Open$から取
 \section{ヒューリスティック関数}
 \label{sec:heuristic-function}
 \captionlistentry[todo]{ヒューリスティック関数： 性質と定義の説明}
-ヒューリスティック関数はある状態からゴールまでの距離の見積もりである。
+ヒューリスティック関数はある状態からゴールまでの最短距離の見積もりである。
 
 \begin{definition}[ヒューリスティック関数]
 ヒューリスティック関数$h$はノードの評価関数である。$h: V \rightarrow \mathbb{R}_{\geq 0}$
 \end{definition}
 
+ヒューリスティック値が低いノードほどゴールに近いと推測できるので、探索ではヒューリスティック値が小さいノードを優先して展開する。
+ヒューリスティック関数の値をそのノードの$h$値と呼ぶことが多い。
+
+ヒューリスティック関数の望ましい性質として、まず正確である方が望ましい。すなわち、$h$値が実際のゴールまでの最短距離に近いほど、有用な情報であると言える。
+もう一つ望ましい性質は$h$値が最適解コストの下界である場合である。
+\ref{sec:astar-search}章で解説するが、$h$値が最短距離の下界である場合、それを用いた効率的な探索アルゴリズム(A*探索、重み付きA*探索)において解コストに理論的保証が得られることが広く知られている。
+$h$値が常に最適解コストの下界であるヒューリスティック関数を許容的なヒューリスティックと呼ぶ。
+
 \begin{definition}[許容的なヒューリスティック]
-ヒューリスティック関数$h$は最適解のコストの下界である場合、許容的である。すなわち、全てのノード$u \in V$に対して$h(u) \leq \delta(u, T)$が成り立つ。
+ヒューリスティック関数$h$は最適解のコストの下界である場合、許容的である。すなわち、全てのノード$u \in V$に対して$h(u) \leq h^*(u)$が成り立つ。
 \end{definition}
+
+ただし、$h^*(u)$はノード$u$からゴールノード集合$T$のいずれかへたどり着くための最短経路である。%$h^*$はパーフェクトヒューリスティックと呼ぶ。
+
+一般に、許容的なヒューリスティックを得る方法としては、元問題の{\bf 緩和問題}を解き、その最適解コストをヒューリスティック値とすることである。ある問題の緩和問題とは、解集合に元の問題の解を含む問題を指す。要するに元の問題より簡単な問題である\footnote{解が多いほど簡単であるとは一概には言えないが}。
+グラフ探索アルゴリズムにおいて緩和問題を作る方法は様々あるが、一つはグラフのエッジを増やすことで緩和が出来る。グラフのエッジを増やすには、問題の可能なアクションを増やすなどの方法がある。例えばグリッド経路探索問題の元問題は障害物のあるグリッドに移動することは出来ない。グリッド経路探索で有効なヒューリスティックの一つはマンハッタン距離ヒューリスティックである。これは現在位置とゴール位置のマンハッタン距離を$h$値とする。マンハッタン距離の意味としては、障害物を無視した最短経路の距離であるので、グラフのエッジを増やした緩和問題である。
+このように、問題の性質を理解していれば許容的なヒューリスティック関数を設計することが出来る。
+
+%許容的よりも強い性質としてとして無矛盾性がある。
+もう一つ重要な性質は無矛盾性である。
 
 \begin{definition}[無矛盾なヒューリスティック]
 ヒューリスティック関数$h$は全てのエッジ$e = (u, v) \in E$に対して$h(u) \leq h(v) + w(u,v)$が成り立つ場合、無矛盾である。
 \end{definition}
+
+無矛盾性は特に\ref{sec:astar-search}章で後述するA*探索において探索の効率性に重要な性質である。
+
+また、無矛盾なヒューリスティックのうちゴールノードの$h$値が0となるヒューリスティックは許容的である。
+
+\begin{theorem}
+ゴールノード$n \in T$に対して$h(n) = 0$となる無矛盾なヒューリスティックは許容的なヒューリスティックである。
+\end{theorem}
+
+\begin{proof}
+
+あるノード$n_0$からゴールノード$n_k \in T$への最短経路(ノードの列)を$(n_0, n_1,...)$と置く。無矛盾なヒューリスティック$h(n)$は
+\begin{align}
+	h(n_0) &\leq h(n_1) + w(n_0, n_1) \\
+			&\leq h(n_2) + w(n_0, n_1) + w(n_1, n_2) \\
+			&... \\
+			&\leq h(n_k) + \sum_{i=0..k-1}(w(n_i,n_{i+1})) \\
+			&= h^*(n_0)
+\end{align}
+よって$h(n_0) \leq h^*(n_0)$より許容的である。
+
+\end{proof}
+
 
 
 \section{A*探索}
 \label{sec:astar-search}
 
 A*探索はヒューリスティック探索の代名詞である、最も広く知られている
-手法である\cite{astar}。
-A*探索は以下のf値が最小となるノードを優先して探索を行う。
+手法である\cite{fikes:71}。
+A*探索は以下のf値が最小となるノードを優先したグラフ探索アルゴリズムである。
 
 \begin{equation}
 	f(n) = g(n) + h(n)
 \end{equation}
 
-\begin{algorithm}
-\caption{A*: $Open.pop()$}
-\label{alg:astar-open}
-	\Output{Node $u$}
-	\Return $\arg \min_n f(n)$
-\end{algorithm}
+%\begin{algorithm}
+%\caption{A*: $Open.pop()$}
+%\label{alg:astar-open}
+%	\Output{Node $u$}
+%	\Return $\arg \min_n f(n)$
+%\end{algorithm}
+
 
 ノードnのf値は、初期状態からnを通過してゴール状態に辿り着くためのコストの見積もりである。g値は初期状態からノードnまでの既知の最短経路コストである。一方h値はヒューリスティック関数によるnからゴール状態までの最短経路の見積もりである。
+A*探索は非明示的グラフ探索アルゴリズム(アルゴリズム\ref{alg:implicit-graph-search})の一つであり、$Open.pop()$を$f$値最小ノードを返すようにしただけである。
+ここでは実際のアルゴリズムの動きを追えるよう、アルゴリズム全体のコードを置いた\ref{alg:astar-search}。
 
+
+\begin{algorithm}
+\caption{A* search}
+	\Input{Implicit problem graph with initial node $n_0$, weight function $w$, successor generation function $Expand$, goal function $Goal$}
+	\Output{Path from $n_0$ to a goal node $t \in T$, or $\emptyset$ if no such path exists}
+	Initialize $OPEN$ to $\{n_0\}$\;
+    \While {$OPEN \neq \emptyset$} {
+	    Get and remove from OPEN a node $n$ with a smallest $f(n)$\;
+	    Add $n$ to CLOSED\;
+	    \If {$n \in T$} {
+	    	Return solution path from $n_0$ to $n$\;
+	    }
+	    
+	    \For {each $n' \in Expand(n)$} {
+	    	$g_1 = g(n) + w(n,n')$\;
+	    	\If {$n' \in CLOSED$} {
+	    		\If {$g_1 < g(n')$} {
+	    			%Set $g(n') = g_1$\;
+	    			%Set $f(n') = g(n') + h(n')$\;
+	    			%Set $\mbox{parent}(n') = n$\;
+	    			Remove $n'$ from CLOSED and add it to OPEN \;
+	    		} \Else {
+	    		    Continue\;
+		    	}
+	    	} \Else {
+		    	\If {$n' \notin OPEN$} {
+		    		Add $n'$ to OPEN\;
+		    	}
+		    	\ElseIf {$g_1 \geq g(n')$} {
+		    		Continue\;
+		    	}
+		    }
+   			$g(n') \leftarrow g_1$\;
+   			$f(n') \leftarrow g(n') + h(n')$\;
+   			$parent(n') \leftarrow n$\;
+	    }
+    }
+    \Return failure (no path exists)\;
+	
+	\caption{A*}
+	\label{alg:astar-search}
+\end{algorithm}
+
+
+\begin{theorem}
 ヒューリスティックが許容的である時、A*は最適解を返す。
+\end{theorem}
+\begin{proof}
+
 \captionlistentry[todo]{A*探索: 最適解の証明}
 %全てのノードnは展開時にg(n)がnに辿り着くための最短経路コストの値である。%これは無矛盾性か
-許容的なヒューリスティックh(n)はnからゴールへの経路の下限である。よって、ゴール状態のh値は0である。つまりゴール状態のf値はg値と同じである。この解のg(n')値をf*と置こう(解のコストに相当)。
+許容的なヒューリスティックh(n)はnからゴールへの経路の下界である。よって、ゴール状態のh値は0である。つまりゴール状態のf値はg値と同じである。この解のg(n')値をf*と置こう(解のコストに相当)。
 A*のノードの展開順に従うと、f*のノードを展開する前に全てのf<f*のノードが展開される。
 これらのノードがいずれもゴール状態でなければ、g(n)<=f(n)より、g(n)<f*となるゴール状態がない。すなわち、f*が最適解のコストとなり、n'がその時のゴール状態である。
 
+\end{proof}
+
+
+
 無矛盾なヒューリスティックである場合、全てのノードnは展開時までにg(n)がnに辿り着くための最短経路コストの値になる。
 
+\begin{theorem}
+無矛盾なヒューリスティックを用いたA*探索はノードの再展開が生じない。
+\end{theorem}
 
 
 
@@ -535,8 +657,10 @@ A*のノードの展開順に従うと、f*のノードを展開する前に全�
 
 \subsection{重み付きA*探索}
 \label{sec:weighted-astar-search}
-\captionlistentry[todo]{wA*: 解コストの上界の証明}
-許容的なヒューリスティックを用いた場合、最適解のコスト$f^*$に対して、発見される解のコストが$w f^*$以下であることを保証する。
+
+許容的なヒューリスティックを用いたA*探索は最適解が得られるが、必ずしも最適解がほしいわけではない場合もある。解のクオリティよりもとにかく解が何か欲しい、という場合もある。
+重み付きA*探索(weighted A*, wA*)は解のクオリティが落ちる代わりにより素早く買いにたどり着くための手法である。
+wA*は重み付き$f$値、$f_w$が最小のノードを優先して探索する。
 
 \begin{equation}
 	f_w(n) = g(n) + w h(n)
@@ -548,6 +672,18 @@ A*のノードの展開順に従うと、f*のノードを展開する前に全�
 	\Output{Node $u$}
 	\Return $\arg \min_n f_w(n)$
 \end{algorithm}
+
+
+\begin{theorem}
+許容的なヒューリスティックを用いた重み付きA*探索は最適解のコスト$f^*$に対して、発見される解のコストが$w f^*$以下であることを保証する。
+\end{theorem}
+\captionlistentry[todo]{wA*: 解コストの上界の証明}
+
+
+wA*の利点はそこそこの計算時間で解のクオリティに保証がついた解を見つけることが出来ることにある。
+wA*の解は最適解のコストの上界になるので、A*探索の枝刈りに用いることが出来る。
+A*探索を実行する前にwA*を走らせ、解の上界を得、A*探索実行時にその値を超す$f$値を持ったノードを
+
 
 \section{貪欲最良優先探索 (Greedy Best-First Search)}
 \label{sec:greedy-best-first-search}
