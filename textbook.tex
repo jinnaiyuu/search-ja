@@ -1,4 +1,4 @@
-\documentclass{report}
+\documentclass[b5paper]{report}
 
 \usepackage{times}
 \usepackage{helvet}
@@ -168,13 +168,13 @@ Expandはある状態からの次の状態の集合を返す関数である。Ex
 
 \subsection{グリッド経路探索 (Grid Path-finding)}
 \captionlistentry[todo]{Grid Pathfinding: なんかいい感じの絵}
-グリッド経路探索問題は$k$(多くの場合$k=2$)次元のグリッド上で初期配置からゴール位置までの経路を求める問題である。グリッドには障害物がおかれ、通れない箇所がある。エージェントが移動できる方向は4方向($A= \{up, down, left, right\}$)か8方向(4方向に加えて斜め移動)とする場合が多い。
+グリッド経路探索問題は$k$(多くの場合$k=2$)次元のグリッド上で初期配置からゴール位置までの経路を求める問題である\cite{yap2002grid}。グリッドには障害物がおかれ、通れない箇所がある。エージェントが移動できる方向は4方向($A= \{up, down, left, right\}$)か8方向(4方向に加えて斜め移動)とする場合が多い。自由方向(Any Angle)の問題を扱う研究も存在する\cite{nash2007theta}。
 
 Web上に簡単に試せるデモがあるので、参照されたい：\url{http://qiao.github.io/PathFinding.js/visual/}。とてもよくできており、この文章で説明する様々なグラフ探索手法をグリッド経路探索に試すことが出来る。
 
-グリッド経路探索はゲームAIなどで応用される。ストラテジーゲームなどでユニット（エージェント）を動かすために使われる。
+グリッド経路探索はロボットのモーションプランニングやゲームAIなどで応用される\cite{algfoor2015comprehensive}。ストラテジーゲームなどでユニット（エージェント）を動かすために使われる。よく使われるベンチマーク問題集にもStarcraftのゲームのマップが含まれている\cite{sturtevant2012benchmarks}.
 またグリッドは様々な問題を経路探索に帰着して解くことができるという意味でも重要である。例えばMultiple Sequence Alignmentはグリッド経路探索に帰着して解くことが出来る(後述)。
-あるいはロボットのモーションプランニングなども経路探索となる。すなわち、$k$個の関節の角度を変えて、現在状態からゴール状態へ遷移させたい。各関節の角度がグリッドの各次元に相当する。ロボットの物理的な構造により、関節のある角度の組み合わせは不可能である。不可能な組み合わせが、障害物の置かれたグリッドに相当する。よって、障害物を避けた経路というのが関節の動かし方ということになる。
+ロボットのモーションプランニングも経路探索に帰着することが出来る。すなわち、$k$個の関節の角度を変えて、現在状態からゴール状態へ遷移させたい。各関節の角度がグリッドの各次元に相当する。ロボットの物理的な構造により、関節のある角度の組み合わせは不可能である。不可能な組み合わせが、障害物の置かれたグリッドに相当する。よって、障害物を避けた経路というのが関節の動かし方ということになる。
 
 %Starcraft 1ではA*探索が使われていた。
 %しかしマルチエージェント
@@ -193,10 +193,10 @@ $1$から$(n^2)-1$までの数字が振られたタイルが$n\times n$の正方
 \label{fig:15-puzzle}
 \end{figure}
 
-スライディングタイルの到達可能な状態の数は$|V| = (n^2)!/2$\footnote{スライディングタイルは偶奇性があり、到達不可能な状態がある\cite{TODO}。}であり、$n$に対して指数的に増加する。
+スライディングタイルの到達可能な状態の数は$|V| = (n^2)!/2$\footnote{スライディングタイルは偶奇性があり、到達不可能な状態がある\cite{johnson1879notes}。}であり、$n$に対して指数的に増加する。
 可能なアクションは$A= \{up, down, left, right\}$の４つであり、アクションにかかるコストはすべて同じとする。
 
-後述するが、ヒューリスティック探索のためには状態からゴール状態までの距離(コスト)の下界（lower bound）を計算する必要がある。
+後述するが、ヒューリスティック探索のためには状態からゴール状態までの距離(コスト)の下界（lower bound）が計算できると有用である。
 スライディングタイルにおける下界の求め方として最もシンプルなものは{\it マンハッタン距離ヒューリスティック}である。マンハッタン距離ヒューリスティックは各タイルの現在状態の位置とゴール状態の位置のマンハッタン距離の総和を取る。可能なアクションはすべて一つしかタイルを動かさないので、一回のアクションでマンハッタン距離は最大で１しか縮まらない。よって、マンハッタン距離はゴールまでの距離の下界である。
 
 %ちなみに、スライディングタイルはpermutation problemの一つである。
@@ -204,16 +204,16 @@ $1$から$(n^2)-1$までの数字が振られたタイルが$n\times n$の正方
 \subsection{Multiple Sequence Alignment (MSA)}
 
 生物学・進化学では遺伝子配列・アミノ酸配列の編集距離(edit distance)を比較することでニ個体がどれだけ親しいかを推定することが広く研究されている。
-MSAは複数の遺伝子・アミノ酸配列が与えられた時、それらの配列間の編集距離とその時出来上がった配列を求める問題である。
+Multiple Sequence Alignment (MSA)は複数の遺伝子・アミノ酸配列が与えられた時、それらの配列間の編集距離とその時出来上がった配列を求める問題である\cite{edgar2006multiple}。
 ２つの配列に対してそれぞれコストの定義された編集操作を繰り返し、同一の配列に並べ替える手続きをアライメントと呼ぶ。
-２つの配列の編集距離はアライメントのコストの最小値である。
+２つの配列の編集距離は編集操作の合計コストの最小値である。
 ３つ以上の配列における距離の定義は様々考えられるが、ここでは全ての配列のペアの編集距離の総和を用いる。
 
-MSAにおける可能な編集操作は置換と挿入である。置換は配列のある要素(DNAかアミノ酸)を別の要素に入れ替える操作であり、挿入は配列のある位置に要素を挿入する操作である。例えば(ABC, BCB, CB)の３つの配列のアライメントを考える。図\ref{fig:msa-cost}は置換と編集に対するコストの例である。-は欠損、すなわち挿入操作が行われたことを示す。アミノ酸配列における有名なコスト表としてPAM250があるが、ここでは簡単のため仮のコスト表を用いる\cite{MSA}。
+MSAにおける可能な編集操作は置換と挿入である。置換は配列のある要素(DNAかアミノ酸)を別の要素に入れ替える操作であり、挿入は配列のある位置に要素を挿入する操作である。例えば(ABC, BCB, CB)の３つの配列のアライメントを考える。図\ref{fig:msa-cost}は置換と編集に対するコストの例である。-は欠損、すなわち挿入操作が行われたことを示す。アミノ酸配列における有名なコスト表としてPAM250\cite{pearson1990}があるが、ここでは簡単のため仮のコスト表を用いる。
 図\ref{fig:msa-solution}はこのコスト表を用いたアライメントの例である。
 このとき、例えば配列ABC-と-BCBの編集距離は(A,-)、 (B,B)、 (C,C)、 (-,B)のコストの総和であるので、図\ref{fig:msa-cost}を参照し、$5+0+1+5=11$である。(-BCB, --CB)の距離は$6$, (--CB, ABC-)の距離は$16$であるので、３配列の編集距離は$11+6+16=33$である。
 
-$n$配列のMSAは$n$次元のグリッドの経路探索問題に帰着することが出来る。
+$n$配列のMSAは$n$次元のグリッドの経路探索問題に帰着することが出来る\cite{korf:2000}。
 図\ref{fig:msa-to-grid}は(ABC)と(BCB)の２つの配列による問題を表す。
 状態$s$は２つの変数によって表現される:$(x_0, x_1)$。$x_0$は配列0のどの位置までアライメントを完了したかを表す変数であり、配列$i$の長さを$l_i$とすると定義域は$0 \leq x_0 \leq l_0$である。
 全てのアライメントが完了した状態$s=(l_0, l_1)$がゴール状態である。
@@ -221,10 +221,9 @@ $n$配列のMSAは$n$次元のグリッドの経路探索問題に帰着する�
 状態$s$に対してアクション$a$を適用した後の状態$s'$は$s'=(x_0+b_0, x_1+b_1)$となる。例えば図\ref{fig:msa-to-grid}は初期状態$s=(0,0)$に対して$a=(1,0)$を適用している。これは(A), (-)までアライメントを進めた状態に対応する。次に$a=(1,1)$が適用され、アライメントは(A,B), (-,B)という状態に至る。
 
 このようにして、MSAはグリッド経路探索問題に帰着し、グラフ探索アルゴリズムよって解くことが出来る。
-状態空間問題として考えた場合にMSAの難しさはアクションのコストが幅広いことにある。また、分枝数は配列の数$n$に対して$2^n-1$と大きい。
+状態空間問題として考えた場合にMSAの難しさはアクションのコストが幅広いことにある。また、可能なアクションの数も配列の数$n$に対して$2^n-1$と大きい。
 
-MSAは生物学研究に役立つというモチベーションから非常に熱心に研究されており、様々な定式化による解法が知られている。
-例えば動的計画法が使われている。
+MSAは生物学研究に役立つというモチベーションから非常に熱心に研究されており、様々な定式化による解法が知られている\cite{edgar2006multiple}。
 
 
 
@@ -268,10 +267,10 @@ MSAは生物学研究に役立つというモチベーションから非常に�
 \end{figure}
 
 
-
 \subsection{倉庫番 (Sokoban)}
 倉庫番(Sokoban)は日本発のパズルゲームであり、倉庫の荷物を押していくことで指定された位置に置くというゲームである。現在でも様々なゲームでゲーム内ミニゲームとして親しまれている。
 プレイヤーは「荷物の後ろに回って押す」ことしか出来ず、引っ張ったり、横から動かしたりすることが出来ない。また、荷物の上を通ることも出来ない。
+PSPACE-completeであることが知られている\cite{culberson1997sokoban}。
 
 \begin{figure}
 \centering
@@ -302,11 +301,11 @@ MSAは生物学研究に役立つというモチベーションから非常に�
 \subsection{巡回セールスパーソン問題 (Traveling Salesperson Problem, TSP)}
 
 セールスパーソンはいくつかの都市に回って営業を行わなければならない。都市間の距離(=コスト)は事前に与えられている。
-TSPは全ての都市を最短距離で回ってはじめの都市に戻る経路を求める、という問題である。
+TSPは全ての都市を最短距離で回ってはじめの都市に戻る経路を求める、という問題である\cite{applegate2006traveling}。
 
 \begin{figure}
 \centering
-\includegraphics[width=0.4\textwidth]{figures/sokoban.pdf}%TODO
+\includegraphics[width=0.4\textwidth]{figures/tsp.png}%TODO
 \caption{巡回セールスパーソン問題: 画像はwikipediaより。}
 \label{fig:sokoban}
 \end{figure}
@@ -316,12 +315,12 @@ $n$個の都市があるとすると(最適・非最適含む)解の数は$(n-1)
 可能なアクションは「都市$i \in \{1..n\}$を訪れる」であり、一度訪れた都市には行けない。
 TSPのゴール条件はすべての都市を訪れることである。よって、$n$回どれかアクションを実行すれば、とりあえず解を得ることが出来る。一方、最適解を得る問題はNP完全であることが知られている。
 
-TSPの解の下界としては{\it 最小全域木} (minimum spanning tree)のコストがよく用いられる。
+TSPの解の下界としては{\it 最小全域木} (minimum spanning tree)のコストがよく用いられる\cite{held1970traveling}。
 グラフの{\it 全域木} (spanning tree)は全てのノードを含むループを含まない部分グラフである。
 最小全域木は全域木のうち最もエッジコストの総和が小さいものである。
 未訪問の都市によるグラフの最小全域木はTSPの下界となることが知られている。
 
-TSPはヒューリスティック探索に限らず、様々なアプローチで研究されている問題ドメインである\cite{applegate2006traveling}。この問題ドメインについて特に詳しく知りたい方はそちらの教科書を参照されたい。
+TSPはヒューリスティック探索に限らず、様々なアプローチで研究されている問題ドメインである\cite{applegate2006traveling}。TSPについて特に詳しく知りたい方はそちらの教科書を参照されたい。
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -341,10 +340,10 @@ TSPはヒューリスティック探索に限らず、様々なアプローチ�
 本章では最もシンプルな問題（ドメイン）の知識を利用しない探索を紹介する。
 情報なし探索 (Blind Search)は状態空間グラフのみに注目し、背景にある問題に関する知識を一切使わないアルゴリズムである。
 情報なし探索で重要なのは1. 重複検知を行うかと 2. ノードの展開順序の二点である。
-重複検知は訪問済みのノードを保存しておくことで同じノードを繰り返し探索することを防ぐ手法である。対価としては、メモリの消費量が非常に大きくなることにある。
+重複検出は訪問済みのノードを保存しておくことで同じノードを繰り返し探索することを防ぐ手法である。対価としては、メモリの消費量が非常に大きくなることにある。
 ノードの展開順序とは、例えば幅優先探索・深さ優先探索などのバリエーションを指す。
 効率的な展開順序は問題によって大きく異なり、問題を選べばこれらの手法によって十分に効率的な探索を行うことが出来る。
-これらの探索手法は競技プログラミングでもよく解法として使われる(らしい)\footnote{TODO: 典拠}。また、いわゆるコーディング面接でもグラフ探索アルゴリズムは頻出である（らしい）\footnote{TODO: 典拠}。
+これらの探索手法は競技プログラミングでもよく解法として使われる\cite{skiena2006programming}。また、いわゆるコーディング面接でもグラフ探索アルゴリズムは頻出である\cite{mcdowell2011cracking}。
 %\ref{ch:search-performance}章はグラフ探索の高速化の紹介をするので、特に競技プログラミングに興味がある場合はそちらも参照されたい。% TODO
 
 
@@ -376,7 +375,7 @@ TSPはヒューリスティック探索に限らず、様々なアプローチ�
 \end{algorithm}
 
 以下、(k)と書いて疑似コードのk行目を指すことにする。
-木探索はオープンリスト\footnote{歴史的な経緯でリストと呼ばれているが、データ構造がリストで実装されるという意味ではない。}と呼ばれるノードの集合を保持する。探索の開始時には、初期状態のみがオープンリストに入っている(1)。
+木探索はオープンリスト\footnote{歴史的な経緯でリストと呼ばれているが、データ構造がリストで実装されるという意味ではない。効率的なデータ構造は\ref{ch:search-performance}章で紹介する。}と呼ばれるノードの集合をPriority queueに保持する。探索の開始時には、初期状態のみがオープンリストに入っている(1)。
 木探索は、このオープンリストから一つノード$u$を選び(3)、ゴール条件を満たしているかを確認する(4)。満たしていれば初期状態から$u$への経路を返す。満たしていなければ、そのノードを展開する(6-)。展開とは、そのノードの子ノードを列挙し、オープンリストに入れる(8)ことを指す。
 
 探索の進行によってエージェントが保持する情報は変化していく。ここでは探索がどのように進行するかを記述するため、以下の３つの言葉を定義する：
@@ -389,9 +388,11 @@ TSPはヒューリスティック探索に限らず、様々なアプローチ�
 \end{enumerate}
 
 非明示的グラフ木探索の強みは、生成済みノードのうち展開済みではないもののみを$Open$に保持すればよいことにある。未生成ノード、展開済みノードはメモリ上に保持する必要がない。
-$Open$はPriority queueであり、何らかの基準によって$Open$から取り出してくるノードを決める。
+一方、これの問題は、一度展開したノードが再び現れた場合、{\bf 再展開 (reexpansion)}をすることになる。よって、グラフがより木から遠いほど(複数の経路で到達可能なノードがあるほど)同じノードを何度も再展開することになり、効率が悪くなってしまう。もっと言えば、木探索アルゴリズムは状態数が有限であっても停止しない場合がある。
+これらが問題になるような問題ドメインである場合は後述する重複検出を使うグラフ探索\ref{sec:graph-search-algorithm}を使うと良いだろう。
 
-木探索アルゴリズムは名前の通り木を探索する場合により効率的であることが多いが(後述するが、重複検出をしないため)、グラフ一般に対して適用することが出来る。
+{\bf 紛らわしいが、木探索アルゴリズムはグラフを探索するアルゴリズムである。}
+グラフ探索アルゴリズムのうち、後述する重複検出を行わない手法を木探索アルゴリズムと呼ぶ。
 
 
 %同じ状態を複数回展開すると計算資源を無駄にすることになるのでなるべく重複を避けたい。
@@ -406,9 +407,9 @@ $Open$はPriority queueであり、何らかの基準によって$Open$から取
 \section{幅優先探索 (Breadth-First Search)}
 \label{sec:breadth-first-search}
 
-木探索のパフォーマンスにおいて重要になるのはどのようにして展開するノードを選択するかにある($Open.pop()$)。
+木探索のパフォーマンスにおいて重要になるのは{\bf どのようにして展開するノードを選択するか}にある($Open.pop()$)。
 ヒューリスティック探索の研究の非常に大きな部分はここに費やされているといえる。
-最もシンプルかつ強力なノード選択方法はFirst-in-first-out (FIFO)である。またの名を幅優先探索と言う。
+シンプルかつ強力なノード選択方法はFirst-in-first-out (FIFO)である。あるいは幅優先探索と呼ぶ。
 
 幅優先探索の手順は非常に単純であり、FIFOの順に$Open$から取り出せばいいだけである。
 これをもう少し大きな視点で、{\it どのようなノードを優先して探索しているのか}を考えてみたい。
@@ -435,6 +436,8 @@ $Open$はPriority queueであり、何らかの基準によって$Open$から取
 例えばTSPは全ての街を回ったときのみが解であるので、街の数が$n$であれば全ての解の経路長が$n$である。
 このような問題を幅優先探索で解こうとすると、解は最も深いところにしかないので、最後の最後まで解が一つも得られないということになる。一方、深さ優先探索なら$n$回目の展開で一つ目の解を見つけることが出来る。
 
+良い解、最適解を見つけたい場合でも深さ優先探索が有用である場合がある。
+早めに一つ解が見つけられると、その解よりも質が悪い解にしかつながらないノードを枝刈り(pruning)することが出来る。詳しくは\ref{sec:pruning}章で解説する。
 
 \begin{algorithm}
 \caption{Depth-First Search: $Open.pop()$}
@@ -729,6 +732,7 @@ TSPの解の下界としては{\it 最小全域木} (minimum spanning tree)の�
 最小全域木は全域木のうち最もエッジコストの総和が小さいものである。
 未訪問の都市によるグラフの最小全域木はTSPの下界となることが知られている。
 
+
 \subsection{ゴールカウントヒューリスティック}
 
 多くの問題ではゴールはいくつかの条件を満たした状態の集合として与えられる。
@@ -764,20 +768,42 @@ FIFO, LIFOのどちらが良いかという問題もある。
 
 %また、無矛盾ではないヒューリスティックを用いる場合再展開をしなければならない。これを行うコストも考えなければならない。
 
+bucket open list
+h tiebreaking
+FIFO, LIFO tiebreaking
+
+
 \section{クローズドリスト}
 \label{sec:closed-list}
 \captionlistentry[todo]{closedlist}
 
 クローズドリストはハッシュテーブル
+incremental hashing
+perfect hashing
+universal hashing
+
+\subsection{Delayed Duplicate Detection}
+重複検出のタイミングは２通りある。
+
+\section{枝刈り}
+\label{sec:pruning}
+重複検出とか
+admissible pruning
+ Branch and Bound
+ wA* pruning (MSA)
+inadmissible pruning
+ Novelty-based pruning
+ Iterative Width search
+
 
 
 % TODO: 基礎の説明が出来たら
 \chapter{ヒューリスティック探索 variants}
 \label{ch:heuristic-serach-variants}
 A*探索などのヒューリスティック探索は時間と空間の両方がボトルネックとなりうる。
-すなわち、A*はノードを一つずつ展開していかなければならないので、その数だけExpandを実行しなければならない。また、A*は重複検出のために展開済みノードをすべてClosedに保存する。なので、必要な空間も展開ノード数に応じて増えていく。
+すなわち、A*はノードを一つずつ展開していかなければならないので、その数だけExpandを実行しなければならない。また、A*は重複検出のために展開済みノードをすべてクローズドリストに保存する。なので、必要な空間も展開ノード数に応じて増えていく。
 
-残念ながら、ほぼ正しいコストを返すヒューリスティック関数を使っても、A*が展開するノードの数は指数的に増加することが知られている\cite{almost perfect heursitic}。
+残念ながら、ほぼ正しいコストを返すヒューリスティック関数を使っても、A*が展開するノードの数は指数的に増加することが知られている\cite{helmert:08}。
 
 そのため、ヒューリスティックの改善のみならず、アルゴリズム自体の工夫をしなければならない。
 この章では時間・空間制約がある場合のA*の代わりとなるヒューリスティック探索の発展を紹介する。
@@ -802,7 +828,7 @@ A*探索は時間・空間の両方がボトルネックになるが、現代の
 まず、コスト$w$が0となるアクションが存在しない場合、必要なメモリ量が最適解のコストに対して線形である。深さ優先木探索は可能な最長経路だけのノードを保持する必要がある。木探索はクローズドリストは保持しない。コスト制限付きの場合、最長経路は$cost$以下である。$0<w<1$となる実数コストがある場合、最小の$w$が$1$となるようにリスケールすることが出来る。 反復深化は$cost$が最適解のコストになった時に停止するので、必要なメモリ量は最適解のコストに対して線形である。
 そのため、A*ではメモリが足りなくなって解けないような難しい問題でも反復深化A*なら解ける可能性がある。
 
-メモリ量と関連してもう一つの重要なメリットはキャッシュ効率である。上述のように反復深化A*は必要なメモリ量が非常にすくない。また、メモリアクセスパターンもかなりリニアである。そのため、ほぼキャッシュミスなく探索を行えるドメインも多い。例えば、15-puzzleなどの状態が少ないビット数で表せられるドメインでは特にキャッシュ効率が良く、1ノードの展開速度の差はTODO倍という実験結果もある\cite{korf:85a}。実際、15-puzzleではIDA*のほうがA*よりも速く解を見つけることが出来る\cite{korf:85a}。何度も何度も重複して同じノードを展開しているのにも関わらずである。
+メモリ量と関連してもう一つの重要なメリットはキャッシュ効率である。上述のように反復深化A*は必要なメモリ量が非常にすくない。また、メモリアクセスパターンもかなりリニアである。そのため、ほぼキャッシュミスなく探索を行えるドメインも多い。例えば、15-puzzleなどの状態が少ないビット数で表せられるドメインでは特にキャッシュ効率が良く、1ノードの展開速度の差は{\bf TODO}倍という実験結果もある\cite{korf:85a}。実際、15-puzzleではIDA*のほうがA*よりも速く解を見つけることが出来る\cite{korf:85a}。何度も何度も重複して同じノードを展開しているのにも関わらずである。
 
 
 反復深化A*は解を返す場合、得られた解が最適解であることを保証する。
@@ -826,7 +852,7 @@ A*探索は時間・空間の両方がボトルネックになるが、現代の
 
 \begin{algorithm}
 \caption{CLDFS: Cost Limited Depth First Search}
-\label{alg:implicit-graph-search}
+\label{alg:cldfs}
 	\Input{Initial node $s$, cost $c$}
 	\Output{Path from $s$ to a goal node $t \in T$, or $\emptyset$ if no such path with cost $\leq cost$}
 	\If {$Goal(s)$} {
@@ -864,24 +890,88 @@ A*で用いられるClosedと異なり、このテーブルはすべての生成
 
 \section{External Search}
 \label{sec:external-search}
-A*探索は重複検出のために今までに展開したノードをすべて保持しなければならない。
+
+
+グラフ探索は重複検出のために今までに展開したノードをすべて保持しなければならない。
 よって、保持できるノードの量によって解ける問題が決まってくる。
+探索空間があまりに大きすぎると、ノードが多すぎてメモリに乗り切らないということが起きる。
 
 External Searchは外部記憶、HDDやSDDを用いることでこの問題を解決する。
 すなわち、Open、Closedの一部を外部記憶に保持し、必要に応じて参照しRAMに持ってくる、ということをする。
 External Searchのミソは、外部記憶へのアクセス回数をどのように減らすかにある。
-\url{http://norvig.com/21-days.html#answers}は一般的なコンピュータのキャッシュ・メモリ・ハードディスクへのアクセスレイテンシーを比較した表である。メモリから1MB{\it 逐次に}読みだすオペレーションは250,000 nanosecかかるが、ハードディスクからの読出しは20,000,000 nanosecもかかる。更にハードディスクにランダムアクセスする場合(Disk seek)は8,000,000 nanosecもかかる。
-よって、HDDは工夫して使わなければ実行時間が非常に遅くなってしまう\footnote{似たような理由で、HDDを用いないRAMベースの探索を効率化するためにはキャッシュ効率を工夫しなければならない。詳しくは\cite{burns2012implementing}を参照されたい。}。
+表\ref{tbl:latency}は一般的なコンピュータのキャッシュ・メモリ・ハードディスクへのアクセスレイテンシーを比較した表である。メモリから1MB{\it 逐次に}読みだすオペレーションは250,000 nanosecかかるが、ハードディスクからの読出しは20,000,000 nanosecもかかる。更にハードディスクにランダムアクセスする場合(Disk seek)は8,000,000 nanosecもかかる。
+よって、HDDは工夫して使わなければ実行時間が非常に遅くなってしまう。%\footnote{似たような理由で、HDDを用いないRAMベースの探索を効率化するためにはキャッシュ効率を工夫しなければならない。詳しくは\cite{burns2012implementing}を参照されたい。}。
+
+\begin{table}
+\centering
+\caption{一般的なハードウェアのアクセス速度。メモリへのアクセス速度に対して外部記憶のアクセスは遅い。加えて、ランダムアクセスはseekの時間がかかるためさらに遅くなる。 (https://gist.github.com/jboner/2841832)}
+\label{tbl:latency}
+\begin{tabular}{|l|r|}
+		   & nano sec \\ \hline
+	命令実行 & 1 \\
+	fetch from L1 cache memory & 0.5 \\
+	branch misprediction 		& 5 \\
+	fetch from L2 cache memory & 7 \\
+	mutex lock/unlock  			& 25 \\
+	fetch from main memory  	& 100 \\
+	Read 4K randomly from SSD         & 150,000 \\
+	read 1MB sequentially from memory & 250,000 \\
+	fetch from new disk location (seek) & 8,000,000 \\
+	Read 1 MB sequentially from SSD		& 1,000,000 \\
+	read 1MB sequentially from disk 	& 20,000,000 \\
+	
+\end{tabular}
+\end{table}
+
+\subsection{External 幅優先探索}
+\label{sec:external-brfs}
+
+\captionlistentry[todo]{External BrFS}
+
+\begin{algorithm}
+\caption{External Breadth-first search}
+\label{alg:external-brfs}
+	\Input{Initial node $s$}
+	\Output{Path from $s$ to a goal node $t \in T$, or $\emptyset$ if no such path with cost $\leq cost$}
+	$Open(-1) \leftarrow \emptyset$\;
+	$Open(0) \leftarrow \{s\}$\;
+	$i \leftarrow 1$\;
+	\While {$Open(i-1) \neq \emptyset$}{
+		$A(i) \leftarrow Succ(Open(i-1))$\;
+		\If {$Goal(Open(i))$} {
+			\Return $Construct(Open(i))$\;
+		}
+		$A'(i) \leftarrow RemoveDuplicates(A(i))$\;
+		$Open(i) \leftarrow A'(i) \setminus (Open(i-1)\cup Open(i-2))$\;
+		$i \leftarrow i + 1$\;
+	}
+	\Return No solution found
+\end{algorithm}
+
 
 \subsection{External A*}
 \label{sec:external-astar}
 \captionlistentry[todo]{external A*: ALL}
+
+
+
+\begin{algorithm}
+\caption{External A* search}
+\label{alg:external-astar}
+	\Input{Initial node $s$}
+	\Output{Path from $s$ to a goal node $t \in T$, or $\emptyset$ if no such path with cost $\leq cost$}
+	
+	XXX
+	\Return No solution found
+\end{algorithm}
+
+
 \section{Symbolic Search}
 \label{sec:symbolic-search}
 Binary Decision Diagram (BDD)は二分木によってブーリアンvectorからブーリアンへの関数$(x_0,x_1,...,x_n) \rightarrow \{0, 1\}$を効率良く表すグラフ構造である。
 Symbolic SearchではBDDを使って状態の集合、アクションの集合を表し、BDD同士の演算によって状態の集合を一気に同時に展開していく。
 A*探索がノードを一つずつ展開していき、一つずつ生成していく手間と比較して非常に効率的に演算が出来るポテンシャルを秘めている。
-最新のInternational Planning Competition (2014)のSequential Optimal部門(最適解を見つけるパフォーマンスを競う部門)の一位から三位までをSymbolic Searchが総なめした。現在(2017年)のstate-of-the-artの手法であるといえるだろう。
+International Planning Competition (2014)のSequential Optimal部門(最適解を見つけるパフォーマンスを競う部門)の一位から三位までをSymbolic Searchが総なめした。現在(2017年)のstate-of-the-artの手法であるといえるだろう。
 
 \subsection{Binary Decision Diagram}
 \label{sec:binary-decision-diagram}
@@ -910,15 +1000,6 @@ BDDを使う準備として、状態をブーリアンvectorに変換する。
 %\subsection{Symbolic Heuristic Search}
 
 
-\section{Exploration Based Search}
-\label{sec:exploration-based-search}
-\captionlistentry[todo]{exploration-based search: ALL}
-% TODO: novelty based?
-Iterative Width search \cite{lipovetzkyg12}.
-
-Prioritized iterative width search \cite{shleyfmantd16}
-
-Invasion percolation \cite{asai2016tiebreaking}
 
 
 
@@ -995,6 +1076,7 @@ LB := \frac{\text{Maximum number of nodes assigned to a thread}}{\text{Average n
 
 これらのオーバーヘッドは独立ではなく、むしろ相互に関係しており、トレードオフの関係にある。
 多くの場合、通信・同期オーバーヘッドと探索オーバーヘッドがトレードオフの関係にあたる。
+
 
 \subsection{Hash Distributed A*}
 \label{sec:hash-distributed-astar}
@@ -1078,8 +1160,6 @@ Domain transition graph
 
 Abstract featureの生成方法としてstate-of-the-artの手法はGraph partitioning-based \cite{jinnai2017work}であり、各DTGを与えられた最適化指標下で分割することでabstract featureを生成する。
 
-\subsection{GPU-based Parallelization}
-\label{sec:gpu-search}
 
 
 
@@ -1090,17 +1170,18 @@ Abstract featureの生成方法としてstate-of-the-artの手法はGraph partit
 \end{comment}
 
 
+
 \chapter{古典的プランニング問題}
 \label{ch:classical-planning}
 この章では古典的プランニング問題について説明する。
 古典的プランニング問題はエージェントの自動行動計画を行うための問題の一つであり、状態空間問題の一つである \cite{fikes:71}。
 
-ロジスティック\cite{helmert2010scanalyzer,sousa2013toward}、セルアセンブリ\cite{asai2014fully}、遺伝子距離計算\cite{erdem2005genome}、ビデオゲーム\cite{Lipovetzky2015a}など、様々な応用問題を含むフレームワークである。
+ロジスティック\cite{helmert2010scanalyzer,sousa2013toward}、セルアセンブリ\cite{asai2014fully}、遺伝子距離計算\cite{erdem2005genome}、ビデオゲーム\cite{lipovetzky2015a}など、様々な応用問題を含むフレームワークである。
 
 環境が決定的であり、完全情報を仮定する。
 これらの仮定を緩和した問題（確率的モデルや不完全情報モデル）もグラフ探索によって解かれることが多いが、本文の範囲外とする。詳細はAIの教科書を参照されたい\cite{russelln03}。
 
-なお、プランニング問題はA*などの状態空間探索アルゴリズム以外にも、SATやCSPなどの制約充足問題に変換して解く方法もあるがこれも本書の範囲外とする\cite{SAT planner}。
+なお、プランニング問題はA*などの状態空間探索アルゴリズム以外にも、SATやCSPなどの制約充足問題に変換して解く方法もあるがこれも本書の範囲外とする\cite{kautz:92}。
 
 \section{定義}
 \label{sec:planning-definition}
@@ -1243,6 +1324,37 @@ Iterative Width探索 (IW search)\cite{lipovetzky2015a}は幅優先探索に新�
 Atari
 General Video Game Playing
 \end{comment}
+
+% TODO: こういうチャプターがあるとキャッチーだね
+\chapter{機械学習と探索・プランニング}
+\label{ch:machine-learning}
+A review of ML for AP \cite{jimenez2012review}
+
+
+\section{強化学習と探索}
+\label{sec:rl}
+R. Sutton
+David Silver RL and simulation-based search
+
+\section{Alpha Go}
+\label{sec:alpha-go}
+AlphaGo \cite{silver2016mastering}
+
+\section{探索の為の機械学習}
+A review of ML for AP \cite{jimenez2012review}
+
+\subsection{探索の効率化}
+YJ DASP
+
+\subsection{ドメインモデルの生成}
+Konidaris et al.
+
+
+\section{参考文献}
+Predictron
+DL for Reward design in MCTS
+Juhn, Satinder, et al.
+
 
 \bibliographystyle{spmpsci}
 
