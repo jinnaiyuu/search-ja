@@ -1,14 +1,12 @@
 \documentclass[b5paper]{report}
-\def\pgfsysdriver{pgfsys-tex4ht.def}
-%\usepackage{tex4ht}
-\usepackage[utf8]{inputenc}
+%\usepackage[utf8]{inputenc}
 \usepackage{times}
 \usepackage{helvet}
 \usepackage{courier}
 \usepackage{comment}
 \usepackage{subfig}
 \usepackage{relsize}
-\usepackage[dvips]{graphicx}
+\usepackage[dvipdfmx]{graphicx}
 
 \usepackage{enumitem}
 \usepackage{adjustbox}
@@ -34,15 +32,23 @@
 \newtheorem{definition}{Definition}
 \newtheorem{theorem}{Theorem}
 
-\setcounter{secnumdepth}{2}
-%\frenchspacing
-
-% Acronyms
-\newcommand{\ZHDA}{ZHDA*}
 
 % Utility macros: would be removed from the final version
 \usepackage{newfloat}
 \DeclareFloatingEnvironment{todo}
+\usepackage{makeidx}
+\makeindex
+
+\setcounter{secnumdepth}{2}
+%\frenchspacing
+
+% Macros
+\newcommand{\define}[2]{{\bf #1} (#2) \index{#1}\index{#2}}
+\newcommand{\TODO}{{\bf TODO}}
+
+% Acronyms
+\newcommand{\ZHDA}{ZHDA*}
+
 
 % Environments
 \newenvironment{abst}[0]
@@ -78,6 +84,11 @@
 \chapter{イントロダクション}
 \label{ch:introduction}
 
+\section{何故人工知能に探索が必要なのか}
+\label{sec:why-search}
+
+\captionlistentry[todo]{why-search: Pearl's Heuristics}
+
 \captionlistentry[todo]{Introduction: なんかいい感じの絵}
 
 人は様々な問題を探索によって解決している。
@@ -87,6 +98,9 @@
 このような様々な問題はグラフ探索問題として統合してモデルすることが出来る。
 %もちろん、それぞれの問題はそれぞれの特徴があり、それぞれで効率的な解法が異なる。
 
+
+\chapter{状態空間問題 (State-Space Problem)}
+\label{ch:state-space-problem}
 
 % This chapter is ...
 この章ではまず、\ref{sec:state-space-problem}節ではグラフ探索手法が用いられる問題として状態空間問題を定義する。
@@ -98,24 +112,24 @@
 \section{状態空間問題 (State-Space Problem)}
 \label{sec:state-space-problem}
 この本では主に初期状態とゴール条件が与えられたとき、ゴール条件を満たすための経路を返す問題を探索する手法を考える。
-このテキストでは探索の主な対象として状態空間問題(State-space problem)を考える。状態空間問題$P = (S, A, s, T)$は状態の集合$S$、初期状態$s \in S$、ゴール集合$T \in S$、アクション集合$A = {a_1, ....,a_n}$、$a_i : S \rightarrow S$がある。アクションはある状態を次の状態に遷移させる関数である。
+このテキストでは探索の主な対象として\define{状態空間問題}{state-space problem}を考える。状態空間問題$P = (S, A, s, T)$は状態の集合$S$、初期状態$s \in S$、ゴール集合$T \in S$、アクション集合$A = {a_1, ....,a_n}$、$a_i : S \rightarrow S$がある。アクションはある状態を次の状態に遷移させる関数である。
 状態空間問題の解は初期状態からゴール状態へ遷移させるアクションの列を求めることである。
 
 よって、状態空間問題はグラフにモデルすることで考えやすくなる。
-状態空間グラフは以下のように定義される。
+状態空間問題を表す\define{状態空間グラフ}{state-space graph}は以下のように定義される。
 
 \begin{definition}[状態空間グラフ、State-space graph]
 問題グラフ$G = (V, E, s, T)$は状態空間問題$P = (S, A, s, T)$に対して以下のように定義される。ノード集合 $V = S$、初期ノード$s \in S$、ゴールノード集合$T$、エッジ集合$E\subseteq V \times V$。エッジ$u,v\in E$は$a(u) = v$となる$a\in A$が存在する場合に存在し、そしてその場合にのみ存在する(iff)。
 \end{definition}
 
-状態空間問題の解は以下の定義である。
+状態空間問題の\define{解}{solution}は以下の定義である。
 
 \begin{definition}[解、Solution]
 解$\pi = (a_1,a_2...,a_k)$はアクション$a_i \in A$の(順序付)配列であり、初期状態$s$からゴール状態$t \in T$へ遷移させる。すなわち、$u_i \in S$,$i \in \{0,1,...,k\}$, $u_0 = s, u_k = t$が存在し、$u_i = a_i(u_{i-1})$となる。
 \end{definition}
 
 どのような解を見つけたいかは問題に依存する。
-多くの問題では経路の{\bf コスト}の合計を小さくすることを目的とする。
+多くの問題では\define{経路コスト}{path cost}の合計を小さくすることを目的とする。
 
 %すなわち、アクションに対してコストが定義されており、経路
 
@@ -126,18 +140,18 @@
 本書ではコスト付き状態空間問題をメインの問題として考える。
 %最適解が欲しいかどうかは問題による。当然クオリティが高い解を得ようとするとより計算に時間とメモリを消費することになる。
 
-コストの定義されていない状態空間問題を特に区別してユニットコスト問題(ユニットコストドメイン)と呼ぶ。
+コストの定義されていない状態空間問題を特に区別して\define{ユニットコスト}{unit-cost} 問題(ドメイン)と呼ぶ。
 コスト付き状態空間問題は重み付き(コスト付き)グラフとしてモデルすることが出来る。すなわち、$G = (V, E, s, T, w)$は状態空間グラフの定義に加え、エッジの重み$w: E \leftarrow \mathbb{R}$を持つ。
 
 
 
 %ただし、状態空間グラフをすべて陽に変換し、すべてのノード・エッジを保持することは効率が良くないことが多い。
 \ref{ch:blind-search}章で詳解するが、探索アルゴリズムは状態空間グラフのノード・エッジ全てを保持する必要はない。
-全てのノード・エッジを保持した状態空間グラフを特に明示的状態空間グラフ(explicit state-space graph)と呼ぶとする。このようなグラフは、例えば隣接行列を用いて表すことが出来る。隣接行列$M$は行と列の大きさが$|V|$である正方行列であり、エッジ$(v_i, v_j)$が存在するならば$M_{i,j}=1$、なければ$M_{i,j}=0$とする行列である。
+全てのノード・エッジを保持した状態空間グラフを特に\define{明示的状態空間グラフ}{explicit state-space graph}と呼ぶとする。このようなグラフは、例えば隣接行列を用いて表すことが出来る。隣接行列$M$は行と列の大きさが$|V|$である正方行列であり、エッジ$(v_i, v_j)$が存在するならば$M_{i,j}=1$、なければ$M_{i,j}=0$とする行列である。
 このような表現方法の問題点は行列の大きさが$|V|^2$であるため、大きな状態空間を保持することが出来ないことである。
-例えば、\index{sec:search-problem}節で紹介する15-puzzleは状態の数が$|V|=15!/2$であるため、隣接行列を保持することは現在のコンピュータでは非常に困難である。
+例えば、\ref{sec:search-problem}節で紹介する15-puzzleは状態の数が$|V|=15!/2$であるため、隣接行列を保持することは現在のコンピュータでは非常に困難である。
 
-そこで、探索アルゴリズムは多くの場合初期ノードとノード展開関数による非明示的状態空間グラフで表せられる。
+そこで、探索アルゴリズムは多くの場合初期ノードとノード展開関数による\define{非明示的状態空間グラフ}{implicit state-space graph}で表せられる。
 
 \begin{definition}[非明示的状態空間グラフ、Implicit state-space graph]
 非明示的状態空間グラフは初期状態$s \in V$、ゴール条件Goal: $V \rightarrow B = \{false, true\}$、ノード展開関数Expand: $V \rightarrow 2^V$によって与えられる。
@@ -154,6 +168,21 @@ Expandはある状態からの次の状態の集合を返す関数である。Ex
 
 %大まかには、情報なし探索による非明示的グラフは明示的グラフよりも指数的に小さく、ヒューリスティック探索による非明示的グラフは情報なし探索による非明示的グラフよりも更に指数的に小さいことが多い。
 
+\section{状態空間問題の定式化}
+\label{sec:search-problem-formulation}
+
+\begin{table}
+\caption{状態空間問題における問題の定式化。もっとも情報が多く与えられる定式化がドメイン依存エージェントであり、ヒューリスティック関数なども与えられる。ドメイン非依存エージェントはPDDLなどのモデル言語で書かれた入力が与えられ、その情報から用いるヒューリスティック関数や効率化手法を自動的に選択する必要がある。ブラックボックスエージェントは事前に何も与えられない、最も挑戦的な定式化である。}
+\label{tbl:search-problem-formulation}
+\begin{adjustbox}{width=\textwidth}
+\begin{tabular}{c|ccc}
+	問題		& 状態遷移関数 	& ヒューリスティック関数 & 効率化 \\ \hline
+	ドメイン依存 & Fully Available & hard-code & hard-code \\
+	ドメイン非依存 (PDDL) & Fully Available & 自動生成する必要がある & ドメイン非依存の最適化・ポートフォリオ戦略 \\
+	ブラックボックス & Unavailable (simulator) & Unavailable & 非許容的なノード・エッジの枝刈り
+\end{tabular}
+\end{adjustbox}
+\end{table}
 
 
 % TODO: アルゴリズムを表にする？
@@ -169,9 +198,16 @@ Expandはある状態からの次の状態の集合を返す関数である。Ex
 
 \subsection{グリッド経路探索 (Grid Path-finding)}
 \captionlistentry[todo]{Grid Pathfinding: なんかいい感じの絵}
-グリッド経路探索問題は$k$(多くの場合$k=2$)次元のグリッド上で初期配置からゴール位置までの経路を求める問題である\cite{yap2002grid}。グリッドには障害物がおかれ、通れない箇所がある。エージェントが移動できる方向は4方向($A= \{up, down, left, right\}$)か8方向(4方向に加えて斜め移動)とする場合が多い。自由方向(Any Angle)の問題を扱う研究も存在する\cite{nash2007theta}。
+\begin{figure}
+	\includegraphics[width=0.5\linewidth]{figures/grid-pathfinding.jpg}
+	\caption{グリッド経路探索問題}
+	\label{fig:grid-pathfinding}
+\end{figure}
 
-Web上に簡単に試せるデモがあるので、参照されたい：\url{http://qiao.github.io/PathFinding.js/visual/}。とてもよくできており、この文章で説明する様々なグラフ探索手法をグリッド経路探索に試すことが出来る。
+
+\define{グリッド経路探索問題}{grid path-finding problem}は$k$(多くの場合$k=2$)次元のグリッド上で初期配置からゴール位置までの経路を求める問題である\cite{yap2002grid}。グリッドには障害物がおかれ、通れない箇所がある。エージェントが移動できる方向は4方向($A= \{up, down, left, right\}$)か8方向(4方向に加えて斜め移動)とする場合が多い。自由方向(Any Angle)の問題を扱う研究も存在する\cite{nash2007theta}。
+
+Web上に簡単に試せるデモがあるので、参照されたい\footnote{\url{http://qiao.github.io/PathFinding.js/visual/}}。とてもよくできており、この文章で説明する様々なグラフ探索手法をグリッド経路探索に試すことが出来る。
 
 グリッド経路探索はロボットのモーションプランニングやゲームAIなどで応用される\cite{algfoor2015comprehensive}。ストラテジーゲームなどでユニット（エージェント）を動かすために使われる。よく使われるベンチマーク問題集にもStarcraftのゲームのマップが含まれている\cite{sturtevant2012benchmarks}.
 またグリッドは様々な問題を経路探索に帰着して解くことができるという意味でも重要である。例えばMultiple Sequence Alignmentはグリッド経路探索に帰着して解くことが出来る(後述)。
@@ -347,7 +383,30 @@ TSPはヒューリスティック探索に限らず、様々なアプローチ�
 これらの探索手法は競技プログラミングでもよく解法として使われる\cite{skiena2006programming}。また、いわゆるコーディング面接でもグラフ探索アルゴリズムは頻出である\cite{mcdowell2011cracking}。
 %\ref{ch:search-performance}章はグラフ探索の高速化の紹介をするので、特に競技プログラミングに興味がある場合はそちらも参照されたい。% TODO
 
+\begin{table}
+\caption{木探索とグラフ探索}
+\label{tbl:tree-vs-graph-search}
+\begin{adjustbox}{width=\textwidth}
+\begin{tabular}{cccc}
+				& 重複検出  	  & 保存するノード & 完全性 \\
+	木探索  		& 重複検出しない & オープンリストのみ & ループを含むグラフである場合停止性を満たさない \\
+	グラフ探索 		& 重複検出する  & オープンリストとクローズドリスト & (状態空間が有限ならば)完全 \\ 
+\end{tabular}
+\end{adjustbox}
+\end{table}
 
+
+\begin{table}
+\label{tbl:basic-priority}
+\begin{adjustbox}{width=\textwidth}
+\begin{tabular}{ccc}
+	展開順序  	& プライオリティ 	& 性質 \\  
+	幅優先探索 	& $\arg \min_n d(n)$ & ユニットコストドメインだと最初に発見した解が最適解である \\
+	深さ優先探索 	& $\arg \max_n d(n)$ & \TODO \\
+	ダイクストラ法	& $\arg \min_n g(n)$ & 非負コストドメインで最適解が得られる \\
+\end{tabular}
+\end{adjustbox}
+\end{table}
 
 \section{木探索アルゴリズム (Tree Search Algorithm)}
 \label{sec:tree-search-algorithm}
@@ -414,9 +473,9 @@ TSPはヒューリスティック探索に限らず、様々なアプローチ�
 
 幅優先探索の手順は非常に単純であり、FIFOの順に$Open$から取り出せばいいだけである。
 これをもう少し大きな視点で、{\it どのようなノードを優先して探索しているのか}を考えてみたい。
-初期状態から現在状態にたどり着くまでの経路の長さをノードの$p$値と定義する。
+初期状態から現在状態にたどり着くまでの経路の長さをノードの$d$値と定義する。
 すると、幅優先探索の$Open.pop()$はアルゴリズム\ref{alg:brfs-open}のように書くことが出来る。
-ユニットコスト問題である場合、$p$値は$g$値と一致する。
+ユニットコスト問題である場合、$d$値は$g$値と一致する。
 
 幅優先探索のメリットは初めに発見した解が最短経路長であることである。
 問題がユニットコストドメインであれば、最短経路が最小コスト経路であるので、最適解が得られる。
@@ -425,7 +484,7 @@ TSPはヒューリスティック探索に限らず、様々なアプローチ�
 \caption{Breadth-First Search: $Open.pop()$}
 \label{alg:brfs-open}
 	\Output{Node $u$}
-	\Return $\arg \min_n p(n)$
+	\Return $\arg \min_n d(n)$
 \end{algorithm}
 
 \section{深さ優先探索 (Depth-First Search)}
@@ -494,6 +553,149 @@ TSPはヒューリスティック探索に限らず、様々なアプローチ�
 \end{algorithm}
 
 \captionlistentry[todo]{グラフ探索アルゴリズム: 重複検出に関連して何か付け足す}
+
+\section{ダイクストラ法}
+\label{sec:dijkstra}
+
+
+
+
+\chapter{古典的プランニング問題}
+\label{ch:classical-planning}
+この章では古典的プランニング問題について説明する。
+古典的プランニング問題はエージェントの自動行動計画を行うための問題の一つであり、状態空間問題の一つである \cite{fikes:71}。
+
+ロジスティック\cite{helmert2010scanalyzer,sousa2013toward}、セルアセンブリ\cite{asai2014fully}、遺伝子距離計算\cite{erdem2005genome}、ビデオゲーム\cite{lipovetzky2015a}など、様々な応用問題を含むフレームワークである。
+
+環境が決定的であり、完全情報を仮定する。
+これらの仮定を緩和した問題（確率的モデルや不完全情報モデル）もグラフ探索によって解かれることが多いが、本文の範囲外とする。詳細はAIの教科書を参照されたい\cite{russelln03}。
+
+なお、プランニング問題はA*などの状態空間探索アルゴリズム以外にも、SATやCSPなどの制約充足問題に変換して解く方法もあるがこれも本書の範囲外とする\cite{kautz:92}。
+
+\section{定義}
+\label{sec:planning-definition}
+
+
+古典的プランニングは述語論理によって世界が記述される\cite{fikes:71}。
+Proposition $AP$は世界の状態において何が真・偽であるかを記述する。
+世界の状態はエージェントがアクションを行うことによって遷移し、遷移後の状態は遷移前の状態と異なるpropositionが真・偽でありうる。
+古典的プランニングの目的は与えられた初期状態からゴール条件を満たすまでのアクションの列を求めることにある。
+以下、定義は\cite{edelkamp:2010:hst:1875144}に従う。
+
+\begin{definition}[古典的プランニング問題、Classical Planning Problem]
+古典的プランニング問題は有限状態空間問題$P = (S,A,s_0,T)$の一つである。
+$S \subseteq 2^{AP}$は状態の集合であり、$s_0 \in S$は初期状態、$T \subseteq S$はゴール状態の集合、$A: S \rightarrow S$は可能なアクションの集合である。
+\end{definition}
+
+古典的プランニング問題の最も基本となるSTRIPSモデル\cite{fikes:71}の場合、ゴールはpropositionのリストで表せられる$Goal \subseteq AP$。ゴール状態の集合$T$は$p \in Goal$となるすべての$p$が真である状態の集合である。
+アクション$a \in A$は条件$pre(a)$、効果($add(a)$, $del(a)$)で表せられる。条件$pre(a) \subseteq AP$はアクション$a$を実行するために状態が満たすべきpropositionの集合である。効果$add(a)$はアクション$a$を適用後に真になるpropositionの集合であり、$del(a)$は偽になる集合である。
+従って、アクション$a$を状態$s$に適用後の状態$s' = suc(s,a)$は
+\begin{equation}
+	s' = (s \cup add(a)) \setminus del(a)
+\end{equation}
+である。
+このようにして、古典的プランニング問題は後述のグラフ探索問題に帰着することが出来る。
+
+As such, a classical planning problem can be solved by an A* search ($G(V', E', w'), s_0', T'$); $V' = S$, $e(v_i, v_j) \in E'$ exists if there exists $a$ such that $v_j = succ(v_i, a)$, $s_0' = s_0$, $T' = T$.
+
+\section{Planning Domain Definition Language}
+\label{sec:pddl}
+
+Planning Domain Definition Language (PDDL) \cite{aeronautiques1998pddl}はプランニング問題を記述されるために用いられる言語の一つである。PDDLはdomainファイルとinstanceファイルの２つのファイルによって一つの入力となる。domainファイルはpredicateとアクションが定義され、instanceファイルは初期状態、ゴール状態とオブジェクトが定義される。
+図\ref{fig:pddl-domain}はblocks-worldのdomainファイルである。
+図\ref{fig:pddl-instance}はblocks-worldのinstanceファイルである。
+
+
+\begin{figure}
+\begin{adjustbox}{width=\textwidth,keepaspectratio}
+\lstset{language=pddl}
+\begin{lstlisting}
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; 4 Op-blocks world
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (domain BLOCKS)
+  (:requirements :strips)
+  (:predicates (on ?x ?y)
+	       (ontable ?x)
+	       (clear ?x)
+	       (handempty)
+	       (holding ?x)
+	       )
+
+  (:action pick-up
+	     :parameters (?x)
+	     :precondition (and (clear ?x) (ontable ?x) (handempty))
+	     :effect
+	     (and (not (ontable ?x))
+		   (not (clear ?x))
+		   (not (handempty))
+		   (holding ?x)))
+
+  (:action put-down
+	     :parameters (?x)
+	     :precondition (holding ?x)
+	     :effect
+	     (and (not (holding ?x))
+		   (clear ?x)
+		   (handempty)
+		   (ontable ?x)))
+  (:action stack
+	     :parameters (?x ?y)
+	     :precondition (and (holding ?x) (clear ?y))
+	     :effect
+	     (and (not (holding ?x))
+		   (not (clear ?y))
+		   (clear ?x)
+		   (handempty)
+		   (on ?x ?y)))
+  (:action unstack
+	     :parameters (?x ?y)
+	     :precondition (and (on ?x ?y) (clear ?x) (handempty))
+	     :effect
+	     (and (holding ?x)
+		   (clear ?y)
+		   (not (clear ?x))
+		   (not (handempty))
+		   (not (on ?x ?y)))))
+\end{lstlisting}
+\end{adjustbox}
+\caption{blocks-worldのdomainファイル}
+\label{fig:pddl-domain}
+\end{figure}
+
+\begin{figure}
+\begin{adjustbox}{width=\textwidth,keepaspectratio}
+\lstset{language=pddl}
+\begin{lstlisting}
+(define (problem BLOCKS-4-0)
+(:domain BLOCKS)
+(:objects D B A C )
+(:INIT (CLEAR C) (CLEAR A) (CLEAR B) (CLEAR D) (ONTABLE C) (ONTABLE A)
+ (ONTABLE B) (ONTABLE D) (HANDEMPTY))
+(:goal (AND (ON D C) (ON C B) (ON B A)))
+)
+
+\end{lstlisting}
+\end{adjustbox}
+\caption{blocks-worldのinstanceファイル}
+\label{fig:pddl-instance}
+\end{figure}
+
+
+\section{古典的プランニング問題の例}
+\label{sec:classical-planning-example}
+% TODO: これらのうちキャッチーなものはコラムとして紹介しよう。
+\subsection{ブロックスワールド}
+\subsection{クエリ最適化}
+\subsection{ロジスティック}
+\subsection{セルアセンブリ}
+\subsection{宇宙探査車}
+\subsection{サイバーセキュリティ}
+\subsection{ゲノムリアレンジメント}
+\subsection{グリッドコンピューティング}
+\subsection{プリンタースケジュリング}
+
 
 \chapter{ヒューリスティック探索}
 \label{ch:heuristic-search}
@@ -705,7 +907,7 @@ A*探索を実行する前にwA*を走らせ、解の上界を得、A*探索実�
 \end{algorithm}
 
 
-\section{ヒューリスティック関数の例}
+\section{ドメイン固有のヒューリスティック関数}
 \label{sec:heuristic-example}
 
 \ref{sec:heuristic-function}章にあるように、なるべく正確であり、許容的、無矛盾なヒューリスティックが望ましい。
@@ -733,6 +935,11 @@ TSPの解の下界としては{\it 最小全域木} (minimum spanning tree)の�
 最小全域木は全域木のうち最もエッジコストの総和が小さいものである。
 未訪問の都市によるグラフの最小全域木はTSPの下界となることが知られている。
 
+
+\section{ヒューリスティック関数の自動生成}
+\label{sec:automated-heuristic}
+
+ドメイン非依存エージェントはヒューリスティック関数を自動生成しなければならない。
 
 \subsection{ゴールカウントヒューリスティック}
 
@@ -769,6 +976,20 @@ FIFO, LIFOのどちらが良いかという問題もある。
 
 %また、無矛盾ではないヒューリスティックを用いる場合再展開をしなければならない。これを行うコストも考えなければならない。
 
+\subsection{データ構造}
+\begin{table}
+\caption{オープンリストのデータ構造の比較}
+\label{tbl:open-list-data-structure}
+\begin{adjustbox}{width=\textwidth}
+\begin{tabular}{ccc}
+	実装			& $pop$計算量	& $push$計算量 \\
+	二分木		& $O(log(n))$  	& XX \\
+	bucket 		& XXX			& XXX \\
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+\subsection{タイブレーキング}
 bucket open list
 h tiebreaking
 FIFO, LIFO tiebreaking
@@ -783,15 +1004,18 @@ incremental hashing
 perfect hashing
 universal hashing
 
+
 \subsection{Delayed Duplicate Detection}
 重複検出のタイミングは２通りある。
 
 \section{枝刈り}
 \label{sec:pruning}
-重複検出とか
+\subsection{解コストの上界による枝刈り}
 admissible pruning
  Branch and Bound
  wA* pruning (MSA)
+
+\subsection{状態の新奇性に基づく枝刈り}
 inadmissible pruning
  Novelty-based pruning
  Iterative Width search
@@ -799,8 +1023,27 @@ inadmissible pruning
 
 
 % TODO: 基礎の説明が出来たら
-\chapter{ヒューリスティック探索 variants}
+\chapter{ヒューリスティック探索の派生}
 \label{ch:heuristic-serach-variants}
+\captionlistentry[todo]{heuristic search variants: 表で手法を比較する}
+\captionlistentry[todo]{heuristic search variants: タイトルをかっこ良くする}
+
+\begin{table}
+\caption{派生アルゴリズムの比較。}
+\label{tbl:search-variants}
+\begin{adjustbox}{width=\textwidth}
+\begin{tabular}{cccc}
+					& 空間計算量	& 時間計算量 & 有効な場面 \\
+	反復深化A*		& $O(n)$  	& 展開ノード数が大きくなる。キャッシュ効率が良くなる場合がある & キャッシュ効率が良いとA*よりも高速な場合がある \\
+	両方向探索 		& A*よりも小さい	& 重複検出の効率による & ヒューリスティック関数の性能が低い場合に有効 \\
+	External Search & 外部記憶を用いる & I/Oを必要とするため遅い & 探索空間がメモリに乗り切らない場合 \\
+	Symbolic Search & BDDによって効率的になる & 複数のノードを同時に展開できる & \TODO \\
+	並列探索 			& 使用する計算ノードのメモリの総計が使える & 線形スピードアップならコアの数だけ高速化 & 問題が難しい \\
+\end{tabular}
+\end{adjustbox}
+\end{table}
+
+
 A*探索などのヒューリスティック探索は時間と空間の両方がボトルネックとなりうる。
 すなわち、A*はノードを一つずつ展開していかなければならないので、その数だけExpandを実行しなければならない。また、A*は重複検出のために展開済みノードをすべてクローズドリストに保存する。なので、必要な空間も展開ノード数に応じて増えていく。
 
@@ -829,7 +1072,7 @@ A*探索は時間・空間の両方がボトルネックになるが、現代の
 まず、コスト$w$が0となるアクションが存在しない場合、必要なメモリ量が最適解のコストに対して線形である。深さ優先木探索は可能な最長経路だけのノードを保持する必要がある。木探索はクローズドリストは保持しない。コスト制限付きの場合、最長経路は$cost$以下である。$0<w<1$となる実数コストがある場合、最小の$w$が$1$となるようにリスケールすることが出来る。 反復深化は$cost$が最適解のコストになった時に停止するので、必要なメモリ量は最適解のコストに対して線形である。
 そのため、A*ではメモリが足りなくなって解けないような難しい問題でも反復深化A*なら解ける可能性がある。
 
-メモリ量と関連してもう一つの重要なメリットはキャッシュ効率である。上述のように反復深化A*は必要なメモリ量が非常にすくない。また、メモリアクセスパターンもかなりリニアである。そのため、ほぼキャッシュミスなく探索を行えるドメインも多い。例えば、15-puzzleなどの状態が少ないビット数で表せられるドメインでは特にキャッシュ効率が良く、1ノードの展開速度の差は{\bf TODO}倍という実験結果もある\cite{korf:85a}。実際、15-puzzleではIDA*のほうがA*よりも速く解を見つけることが出来る\cite{korf:85a}。何度も何度も重複して同じノードを展開しているのにも関わらずである。
+メモリ量と関連してもう一つの重要なメリットはキャッシュ効率である。上述のように反復深化A*は必要なメモリ量が非常にすくない。また、メモリアクセスパターンもかなりリニアである。そのため、ほぼキャッシュミスなく探索を行えるドメインも多い。例えば、15-puzzleなどの状態が少ないビット数で表せられるドメインでは特にキャッシュ効率が良く、1ノードの展開速度の差は{\TODO}倍という実験結果もある\cite{korf:85a}。実際、15-puzzleではIDA*のほうがA*よりも速く解を見つけることが出来る\cite{korf:85a}。何度も何度も重複して同じノードを展開しているのにも関わらずである。
 
 
 反復深化A*は解を返す場合、得られた解が最適解であることを保証する。
@@ -907,6 +1150,7 @@ External Searchのミソは、外部記憶へのアクセス回数をどのよ�
 \centering
 \caption{一般的なハードウェアのアクセス速度。メモリへのアクセス速度に対して外部記憶のアクセスは遅い。加えて、ランダムアクセスはseekの時間がかかるためさらに遅くなる。 (https://gist.github.com/jboner/2841832)}
 \label{tbl:latency}
+\begin{adjustbox}{width=\textwidth}
 \begin{tabular}{|l|r|}
 		   & nano sec \\ \hline
 	命令実行 & 1 \\
@@ -922,6 +1166,7 @@ External Searchのミソは、外部記憶へのアクセス回数をどのよ�
 	read 1MB sequentially from disk 	& 20,000,000 \\
 	
 \end{tabular}
+\end{adjustbox}
 \end{table}
 
 \subsection{External 幅優先探索}
@@ -1163,136 +1408,8 @@ Abstract featureの生成方法としてstate-of-the-artの手法はGraph partit
 
 
 
-
-\begin{comment}
-\chapter{ヒューリスティック関数}
-\section{ドメイン固有のヒューリスティック}
-\section{緩和問題}
-\end{comment}
-
-
-
-\chapter{古典的プランニング問題}
-\label{ch:classical-planning}
-この章では古典的プランニング問題について説明する。
-古典的プランニング問題はエージェントの自動行動計画を行うための問題の一つであり、状態空間問題の一つである \cite{fikes:71}。
-
-ロジスティック\cite{helmert2010scanalyzer,sousa2013toward}、セルアセンブリ\cite{asai2014fully}、遺伝子距離計算\cite{erdem2005genome}、ビデオゲーム\cite{lipovetzky2015a}など、様々な応用問題を含むフレームワークである。
-
-環境が決定的であり、完全情報を仮定する。
-これらの仮定を緩和した問題（確率的モデルや不完全情報モデル）もグラフ探索によって解かれることが多いが、本文の範囲外とする。詳細はAIの教科書を参照されたい\cite{russelln03}。
-
-なお、プランニング問題はA*などの状態空間探索アルゴリズム以外にも、SATやCSPなどの制約充足問題に変換して解く方法もあるがこれも本書の範囲外とする\cite{kautz:92}。
-
-\section{定義}
-\label{sec:planning-definition}
-
-
-古典的プランニングは述語論理によって世界が記述される\cite{fikes:71}。
-Proposition $AP$は世界の状態において何が真・偽であるかを記述する。
-世界の状態はエージェントがアクションを行うことによって遷移し、遷移後の状態は遷移前の状態と異なるpropositionが真・偽でありうる。
-古典的プランニングの目的は与えられた初期状態からゴール条件を満たすまでのアクションの列を求めることにある。
-以下、定義は\cite{edelkamp:2010:hst:1875144}に従う。
-
-\begin{definition}[古典的プランニング問題、Classical Planning Problem]
-古典的プランニング問題は有限状態空間問題$P = (S,A,s_0,T)$の一つである。
-$S \subseteq 2^{AP}$は状態の集合であり、$s_0 \in S$は初期状態、$T \subseteq S$はゴール状態の集合、$A: S \rightarrow S$は可能なアクションの集合である。
-\end{definition}
-
-古典的プランニング問題の最も基本となるSTRIPSモデル\cite{fikes:71}の場合、ゴールはpropositionのリストで表せられる$Goal \subseteq AP$。ゴール状態の集合$T$は$p \in Goal$となるすべての$p$が真である状態の集合である。
-アクション$a \in A$は条件$pre(a)$、効果($add(a)$, $del(a)$)で表せられる。条件$pre(a) \subseteq AP$はアクション$a$を実行するために状態が満たすべきpropositionの集合である。効果$add(a)$はアクション$a$を適用後に真になるpropositionの集合であり、$del(a)$は偽になる集合である。
-従って、アクション$a$を状態$s$に適用後の状態$s' = suc(s,a)$は
-\begin{equation}
-	s' = (s \cup add(a)) \setminus del(a)
-\end{equation}
-である。
-このようにして、古典的プランニング問題は後述のグラフ探索問題に帰着することが出来る。
-
-As such, a classical planning problem can be solved by an A* search ($G(V', E', w'), s_0', T'$); $V' = S$, $e(v_i, v_j) \in E'$ exists if there exists $a$ such that $v_j = succ(v_i, a)$, $s_0' = s_0$, $T' = T$.
-
-\section{Planning Domain Definition Language}
-\label{sec:pddl}
-
-Planning Domain Definition Language (PDDL) \cite{aeronautiques1998pddl}はプランニング問題を記述されるために用いられる言語の一つである。PDDLはdomainファイルとinstanceファイルの２つのファイルによって一つの入力となる。domainファイルはpredicateとアクションが定義され、instanceファイルは初期状態、ゴール状態とオブジェクトが定義される。
-図\ref{fig:pddl-domain}はblocks-worldのdomainファイルである。
-図\ref{fig:pddl-instance}はblocks-worldのinstanceファイルである。
-
-
-\begin{figure}
-\begin{adjustbox}{width=\textwidth,keepaspectratio}
-\lstset{language=pddl}
-\begin{lstlisting}
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; 4 Op-blocks world
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(define (domain BLOCKS)
-  (:requirements :strips)
-  (:predicates (on ?x ?y)
-	       (ontable ?x)
-	       (clear ?x)
-	       (handempty)
-	       (holding ?x)
-	       )
-
-  (:action pick-up
-	     :parameters (?x)
-	     :precondition (and (clear ?x) (ontable ?x) (handempty))
-	     :effect
-	     (and (not (ontable ?x))
-		   (not (clear ?x))
-		   (not (handempty))
-		   (holding ?x)))
-
-  (:action put-down
-	     :parameters (?x)
-	     :precondition (holding ?x)
-	     :effect
-	     (and (not (holding ?x))
-		   (clear ?x)
-		   (handempty)
-		   (ontable ?x)))
-  (:action stack
-	     :parameters (?x ?y)
-	     :precondition (and (holding ?x) (clear ?y))
-	     :effect
-	     (and (not (holding ?x))
-		   (not (clear ?y))
-		   (clear ?x)
-		   (handempty)
-		   (on ?x ?y)))
-  (:action unstack
-	     :parameters (?x ?y)
-	     :precondition (and (on ?x ?y) (clear ?x) (handempty))
-	     :effect
-	     (and (holding ?x)
-		   (clear ?y)
-		   (not (clear ?x))
-		   (not (handempty))
-		   (not (on ?x ?y)))))
-\end{lstlisting}
-\end{adjustbox}
-\caption{blocks-worldのdomainファイル}
-\label{fig:pddl-domain}
-\end{figure}
-
-\begin{figure}
-\begin{adjustbox}{width=\textwidth,keepaspectratio}
-\lstset{language=pddl}
-\begin{lstlisting}
-(define (problem BLOCKS-4-0)
-(:domain BLOCKS)
-(:objects D B A C )
-(:INIT (CLEAR C) (CLEAR A) (CLEAR B) (CLEAR D) (ONTABLE C) (ONTABLE A)
- (ONTABLE B) (ONTABLE D) (HANDEMPTY))
-(:goal (AND (ON D C) (ON C B) (ON B A)))
-)
-
-\end{lstlisting}
-\end{adjustbox}
-\caption{blocks-worldのinstanceファイル}
-\label{fig:pddl-instance}
-\end{figure}
+\chapter{探索問題の派生}
+\label{ch:search-problem-variants}
 
 \section{ブラックボックスプランニング}
 \label{sec:black-box-planning}
@@ -1311,20 +1428,15 @@ Expand関数、Goal関数はブラックボックスとして与えられる。�
 幅優先探索などによってBrute-forceに探索しつくす方法を取ることも出来るが問題のサイズが大きい場合に解くことが出来ない\cite{Bellemare2013}。
 Iterative Width探索 (IW search)\cite{lipovetzky2015a}は幅優先探索に新奇性による枝刈りを加えた手法である\footnote{Iterative Width探索はドメインモデルのある場合でも有用であることが知られている\cite{lipovetzkyg12}。}。IW(1)は新しく生成された状態は新しいatomを真にしない場合、枝刈りされる。
 
-\begin{comment}
-\section{アプリケーション}
-\subsection{クエリ最適化}
-\subsection{ロジスティック}
-\subsection{セルアセンブリ}
-\subsection{宇宙探査車}
-\subsection{サイバーセキュリティ}
-\subsection{ゲノムリアレンジメント}
-\subsection{グリッドコンピューティング}
-\subsection{プリンタースケジュリング}
-\subsection{ビデオゲーム}
-Atari
-General Video Game Playing
-\end{comment}
+\section{二人プレイヤーゲーム}
+\label{sec:two-player-game}
+and or tree
+Alpha beta pruning
+
+
+\section{オンラインプランニング}
+\label{sec:online-planning}
+
 
 % TODO: こういうチャプターがあるとキャッチーだね
 \chapter{機械学習と探索・プランニング}
@@ -1356,6 +1468,8 @@ Predictron
 DL for Reward design in MCTS
 Juhn, Satinder, et al.
 
+
+\printindex
 
 \bibliographystyle{spmpsci}
 
