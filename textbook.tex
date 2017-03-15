@@ -1,14 +1,14 @@
 \documentclass[b5paper]{report}
-
+\def\pgfsysdriver{pgfsys-tex4ht.def}
+%\usepackage{tex4ht}
+\usepackage[utf8]{inputenc}
 \usepackage{times}
 \usepackage{helvet}
 \usepackage{courier}
 \usepackage{comment}
 \usepackage{subfig}
 \usepackage{relsize}
-\usepackage[dvipdfmx]{graphicx}
-
-
+\usepackage[dvips]{graphicx}
 
 \usepackage{enumitem}
 \usepackage{adjustbox}
@@ -18,7 +18,7 @@
 \usepackage{listings}
 \usepackage{lstlang0}
 
-\usepackage{tikz} % Drawing sliding-tile
+%\usepackage{tikz} % Drawing sliding-tile
 
 % Math
 \usepackage{mathtools}
@@ -55,7 +55,8 @@
 
 \title{ヒューリスティック探索}
 \author{陣内　佑 \\
-理化学研究所 革新知能統合研究センター}
+理化学研究所 革新知能統合研究センター
+{\it yuu.jinnai@riken.jp}}
 
 
 \begin{document}
@@ -188,7 +189,7 @@ $1$から$(n^2)-1$までの数字が振られたタイルが$n\times n$の正方
 
 \begin{figure}
 \centering
-\includegraphics[width=0.4\textwidth]{figures/15-puzzle.pdf}
+\includegraphics[bb=0 0 372 373,width=0.4\textwidth]{figures/15-puzzle.eps}
 \caption{15パズルのゴール状態の例}
 \label{fig:15-puzzle}
 \end{figure}
@@ -274,7 +275,7 @@ PSPACE-completeであることが知られている\cite{culberson1997sokoban}�
 
 \begin{figure}
 \centering
-\includegraphics[width=0.4\textwidth]{figures/sokoban.pdf}
+\includegraphics[bb=0 0 213 238,width=0.4\textwidth]{figures/sokoban.eps}
 \caption{Sokoban: 画像はwikipediaより。}
 \label{fig:sokoban}
 \end{figure}
@@ -305,7 +306,7 @@ TSPは全ての都市を最短距離で回ってはじめの都市に戻る経�
 
 \begin{figure}
 \centering
-\includegraphics[width=0.4\textwidth]{figures/tsp.png}%TODO
+\includegraphics[bb=0 0 328 352,width=0.4\textwidth]{figures/tsp.eps}%TODO
 \caption{巡回セールスパーソン問題: 画像はwikipediaより。}
 \label{fig:sokoban}
 \end{figure}
@@ -990,9 +991,9 @@ BDDを使う準備として、状態をブーリアンvectorに変換する。
 図\ref{fig:sliding-token}はSliding-token puzzleという説明のために作られた問題である。
 初期状態でタイルは位置０にある。タイルは右か左に動かすことが出来る。ゴール状態はタイルを位置３に置いた状態である。
 
-\begin{figure}
-\label{fig:sliding-token}
-\end{figure}
+%\begin{figure}
+%\label{fig:sliding-token}
+%\end{figure}
 
 % Not for now
 %\subsection{Symbolic Tree Search}

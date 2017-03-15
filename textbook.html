@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html >
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="generator" content="hevea 2.23">
+<style type="text/css">
+.li-itemize{margin:1ex 0ex;}
+.li-enumerate{margin:1ex 0ex;}
+.dd-description{margin:0ex 0ex 1ex 4ex;}
+.dt-description{margin:0ex;}
+.toc{list-style:none;}
+.footnotetext{margin:0ex; padding:0ex;}
+div.footnotetext P{margin:0px; text-indent:1em;}
+.thefootnotes{text-align:left;margin:0ex;}
+.dt-thefootnotes{margin:0em;}
+.dd-thefootnotes{margin:0em 0em 0em 2em;}
+.footnoterule{margin:1em auto 1em 0px;width:50%;}
+.caption{padding-left:2ex; padding-right:2ex; margin-left:auto; margin-right:auto}
+.title{margin:2ex auto;text-align:center}
+.titlemain{margin:1ex 2ex 2ex 1ex;}
+.titlerest{margin:0ex 2ex;}
+.center{text-align:center;margin-left:auto;margin-right:auto;}
+.flushleft{text-align:left;margin-left:0ex;margin-right:auto;}
+.flushright{text-align:right;margin-left:auto;margin-right:0ex;}
+div table{margin-left:inherit;margin-right:inherit;margin-bottom:2px;margin-top:2px}
+td table{margin:auto;}
+table{border-collapse:collapse;}
+td{padding:0;}
+.cellpadding0 tr td{padding:0;}
+.cellpadding1 tr td{padding:1px;}
+pre{text-align:left;margin-left:0ex;margin-right:auto;}
+blockquote{margin-left:4ex;margin-right:4ex;text-align:left;}
+td p{margin:0px;}
+.boxed{border:1px solid black}
+.textboxed{border:1px solid black}
+.vbar{border:none;width:2px;background-color:black;}
+.hbar{border:none;height:2px;width:100%;background-color:black;}
+.hfill{border:none;height:1px;width:200%;background-color:black;}
+.vdisplay{border-collapse:separate;border-spacing:2px;width:auto; empty-cells:show; border:2px solid red;}
+.vdcell{white-space:nowrap;padding:0px; border:2px solid green;}
+.display{border-collapse:separate;border-spacing:2px;width:auto; border:none;}
+.dcell{white-space:nowrap;padding:0px; border:none;}
+.dcenter{margin:0ex auto;}
+.vdcenter{border:solid #FF8000 2px; margin:0ex auto;}
+.minipage{text-align:left; margin-left:0em; margin-right:auto;}
+.marginpar{border:solid thin black; width:20%; text-align:left;}
+.marginparleft{float:left; margin-left:0ex; margin-right:1ex;}
+.marginparright{float:right; margin-left:1ex; margin-right:0ex;}
+.theorem{text-align:left;margin:1ex auto 1ex 0ex;}
+.part{margin:2ex auto;text-align:center}
+.lstlisting{font-family:monospace;white-space:pre;margin-right:auto;margin-left:0pt;text-align:left}
+</style>
+<title>ヒューリスティック探索
+</title>
+</head>
+<body >
+<!--HEVEA command line is: /usr/bin/hevea textbook.tex -->
+<!--CUT STYLE book--><!--CUT DEF chapter 1 --><table class="title"><tr><td style="padding:1ex"><h1 class="titlemain">ヒューリスティック探索</h1><h3 class="titlerest">陣内　佑 <br>
+理化学研究所 革新知能統合研究センター
+<span style="font-style:italic">yuu.jinnai@riken.jp</span></h3></td></tr>
+</table><!--TOC chapter id="sec1" Contents-->
+<h1 id="sec1" class="chapter">Contents</h1><!--SEC END --><ul class="toc"><li class="li-toc">
+<a href="#sec3">Chapter 1  イントロダクション</a>
+<ul class="toc"><li class="li-toc">
+<a href="#sec4">1.1  状態空間問題 (State-Space Problem)</a>
+</li><li class="li-toc"><a href="#sec5">1.2  状態空間問題の例</a>
+<ul class="toc"><li class="li-toc">
+<a href="#sec6">1.2.1  グリッド経路探索 (Grid Path-finding)</a>
+</li><li class="li-toc"><a href="#sec7">1.2.2  スライディングタイル (Sliding-tile Puzzle)</a>
+</li><li class="li-toc"><a href="#sec8">1.2.3  Multiple Sequence Alignment (MSA)</a>
+</li><li class="li-toc"><a href="#sec9">1.2.4  倉庫番 (Sokoban)</a>
+</li><li class="li-toc"><a href="#sec10">1.2.5  巡回セールスパーソン問題 (Traveling Salesperson Problem, TSP)</a>
+</li></ul>
+</li></ul>
+</li><li class="li-toc"><a href="#sec11">Chapter 2  情報なし探索 (Blind Search)</a>
+<ul class="toc"><li class="li-toc">
+<a href="#sec12">2.1  木探索アルゴリズム (Tree Search Algorithm)</a>
+</li><li class="li-toc"><a href="#sec13">2.2  幅優先探索 (Breadth-First Search)</a>
+</li><li class="li-toc"><a href="#sec14">2.3  深さ優先探索 (Depth-First Search)</a>
+</li><li class="li-toc"><a href="#sec15">2.4  グラフ探索アルゴリズム (Graph Search Algorithm)</a>
+</li></ul>
+</li><li class="li-toc"><a href="#sec16">Chapter 3  ヒューリスティック探索</a>
+<ul class="toc"><li class="li-toc">
+<a href="#sec17">3.1  ヒューリスティックとは？</a>
+</li><li class="li-toc"><a href="#sec18">3.2  ヒューリスティック関数</a>
+</li><li class="li-toc"><a href="#sec19">3.3  A*探索</a>
+<ul class="toc"><li class="li-toc">
+<a href="#sec20">3.3.1  重み付きA*探索</a>
+</li></ul>
+</li><li class="li-toc"><a href="#sec21">3.4  貪欲最良優先探索 (Greedy Best-First Search)</a>
+</li><li class="li-toc"><a href="#sec22">3.5  ヒューリスティック関数の例</a>
+<ul class="toc"><li class="li-toc">
+<a href="#sec23">3.5.1  グリッド経路探索：マンハッタン距離</a>
+</li><li class="li-toc"><a href="#sec24">3.5.2  スライディングタイル:マンハッタン距離</a>
+</li><li class="li-toc"><a href="#sec25">3.5.3  巡回セールスパーソン問題：最小全域木</a>
+</li><li class="li-toc"><a href="#sec26">3.5.4  ゴールカウントヒューリスティック</a>
+</li></ul>
+</li></ul>
+</li><li class="li-toc"><a href="#sec27">Chapter 4  探索の高速化</a>
+<ul class="toc"><li class="li-toc">
+<a href="#sec28">4.1  オープンリスト</a>
+</li><li class="li-toc"><a href="#sec29">4.2  クローズドリスト</a>
+<ul class="toc"><li class="li-toc">
+<a href="#sec30">4.2.1  Delayed Duplicate Detection</a>
+</li></ul>
+</li><li class="li-toc"><a href="#sec31">4.3  枝刈り</a>
+</li></ul>
+</li><li class="li-toc"><a href="#sec32">Chapter 5  ヒューリスティック探索 variants</a>
+<ul class="toc"><li class="li-toc">
+<a href="#sec33">5.1  反復深化A* (Iterative Deepening A*)</a>
+<ul class="toc"><li class="li-toc">
+<a href="#sec34">5.1.1  Transposition Table</a>
+</li></ul>
+</li><li class="li-toc"><a href="#sec35">5.2  両方向探索 (Bidirectional Search)</a>
+</li><li class="li-toc"><a href="#sec36">5.3  External Search</a>
+<ul class="toc"><li class="li-toc">
+<a href="#sec37">5.3.1  External 幅優先探索</a>
+</li><li class="li-toc"><a href="#sec38">5.3.2  External A*</a>
+</li></ul>
+</li><li class="li-toc"><a href="#sec39">5.4  Symbolic Search</a>
+<ul class="toc"><li class="li-toc">
+<a href="#sec40">5.4.1  Binary Decision Diagram</a>
+</li></ul>
+</li><li class="li-toc"><a href="#sec42">5.5  並列探索 (Parallel Search)</a>
+<ul class="toc"><li class="li-toc">
+<a href="#sec43">5.5.1  並列化オーバーヘッド</a>
+</li><li class="li-toc"><a href="#sec44">5.5.2  Hash Distributed A*</a>
+</li></ul>
+</li></ul>
+</li><li class="li-toc"><a href="#sec45">Chapter 6  古典的プランニング問題</a>
+<ul class="toc"><li class="li-toc">
+<a href="#sec46">6.1  定義</a>
+</li><li class="li-toc"><a href="#sec47">6.2  Planning Domain Definition Language</a>
+</li><li class="li-toc"><a href="#sec48">6.3  ブラックボックスプランニング</a>
+</li></ul>
+</li><li class="li-toc"><a href="#sec49">Chapter 7  機械学習と探索・プランニング</a>
+<ul class="toc"><li class="li-toc">
+<a href="#sec50">7.1  強化学習と探索</a>
+</li><li class="li-toc"><a href="#sec51">7.2  Alpha Go</a>
+</li><li class="li-toc"><a href="#sec52">7.3  探索の為の機械学習</a>
+<ul class="toc"><li class="li-toc">
+<a href="#sec53">7.3.1  探索の効率化</a>
+</li><li class="li-toc"><a href="#sec54">7.3.2  ドメインモデルの生成</a>
+</li></ul>
+</li><li class="li-toc"><a href="#sec55">7.4  参考文献</a>
+</li></ul>
+</li></ul><!--TOC section id="sec2" まえがき-->
+<h2 id="sec2" class="section">まえがき</h2><!--SEC END --><p>
+ヒューリスティック探索はグラフ探索のサブフィールドであり、解こうとしている問題の知識を探索方法に反映させることでより効率的に探索をしよう、という分野である。</p><p>ヒューリスティック探索のイントロダクションと現在どのように発展しているのかというのをまとめてみようかと思い、本文を執筆した。
+以前、さる国内の高名なAI研究者がご講演で「ヒューリスティック探索は終わった技術であり、Toy Problemしか解けない」とおっしゃった。これは全くの勘違いであるが、思い返すと仕方がないことかと思われる。というのも、日本には探索分野、特にヒューリスティック探索の研究者というのは数えるほどしかいない。大御所の方々は大変忙しく、他分野、ましては自分では終わったと思っている分野の英語論文など読まないだろう。こうなると、その分野の知識は古いままで、なおのこと終わった分野だと思ってしまいがちである、と想像される。
+そこで、若輩者ながら、数少ない日本語の書けるヒューリスティック探索アルゴリズムの研究者として、日本のAI研究に微力を添えようと日本語のテキストを書こうと思った次第である。</p>
+<!--TOC chapter id="sec3" イントロダクション-->
+<h1 id="sec3" class="chapter">Chapter 1  イントロダクション</h1><!--SEC END --><p>
+<a id="ch:introduction"></a></p><p>[todo]Introduction: なんかいい感じの絵</p><p>人は様々な問題を探索によって解決している。
+例えば飛行機で成田からロンドンに行く安い/速い方法などを計画するのは探索の一つである。
+あるいは囲碁、将棋、チェスなどのゲームも、ある手を選んだ時にどのような局面につながるのかを先読みし、選ぶべき次の一手を探索する。
+このような様々な問題はグラフ探索問題として統合してモデルすることが出来る。
+</p><p>この章ではまず、<a href="#sec%3Astate-space-problem">1.1</a>節ではグラフ探索手法が用いられる問題として状態空間問題を定義する。
+次に<a href="#sec%3Asearch-problem">1.2</a>節で状態空間問題の例をいくつか紹介する。
+経路探索問題や倉庫番問題など、応用がありつつ、かつ分かりやすい問題を選んだ。これらの問題はすべてヒューリスティック探索研究でベンチマークとして広く使われているものである。</p><p><a href="#sec%3Astate-space-problem">1.1</a>節における定式化は[<a href="#russelln03">32</a>]、[<a href="#pearl84">30</a>]、[<a href="#edelkamp%3A2010%3Ahst%3A1875144">9</a>]などを参考にしている。本文は入門の内容であるので、研究の詳細が知りたい方はこれらの教科書を読むべきである。</p>
+<!--TOC section id="sec4" 状態空間問題 (State-Space Problem)-->
+<h2 id="sec4" class="section">1.1  状態空間問題 (State-Space Problem)</h2><!--SEC END --><p>
+<a id="sec:state-space-problem"></a>
+この本では主に初期状態とゴール条件が与えられたとき、ゴール条件を満たすための経路を返す問題を探索する手法を考える。
+このテキストでは探索の主な対象として状態空間問題(State-space problem)を考える。状態空間問題<span style="font-style:italic">P</span> = (<span style="font-style:italic">S</span>, <span style="font-style:italic">A</span>, <span style="font-style:italic">s</span>, <span style="font-style:italic">T</span>)は状態の集合<span style="font-style:italic">S</span>、初期状態<span style="font-style:italic">s</span> ∈ <span style="font-style:italic">S</span>、ゴール集合<span style="font-style:italic">T</span> ∈ <span style="font-style:italic">S</span>、アクション集合<span style="font-style:italic">A</span> = <span style="font-style:italic">a</span><sub>1</sub>, ....,<span style="font-style:italic">a</span><sub><span style="font-style:italic">n</span></sub>、<span style="font-style:italic">a</span><sub><span style="font-style:italic">i</span></sub> : <span style="font-style:italic">S</span> → <span style="font-style:italic">S</span>がある。アクションはある状態を次の状態に遷移させる関数である。
+状態空間問題の解は初期状態からゴール状態へ遷移させるアクションの列を求めることである。</p><p>よって、状態空間問題はグラフにモデルすることで考えやすくなる。
+状態空間グラフは以下のように定義される。</p><div class="theorem"><span style="font-weight:bold">Definition 1</span> <span style="font-weight:bold">(状態空間グラフ、State-space graph)</span>  <em>
+問題グラフ</em><span style="font-style:italic">G</span> = (<span style="font-style:italic">V</span>, <span style="font-style:italic">E</span>, <span style="font-style:italic">s</span>, <span style="font-style:italic">T</span>)<em>は状態空間問題</em><span style="font-style:italic">P</span> = (<span style="font-style:italic">S</span>, <span style="font-style:italic">A</span>, <span style="font-style:italic">s</span>, <span style="font-style:italic">T</span>)<em>に対して以下のように定義される。ノード集合 </em><span style="font-style:italic">V</span> = <span style="font-style:italic">S</span><em>、初期ノード</em><span style="font-style:italic">s</span> ∈ <span style="font-style:italic">S</span><em>、ゴールノード集合</em><span style="font-style:italic">T</span><em>、エッジ集合</em><span style="font-style:italic">E</span>⊆ <span style="font-style:italic">V</span> × <span style="font-style:italic">V</span><em>。エッジ</em><span style="font-style:italic">u</span>,<span style="font-style:italic">v</span>∈ <span style="font-style:italic">E</span><em>は</em><span style="font-style:italic">a</span>(<span style="font-style:italic">u</span>) = <span style="font-style:italic">v</span><em>となる</em><span style="font-style:italic">a</span>∈ <span style="font-style:italic">A</span><em>が存在する場合に存在し、そしてその場合にのみ存在する(iff)。
+</em></div><p>状態空間問題の解は以下の定義である。</p><div class="theorem"><span style="font-weight:bold">Definition 2</span> <span style="font-weight:bold">(解、Solution)</span>  <em>
+解</em>π = (<span style="font-style:italic">a</span><sub>1</sub>,<span style="font-style:italic">a</span><sub>2</sub>...,<span style="font-style:italic">a</span><sub><span style="font-style:italic">k</span></sub>)<em>はアクション</em><span style="font-style:italic">a</span><sub><span style="font-style:italic">i</span></sub> ∈ <span style="font-style:italic">A</span><em>の(順序付)配列であり、初期状態</em><span style="font-style:italic">s</span><em>からゴール状態</em><span style="font-style:italic">t</span> ∈ <span style="font-style:italic">T</span><em>へ遷移させる。すなわち、</em><span style="font-style:italic">u</span><sub><span style="font-style:italic">i</span></sub> ∈ <span style="font-style:italic">S</span><em>,</em><span style="font-style:italic">i</span> ∈ {0,1,...,<span style="font-style:italic">k</span>}<em>, </em><span style="font-style:italic">u</span><sub>0</sub> = <span style="font-style:italic">s</span>, <span style="font-style:italic">u</span><sub><span style="font-style:italic">k</span></sub> = <span style="font-style:italic">t</span><em>が存在し、</em><span style="font-style:italic">u</span><sub><span style="font-style:italic">i</span></sub> = <span style="font-style:italic">a</span><sub><span style="font-style:italic">i</span></sub>(<span style="font-style:italic">u</span><sub><span style="font-style:italic">i</span>−1</sub>)<em>となる。
+</em></div><p>どのような解を見つけたいかは問題に依存する。
+多くの問題では経路の<span style="font-weight:bold">コスト</span>の合計を小さくすることを目的とする。</p><div class="theorem"><span style="font-weight:bold">Definition 3</span> <span style="font-weight:bold">(コスト付き状態空間問題、Weighted state-space problem)</span>  <em>
+コスト付き状態空間問題</em><span style="font-style:italic">P</span> = (<span style="font-style:italic">S</span>, <span style="font-style:italic">A</span>, <span style="font-style:italic">s</span>, <span style="font-style:italic">T</span>, <span style="font-style:italic">w</span>)<em>は状態空間問題の定義に加え、コスト関数</em><span style="font-style:italic">w</span>: <span style="font-style:italic">A</span> → ℝ<em>がある。経路</em>(<span style="font-style:italic">a</span><sub>1</sub>,...,<span style="font-style:italic">a</span><sub><span style="font-style:italic">k</span></sub>)<em>のコストは</em>∑<sub><span style="font-style:italic">i</span>=1</sub><sup><span style="font-style:italic">k</span></sup><span style="font-style:italic">w</span>(<span style="font-style:italic">a</span><sub><span style="font-style:italic">i</span></sub>)<em>と定義される。ある解が可能なすべての解の中でコストが最小である場合、その解を最適解(optimal cost solution)であると言う。
+</em></div><p>本書ではコスト付き状態空間問題をメインの問題として考える。
+</p><p>コストの定義されていない状態空間問題を特に区別してユニットコスト問題(ユニットコストドメイン)と呼ぶ。
+コスト付き状態空間問題は重み付き(コスト付き)グラフとしてモデルすることが出来る。すなわち、<span style="font-style:italic">G</span> = (<span style="font-style:italic">V</span>, <span style="font-style:italic">E</span>, <span style="font-style:italic">s</span>, <span style="font-style:italic">T</span>, <span style="font-style:italic">w</span>)は状態空間グラフの定義に加え、エッジの重み<span style="font-style:italic">w</span>: <span style="font-style:italic">E</span> ← ℝを持つ。</p><p><a href="#ch%3Ablind-search">2</a>章で詳解するが、探索アルゴリズムは状態空間グラフのノード・エッジ全てを保持する必要はない。
+全てのノード・エッジを保持した状態空間グラフを特に明示的状態空間グラフ(explicit state-space graph)と呼ぶとする。このようなグラフは、例えば隣接行列を用いて表すことが出来る。隣接行列<span style="font-style:italic">M</span>は行と列の大きさが|<span style="font-style:italic">V</span>|である正方行列であり、エッジ(<span style="font-style:italic">v</span><sub><span style="font-style:italic">i</span></sub>, <span style="font-style:italic">v</span><sub><span style="font-style:italic">j</span></sub>)が存在するならば<span style="font-style:italic">M</span><sub><span style="font-style:italic">i</span>,<span style="font-style:italic">j</span></sub>=1、なければ<span style="font-style:italic">M</span><sub><span style="font-style:italic">i</span>,<span style="font-style:italic">j</span></sub>=0とする行列である。
+このような表現方法の問題点は行列の大きさが|<span style="font-style:italic">V</span>|<sup>2</sup>であるため、大きな状態空間を保持することが出来ないことである。
+例えば、sec:search-problem節で紹介する15-puzzleは状態の数が|<span style="font-style:italic">V</span>|=15!/2であるため、隣接行列を保持することは現在のコンピュータでは非常に困難である。</p><p>そこで、探索アルゴリズムは多くの場合初期ノードとノード展開関数による非明示的状態空間グラフで表せられる。</p><div class="theorem"><span style="font-weight:bold">Definition 4</span> <span style="font-weight:bold">(非明示的状態空間グラフ、Implicit state-space graph)</span>  <em>
+非明示的状態空間グラフは初期状態</em><span style="font-style:italic">s</span> ∈ <span style="font-style:italic">V</span><em>、ゴール条件Goal: </em><span style="font-style:italic">V</span> → <span style="font-style:italic">B</span> = {<span style="font-style:italic">false</span>, <span style="font-style:italic">true</span>}<em>、ノード展開関数Expand: </em><span style="font-style:italic">V</span> → 2<sup><span style="font-style:italic">V</span></sup><em>によって与えられる。
+</em></div><p>探索の開始時、エージェントは初期ノードのみを保持する。エージェントは保持しているノードに対してExpandを適用することによって、新しいノードとエッジをグラフに加える。これを求める解を見つけるまで繰り返す。
+Expandはある状態からの次の状態の集合を返す関数である。Expand関数は明示的に与えられるのではなく、ルールによって与えられることが多い。例えば将棋であれば、将棋のルールによって定められる合法手によって得られる次の状態の集合がExpand関数によって得られる。
+これによって、エージェントは解を見つけるまでのノード・エッジだけ保持して必要な解を見つけることが出来る。</p>
+<!--TOC section id="sec5" 状態空間問題の例-->
+<h2 id="sec5" class="section">1.2  状態空間問題の例</h2><!--SEC END --><p>
+<a id="sec:search-problem"></a></p><p>状態空間問題の例をいくつか紹介する。
+グリッド経路探索問題や倉庫番問題など、応用がありつつ、かつ分かりやすい問題を選んだ。これらの問題はすべてヒューリスティック探索研究でベンチマークとして広く使われているものである。
+</p>
+<!--TOC subsection id="sec6" グリッド経路探索 (Grid Path-finding)-->
+<h3 id="sec6" class="subsection">1.2.1  グリッド経路探索 (Grid Path-finding)</h3><!--SEC END --><p>
+[todo]Grid Pathfinding: なんかいい感じの絵
+グリッド経路探索問題は<span style="font-style:italic">k</span>(多くの場合<span style="font-style:italic">k</span>=2)次元のグリッド上で初期配置からゴール位置までの経路を求める問題である[<a href="#yap2002grid">38</a>]。グリッドには障害物がおかれ、通れない箇所がある。エージェントが移動できる方向は4方向(<span style="font-style:italic">A</span>= {<span style="font-style:italic">up</span>, <span style="font-style:italic">down</span>, <span style="font-style:italic">left</span>, <span style="font-style:italic">right</span>})か8方向(4方向に加えて斜め移動)とする場合が多い。自由方向(Any Angle)の問題を扱う研究も存在する[<a href="#nash2007theta">29</a>]。</p><p>Web上に簡単に試せるデモがあるので、参照されたい：<span style="font-family:monospace">http://qiao.github.io/PathFinding.js/visual/</span>。とてもよくできており、この文章で説明する様々なグラフ探索手法をグリッド経路探索に試すことが出来る。</p><p>グリッド経路探索はロボットのモーションプランニングやゲームAIなどで応用される[<a href="#algfoor2015comprehensive">2</a>]。ストラテジーゲームなどでユニット（エージェント）を動かすために使われる。よく使われるベンチマーク問題集にもStarcraftのゲームのマップが含まれている[<a href="#sturtevant2012benchmarks">37</a>].
+またグリッドは様々な問題を経路探索に帰着して解くことができるという意味でも重要である。例えばMultiple Sequence Alignmentはグリッド経路探索に帰着して解くことが出来る(後述)。
+ロボットのモーションプランニングも経路探索に帰着することが出来る。すなわち、<span style="font-style:italic">k</span>個の関節の角度を変えて、現在状態からゴール状態へ遷移させたい。各関節の角度がグリッドの各次元に相当する。ロボットの物理的な構造により、関節のある角度の組み合わせは不可能である。不可能な組み合わせが、障害物の置かれたグリッドに相当する。よって、障害物を避けた経路というのが関節の動かし方ということになる。</p>
+<!--TOC subsection id="sec7" スライディングタイル (Sliding-tile Puzzle)-->
+<h3 id="sec7" class="subsection">1.2.2  スライディングタイル (Sliding-tile Puzzle)</h3><!--SEC END --><p>多くの一人ゲームはグラフ探索問題に帰着することが出来る。スライディングタイルはその例であり、ヒューリスティック探索研究においてメジャーなベンチマーク問題でもある (図<a href="#fig%3A15-puzzle">1.1</a>)。
+1から(<span style="font-style:italic">n</span><sup>2</sup>)−1までの数字が振られたタイルが<span style="font-style:italic">n</span>× <span style="font-style:italic">n</span>の正方形に並べられている。正方形には一つだけ<span style="font-style:italic">ブランク</span>と呼ばれるタイルのない位置があり、四方に隣り合うタイルのいずれかをその位置に移動する(スライドする)ことが出来る。スライディングタイル問題は、与えられた初期状態からスライドを繰り返し、ゴール状態にたどり着く経路を求める問題である。</p><blockquote class="figure"><div class="center"><div class="center"><hr style="width:80%;height:2"></div>
+<img src="textbook001.png">
+<div class="caption"><table style="border-spacing:6px;border-collapse:separate;" class="cellpading0"><tr><td style="vertical-align:top;text-align:left;" >Figure 1.1: 15パズルのゴール状態の例</td></tr>
+</table></div>
+<a id="fig:15-puzzle"></a>
+<div class="center"><hr style="width:80%;height:2"></div></div></blockquote><p>スライディングタイルの到達可能な状態の数は|<span style="font-style:italic">V</span>| = (<span style="font-style:italic">n</span><sup>2</sup>)!/2<sup><a id="text1" href="#note1">1</a></sup>であり、<span style="font-style:italic">n</span>に対して指数的に増加する。
+可能なアクションは<span style="font-style:italic">A</span>= {<span style="font-style:italic">up</span>, <span style="font-style:italic">down</span>, <span style="font-style:italic">left</span>, <span style="font-style:italic">right</span>}の４つであり、アクションにかかるコストはすべて同じとする。</p><p>後述するが、ヒューリスティック探索のためには状態からゴール状態までの距離(コスト)の下界（lower bound）が計算できると有用である。
+スライディングタイルにおける下界の求め方として最もシンプルなものは<span style="font-style:italic">マンハッタン距離ヒューリスティック</span>である。マンハッタン距離ヒューリスティックは各タイルの現在状態の位置とゴール状態の位置のマンハッタン距離の総和を取る。可能なアクションはすべて一つしかタイルを動かさないので、一回のアクションでマンハッタン距離は最大で１しか縮まらない。よって、マンハッタン距離はゴールまでの距離の下界である。</p>
+<!--TOC subsection id="sec8" Multiple Sequence Alignment (MSA)-->
+<h3 id="sec8" class="subsection">1.2.3  Multiple Sequence Alignment (MSA)</h3><!--SEC END --><p>生物学・進化学では遺伝子配列・アミノ酸配列の編集距離(edit distance)を比較することでニ個体がどれだけ親しいかを推定することが広く研究されている。
+Multiple Sequence Alignment (MSA)は複数の遺伝子・アミノ酸配列が与えられた時、それらの配列間の編集距離とその時出来上がった配列を求める問題である[<a href="#edgar2006multiple">10</a>]。
+２つの配列に対してそれぞれコストの定義された編集操作を繰り返し、同一の配列に並べ替える手続きをアライメントと呼ぶ。
+２つの配列の編集距離は編集操作の合計コストの最小値である。
+３つ以上の配列における距離の定義は様々考えられるが、ここでは全ての配列のペアの編集距離の総和を用いる。</p><p>MSAにおける可能な編集操作は置換と挿入である。置換は配列のある要素(DNAかアミノ酸)を別の要素に入れ替える操作であり、挿入は配列のある位置に要素を挿入する操作である。例えば(ABC, BCB, CB)の３つの配列のアライメントを考える。図<a href="#fig%3Amsa-cost">1.2.3</a>は置換と編集に対するコストの例である。-は欠損、すなわち挿入操作が行われたことを示す。アミノ酸配列における有名なコスト表としてPAM250[<a href="#pearson1990">31</a>]があるが、ここでは簡単のため仮のコスト表を用いる。
+図<a href="#fig%3Amsa-solution">1.2.3</a>はこのコスト表を用いたアライメントの例である。
+このとき、例えば配列ABC-と-BCBの編集距離は(A,-)、 (B,B)、 (C,C)、 (-,B)のコストの総和であるので、図<a href="#fig%3Amsa-cost">1.2.3</a>を参照し、5+0+1+5=11である。(-BCB, –CB)の距離は6, (–CB, ABC-)の距離は16であるので、３配列の編集距離は11+6+16=33である。</p><p><span style="font-style:italic">n</span>配列のMSAは<span style="font-style:italic">n</span>次元のグリッドの経路探索問題に帰着することが出来る[<a href="#korf%3A2000">25</a>]。
+図<a href="#fig%3Amsa-to-grid">1.2.3</a>は(ABC)と(BCB)の２つの配列による問題を表す。
+状態<span style="font-style:italic">s</span>は２つの変数によって表現される:(<span style="font-style:italic">x</span><sub>0</sub>, <span style="font-style:italic">x</span><sub>1</sub>)。<span style="font-style:italic">x</span><sub>0</sub>は配列0のどの位置までアライメントを完了したかを表す変数であり、配列<span style="font-style:italic">i</span>の長さを<span style="font-style:italic">l</span><sub><span style="font-style:italic">i</span></sub>とすると定義域は0 ≤ <span style="font-style:italic">x</span><sub>0</sub> ≤ <span style="font-style:italic">l</span><sub>0</sub>である。
+全てのアライメントが完了した状態<span style="font-style:italic">s</span>=(<span style="font-style:italic">l</span><sub>0</sub>, <span style="font-style:italic">l</span><sub>1</sub>)がゴール状態である。
+可能なアクションは<span style="font-style:italic">a</span>=(<span style="font-style:italic">b</span><sub>0</sub>, <span style="font-style:italic">b</span><sub>1</sub>), (<span style="font-style:italic">b</span><sub><span style="font-style:italic">i</span></sub>=0, 1)の形を取り、これは配列<span style="font-style:italic">i</span>に対して欠損を挿入する場合に<span style="font-style:italic">b</span><sub><span style="font-style:italic">i</span></sub>=0となる。
+状態<span style="font-style:italic">s</span>に対してアクション<span style="font-style:italic">a</span>を適用した後の状態<span style="font-style:italic">s</span>′は<span style="font-style:italic">s</span>′=(<span style="font-style:italic">x</span><sub>0</sub>+<span style="font-style:italic">b</span><sub>0</sub>, <span style="font-style:italic">x</span><sub>1</sub>+<span style="font-style:italic">b</span><sub>1</sub>)となる。例えば図<a href="#fig%3Amsa-to-grid">1.2.3</a>は初期状態<span style="font-style:italic">s</span>=(0,0)に対して<span style="font-style:italic">a</span>=(1,0)を適用している。これは(A), (-)までアライメントを進めた状態に対応する。次に<span style="font-style:italic">a</span>=(1,1)が適用され、アライメントは(A,B), (-,B)という状態に至る。</p><p>このようにして、MSAはグリッド経路探索問題に帰着し、グラフ探索アルゴリズムよって解くことが出来る。
+状態空間問題として考えた場合にMSAの難しさはアクションのコストが幅広いことにある。また、可能なアクションの数も配列の数<span style="font-style:italic">n</span>に対して2<sup><span style="font-style:italic">n</span></sup>−1と大きい。</p><p>MSAは生物学研究に役立つというモチベーションから非常に熱心に研究されており、様々な定式化による解法が知られている[<a href="#edgar2006multiple">10</a>]。</p><blockquote class="figure"><div class="center"><div class="center"><hr style="width:80%;height:2"></div>
+[MSAの解の例]
+<table style="border-spacing:6px;border-collapse:separate;" class="cellpading0"><tr><td style="text-align:center;white-space:nowrap" >	A</td><td style="text-align:center;white-space:nowrap" >B</td><td style="text-align:center;white-space:nowrap" >C</td><td style="text-align:center;white-space:nowrap" >- </td></tr>
+<tr><td style="text-align:center;white-space:nowrap" >	-</td><td style="text-align:center;white-space:nowrap" >B</td><td style="text-align:center;white-space:nowrap" >C</td><td style="text-align:center;white-space:nowrap" >B </td></tr>
+<tr><td style="text-align:center;white-space:nowrap" >	-</td><td style="text-align:center;white-space:nowrap" >-</td><td style="text-align:center;white-space:nowrap" >C</td><td style="text-align:center;white-space:nowrap" >B </td></tr>
+</table>
+<a id="fig:msa-solution"></a>
+ 
+[操作コスト表の例]
+<table border=1  style="border-spacing:0;" class="cellpadding1"><tr><td style="text-align:center;border:solid 1px;white-space:nowrap" >	</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >A</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >B</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >C</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >- </td></tr>
+<tr><td style="text-align:center;border:solid 1px;white-space:nowrap" >	A</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >0</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >1</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >2</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >5 </td></tr>
+<tr><td style="text-align:center;border:solid 1px;white-space:nowrap" >	B</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >&nbsp;</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >0</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >3</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >5 </td></tr>
+<tr><td style="text-align:center;border:solid 1px;white-space:nowrap" >	C</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >&nbsp;</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >&nbsp;</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >1</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >5 </td></tr>
+<tr><td style="text-align:center;border:solid 1px;white-space:nowrap" >	-</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >&nbsp;</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >&nbsp;</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >&nbsp;</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >0 </td></tr>
+<tr><td style="text-align:center;border:solid 1px;white-space:nowrap" >	
+</td></tr>
+</table>
+<a id="fig:msa-cost"></a>
+ 
+[グリッド経路探索への帰着]
+<table border=1  style="border-spacing:0;" class="cellpadding1"><tr><td style="text-align:center;border:solid 1px;white-space:nowrap" >	</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >&nbsp;</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >A</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >B</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >C </td></tr>
+<tr><td style="text-align:center;border:solid 1px;white-space:nowrap" >	</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >→</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >↘</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >&nbsp;</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >&nbsp;</td></tr>
+<tr><td style="text-align:center;border:solid 1px;white-space:nowrap" >	B</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >&nbsp;</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >&nbsp;</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >↘</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >&nbsp;</td></tr>
+<tr><td style="text-align:center;border:solid 1px;white-space:nowrap" >	C</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >&nbsp;</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >&nbsp;</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >&nbsp;</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >↓ </td></tr>
+<tr><td style="text-align:center;border:solid 1px;white-space:nowrap" >	B</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >&nbsp;</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >&nbsp;</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >&nbsp;</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >↘ </td></tr>
+</table>
+<a id="fig:msa-to-grid"></a>
+
+[グリッド経路探索への帰着]
+<table border=1  style="border-spacing:0;" class="cellpadding1"><tr><td style="text-align:center;border:solid 1px;white-space:nowrap" >	</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >A</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >B</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >C</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >- </td></tr>
+<tr><td style="text-align:center;border:solid 1px;white-space:nowrap" >	</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >-</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >B</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >C</td><td style="text-align:center;border:solid 1px;white-space:nowrap" >B </td></tr>
+</table>
+<a id="fig:msa-to-grid-align"></a>
+
+<div class="center"><hr style="width:80%;height:2"></div></div></blockquote>
+<!--TOC subsection id="sec9" 倉庫番 (Sokoban)-->
+<h3 id="sec9" class="subsection">1.2.4  倉庫番 (Sokoban)</h3><!--SEC END --><p>
+倉庫番(Sokoban)は日本発のパズルゲームであり、倉庫の荷物を押していくことで指定された位置に置くというゲームである。現在でも様々なゲームでゲーム内ミニゲームとして親しまれている。
+プレイヤーは「荷物の後ろに回って押す」ことしか出来ず、引っ張ったり、横から動かしたりすることが出来ない。また、荷物の上を通ることも出来ない。
+PSPACE-completeであることが知られている[<a href="#culberson1997sokoban">8</a>]。</p><blockquote class="figure"><div class="center"><div class="center"><hr style="width:80%;height:2"></div>
+<img src="textbook002.png">
+<div class="caption"><table style="border-spacing:6px;border-collapse:separate;" class="cellpading0"><tr><td style="vertical-align:top;text-align:left;" >Figure 1.2: Sokoban: 画像はwikipediaより。</td></tr>
+</table></div>
+<a id="fig:sokoban"></a>
+<div class="center"><hr style="width:80%;height:2"></div></div></blockquote><p>状態の表現方法は２通りあり、一つはグリッドの各位置に何が置いてあるかを変数とする方法である。もうひとつはプレイヤー、各荷物の位置に対してそれぞれ変数を割り当てる方法である。
+可能なアクションは{<span style="font-style:italic">move</span>−<span style="font-style:italic">up</span>,<span style="font-style:italic">move</span>−<span style="font-style:italic">left</span>,<span style="font-style:italic">move</span>−<span style="font-style:italic">down</span>,<span style="font-style:italic">move</span>−<span style="font-style:italic">right</span>,<span style="font-style:italic">push</span>−<span style="font-style:italic">up</span>,<span style="font-style:italic">push</span>−<span style="font-style:italic">left</span>,<span style="font-style:italic">push</span>−<span style="font-style:italic">down</span>,<span style="font-style:italic">push</span>−<span style="font-style:italic">right</span>}の８通りである。<span style="font-style:italic">move</span>−*はプレイヤーが動くアクションに対応し、コストは0である。<span style="font-style:italic">push</span>−*は荷物を押すアクションであり、正のアクションコストが割当てられている。よって、倉庫番はなるべく荷物を押す回数を少なくして荷物を目的の位置に動かすことが目的となる。</p><p>グラフ探索問題として倉庫番を考えるときに重要であるのは、倉庫番は<span style="font-style:italic">不可逆な</span>アクション(irreversible)があることである。
+グリッド経路探索やスライディングタイルは<span style="font-style:italic">可逆な</span> (reversible)問題である。
+全てのアクション<span style="font-style:italic">a</span> ∈ <span style="font-style:italic">A</span>に対して<span style="font-style:italic">a</span><sup>−1</sup> ∈ <span style="font-style:italic">A</span>が存在し、<span style="font-style:italic">a</span>(<span style="font-style:italic">a</span><sup>−1</sup>(<span style="font-style:italic">s</span>)) = <span style="font-style:italic">s</span>かつ<span style="font-style:italic">a</span><sup>−1</sup>(<span style="font-style:italic">a</span>(<span style="font-style:italic">s</span>)) = <span style="font-style:italic">s</span>となる場合、問題は可逆であると言う。
+可逆な問題は対応するアクションのコストが同じであれば無向グラフとしてモデルすることも出来、初期状態から到達できる状態は、すべて初期状態に戻ることが出来る。
+一方、不可逆な問題ではこれが保証されず、詰み(trap)状態に陥る可能性がある。</p><p>倉庫番では荷物を押すことは出来ても引っ張ることが出来ないため、不可逆な問題である。例えば、荷物を部屋の隅に置いてしまうと戻すことが出来ないため、詰み状態に陥る可能性がある問題である。
+このような性質を持つ問題では特にグラフ探索による先読みが効果的である。</p><p>もうひとつ重要な問題はゼロコストアクションの存在である。倉庫番のアクションのうち{<span style="font-style:italic">move</span>−<span style="font-style:italic">up</span>,<span style="font-style:italic">move</span>−<span style="font-style:italic">left</span>,<span style="font-style:italic">move</span>−<span style="font-style:italic">down</span>,<span style="font-style:italic">move</span>−<span style="font-style:italic">right</span>}はコストゼロ(<span style="font-style:italic">w</span>(<span style="font-style:italic">e</span>)=0)のアクションである。ヘタなアルゴリズムを実行すると無限に無駄なアクションを繰り返し続けるということもありうるだろう。</p>
+<!--TOC subsection id="sec10" 巡回セールスパーソン問題 (Traveling Salesperson Problem, TSP)-->
+<h3 id="sec10" class="subsection">1.2.5  巡回セールスパーソン問題 (Traveling Salesperson Problem, TSP)</h3><!--SEC END --><p>セールスパーソンはいくつかの都市に回って営業を行わなければならない。都市間の距離(=コスト)は事前に与えられている。
+TSPは全ての都市を最短距離で回ってはじめの都市に戻る経路を求める、という問題である[<a href="#applegate2006traveling">3</a>]。</p><blockquote class="figure"><div class="center"><div class="center"><hr style="width:80%;height:2"></div>
+<img src="textbook003.png"><div class="caption"><table style="border-spacing:6px;border-collapse:separate;" class="cellpading0"><tr><td style="vertical-align:top;text-align:left;" >Figure 1.3: 巡回セールスパーソン問題: 画像はwikipediaより。</td></tr>
+</table></div>
+<a id="fig:sokoban"></a>
+<div class="center"><hr style="width:80%;height:2"></div></div></blockquote><p>
+[todo]巡回セールスマン問題: 画像を挿入</p><p><span style="font-style:italic">n</span>個の都市があるとすると(最適・非最適含む)解の数は(<span style="font-style:italic">n</span>−1)!/2個である。
+可能なアクションは「都市<span style="font-style:italic">i</span> ∈ {1..<span style="font-style:italic">n</span>}を訪れる」であり、一度訪れた都市には行けない。
+TSPのゴール条件はすべての都市を訪れることである。よって、<span style="font-style:italic">n</span>回どれかアクションを実行すれば、とりあえず解を得ることが出来る。一方、最適解を得る問題はNP完全であることが知られている。</p><p>TSPの解の下界としては<span style="font-style:italic">最小全域木</span> (minimum spanning tree)のコストがよく用いられる[<a href="#held1970traveling">14</a>]。
+グラフの<span style="font-style:italic">全域木</span> (spanning tree)は全てのノードを含むループを含まない部分グラフである。
+最小全域木は全域木のうち最もエッジコストの総和が小さいものである。
+未訪問の都市によるグラフの最小全域木はTSPの下界となることが知られている。</p><p>TSPはヒューリスティック探索に限らず、様々なアプローチで研究されている問題ドメインである[<a href="#applegate2006traveling">3</a>]。TSPについて特に詳しく知りたい方はそちらの教科書を参照されたい。</p>
+<!--BEGIN NOTES chapter-->
+<hr class="footnoterule"><dl class="thefootnotes"><dt class="dt-thefootnotes">
+<a id="note1" href="#text1">1</a></dt><dd class="dd-thefootnotes"><div class="footnotetext">スライディングタイルは偶奇性があり、到達不可能な状態がある[<a href="#johnson1879notes">21</a>]。</div></dd></dl>
+<!--END NOTES-->
+<!--TOC chapter id="sec11" 情報なし探索 (Blind Search)-->
+<h1 id="sec11" class="chapter">Chapter 2  情報なし探索 (Blind Search)</h1><!--SEC END --><p>
+<a id="ch:blind-search"></a></p><p><a href="#ch%3Aintroduction">1</a>章では様々な状態空間問題を紹介したが、それぞれの問題の解法はどれも沢山研究されている。
+一つの指針としては、ある問題に特化した解法を研究することでその問題をより高速に解くというモチベーションがある。
+これは例えばMSAのように重要なアプリケーションがある問題の場合に特に熱心に研究されることが多い。
+一方、なるべく広い範囲の問題に対して適用可能な手法を研究するというモチベーションもある。
+特に人工知能の文脈において、なるべく問題の知識を必要とせず、最小限の仮定のみを必要とする解法が求められる。
+</p><p><a href="#ch%3Aintroduction">1</a>章で紹介した状態空間問題を広く扱うことの出来る手法としてグラフ探索アルゴリズムがある。
+本章では最もシンプルな問題（ドメイン）の知識を利用しない探索を紹介する。
+情報なし探索 (Blind Search)は状態空間グラフのみに注目し、背景にある問題に関する知識を一切使わないアルゴリズムである。
+情報なし探索で重要なのは1. 重複検知を行うかと 2. ノードの展開順序の二点である。
+重複検出は訪問済みのノードを保存しておくことで同じノードを繰り返し探索することを防ぐ手法である。対価としては、メモリの消費量が非常に大きくなることにある。
+ノードの展開順序とは、例えば幅優先探索・深さ優先探索などのバリエーションを指す。
+効率的な展開順序は問題によって大きく異なり、問題を選べばこれらの手法によって十分に効率的な探索を行うことが出来る。
+これらの探索手法は競技プログラミングでもよく解法として使われる[<a href="#skiena2006programming">35</a>]。また、いわゆるコーディング面接でもグラフ探索アルゴリズムは頻出である[<a href="#mcdowell2011cracking">28</a>]。
+</p>
+<!--TOC section id="sec12" 木探索アルゴリズム (Tree Search Algorithm)-->
+<h2 id="sec12" class="section">2.1  木探索アルゴリズム (Tree Search Algorithm)</h2><!--SEC END --><p>
+<a id="sec:tree-search-algorithm"></a>
+木探索アルゴリズムはグラフ探索アルゴリズムの基礎となるフレームワークであり、本文で紹介する手法のほとんどがこのフレームワークを基礎としているといえる。</p><p>アルゴリズム<a href="#alg%3Aimplicit-tree-search">2.1</a>は木探索の疑似コードである。</p><p>
+Implicit Tree Search
+<a id="alg:implicit-tree-search"></a>
+	initial node <span style="font-style:italic">s</span>, weight function <span style="font-style:italic">w</span>, successor generation function <span style="font-style:italic">Expand</span>, goal function <span style="font-style:italic">Goal</span>
+	Path from <span style="font-style:italic">s</span> to a goal node <span style="font-style:italic">t</span> ∈ <span style="font-style:italic">T</span>, or ∅ if no such path exists
+	<span style="font-style:italic">Open</span> ← {<span style="font-style:italic">s</span>} 
+	<span style="font-style:italic">Open</span> ≠ ∅ 
+		<span style="font-style:italic">u</span> ← <span style="font-style:italic">Open</span>.<span style="font-style:italic">pop</span>() 
+		<span style="font-style:italic">Goal</span>(<span style="font-style:italic">u</span>) 
+			<span style="font-style:italic">Path</span>(<span style="font-style:italic">u</span>) 
+		
+		<span style="font-style:italic">Succ</span>(<span style="font-style:italic">u</span>) ← <span style="font-style:italic">Expand</span>(<span style="font-style:italic">u</span>) 
+		each <span style="font-style:italic">v</span> ∈ <span style="font-style:italic">Succ</span>(<span style="font-style:italic">u</span>) 
+			<span style="font-style:italic">Open</span>.<span style="font-style:italic">insert</span>(<span style="font-style:italic">v</span>) 
+			<span style="font-style:italic">parent</span>(<span style="font-style:italic">v</span>) ← <span style="font-style:italic">u</span> 
+		
+	
+	∅ 
+</p><p>以下、(k)と書いて疑似コードのk行目を指すことにする。
+木探索はオープンリスト<sup><a id="text2" href="#note2">1</a></sup>と呼ばれるノードの集合をPriority queueに保持する。探索の開始時には、初期状態のみがオープンリストに入っている(1)。
+木探索は、このオープンリストから一つノード<span style="font-style:italic">u</span>を選び(3)、ゴール条件を満たしているかを確認する(4)。満たしていれば初期状態から<span style="font-style:italic">u</span>への経路を返す。満たしていなければ、そのノードを展開する(6-)。展開とは、そのノードの子ノードを列挙し、オープンリストに入れる(8)ことを指す。</p><p>探索の進行によってエージェントが保持する情報は変化していく。ここでは探索がどのように進行するかを記述するため、以下の３つの言葉を定義する：</p><ol class="enumerate" type=1><li class="li-enumerate">
+展開済みノード: <span style="font-style:italic">Expand</span>(<span style="font-style:italic">u</span>)によって子ノードが参照されたノードを指す。<span style="font-style:italic">Open</span>からは省かれる。
+</li><li class="li-enumerate">生成済みノード: <span style="font-style:italic">Open</span>.<span style="font-style:italic">insert</span>(<span style="font-style:italic">v</span>)によってOpenに一度でも入れられたノードを指す。
+</li><li class="li-enumerate">未生成ノード: まだ生成されていないノード。よって、非明示的グラフに保持されていない。</li></ol><p>非明示的グラフ木探索の強みは、生成済みノードのうち展開済みではないもののみを<span style="font-style:italic">Open</span>に保持すればよいことにある。未生成ノード、展開済みノードはメモリ上に保持する必要がない。
+一方、これの問題は、一度展開したノードが再び現れた場合、<span style="font-weight:bold">再展開 (reexpansion)</span>をすることになる。よって、グラフがより木から遠いほど(複数の経路で到達可能なノードがあるほど)同じノードを何度も再展開することになり、効率が悪くなってしまう。もっと言えば、木探索アルゴリズムは状態数が有限であっても停止しない場合がある。
+これらが問題になるような問題ドメインである場合は後述する重複検出を使うグラフ探索<a href="#sec%3Agraph-search-algorithm">2.4</a>を使うと良いだろう。</p><p><span style="font-weight:bold">紛らわしいが、木探索アルゴリズムはグラフを探索するアルゴリズムである。</span>
+グラフ探索アルゴリズムのうち、後述する重複検出を行わない手法を木探索アルゴリズムと呼ぶ。</p>
+<!--TOC section id="sec13" 幅優先探索 (Breadth-First Search)-->
+<h2 id="sec13" class="section">2.2  幅優先探索 (Breadth-First Search)</h2><!--SEC END --><p>
+<a id="sec:breadth-first-search"></a></p><p>木探索のパフォーマンスにおいて重要になるのは<span style="font-weight:bold">どのようにして展開するノードを選択するか</span>にある(<span style="font-style:italic">Open</span>.<span style="font-style:italic">pop</span>())。
+ヒューリスティック探索の研究の非常に大きな部分はここに費やされているといえる。
+シンプルかつ強力なノード選択方法はFirst-in-first-out (FIFO)である。あるいは幅優先探索と呼ぶ。</p><p>幅優先探索の手順は非常に単純であり、FIFOの順に<span style="font-style:italic">Open</span>から取り出せばいいだけである。
+これをもう少し大きな視点で、<span style="font-style:italic">どのようなノードを優先して探索しているのか</span>を考えてみたい。
+初期状態から現在状態にたどり着くまでの経路の長さをノードの<span style="font-style:italic">p</span>値と定義する。
+すると、幅優先探索の<span style="font-style:italic">Open</span>.<span style="font-style:italic">pop</span>()はアルゴリズム<a href="#alg%3Abrfs-open">2.2</a>のように書くことが出来る。
+ユニットコスト問題である場合、<span style="font-style:italic">p</span>値は<span style="font-style:italic">g</span>値と一致する。</p><p>幅優先探索のメリットは初めに発見した解が最短経路長であることである。
+問題がユニットコストドメインであれば、最短経路が最小コスト経路であるので、最適解が得られる。</p><p>
+Breadth-First Search: <span style="font-style:italic">Open</span>.<span style="font-style:italic">pop</span>()
+<a id="alg:brfs-open"></a>
+	Node <span style="font-style:italic">u</span>
+	argmin<sub><span style="font-style:italic">n</span></sub> <span style="font-style:italic">p</span>(<span style="font-style:italic">n</span>)
+</p>
+<!--TOC section id="sec14" 深さ優先探索 (Depth-First Search)-->
+<h2 id="sec14" class="section">2.3  深さ優先探索 (Depth-First Search)</h2><!--SEC END --><p>
+<a id="sec:depth-first-search"></a></p><p>幅優先探索が幅を優先するのに対して深さ優先探索はもっとも深いノードを優先して探索する。</p><p>深さ優先探索は解がある一定の深さにあることが既知である場合に有効である。
+例えばTSPは全ての街を回ったときのみが解であるので、街の数が<span style="font-style:italic">n</span>であれば全ての解の経路長が<span style="font-style:italic">n</span>である。
+このような問題を幅優先探索で解こうとすると、解は最も深いところにしかないので、最後の最後まで解が一つも得られないということになる。一方、深さ優先探索なら<span style="font-style:italic">n</span>回目の展開で一つ目の解を見つけることが出来る。</p><p>良い解、最適解を見つけたい場合でも深さ優先探索が有用である場合がある。
+早めに一つ解が見つけられると、その解よりも質が悪い解にしかつながらないノードを枝刈り(pruning)することが出来る。詳しくは<a href="#sec%3Apruning">4.3</a>章で解説する。</p><p>
+Depth-First Search: <span style="font-style:italic">Open</span>.<span style="font-style:italic">pop</span>()
+<a id="alg:dfs-open"></a>
+	Node <span style="font-style:italic">u</span>
+	argmax<sub><span style="font-style:italic">n</span></sub> <span style="font-style:italic">g</span>(<span style="font-style:italic">n</span>)
+</p>
+<!--TOC section id="sec15" グラフ探索アルゴリズム (Graph Search Algorithm)-->
+<h2 id="sec15" class="section">2.4  グラフ探索アルゴリズム (Graph Search Algorithm)</h2><!--SEC END --><p>
+<a id="sec:graph-search-algorithm"></a></p><p>明示的グラフのあるノードが初期状態から複数の経路でたどり着ける場合、同じ状態を表すノードが木探索による非明示的グラフに複数現れるということが生じる。このようなノードを重複(duplicate)と呼ぶ。ノードの重複は計算資源を消費してしまうので、重複の効率的な検出方法は重要な研究分野である。</p><p>本書ではノードの重複検出を行う探索アルゴリズムを狭義にグラフ探索アルゴリズムと呼び、重複検出を行わない探索を木探索と区別する。</p><p>
+Implicit Graph Search
+<a id="alg:implicit-graph-search"></a>
+	Implicit problem graph with initial node <span style="font-style:italic">s</span>, weight function <span style="font-style:italic">w</span>, successor generation function <span style="font-style:italic">Expand</span>, goal function <span style="font-style:italic">Goal</span>
+	Path from <span style="font-style:italic">s</span> to a goal node <span style="font-style:italic">t</span> ∈ <span style="font-style:italic">T</span>, or ∅ if no such path exists
+	<span style="font-style:italic">Closed</span> ← ∅ 
+	<span style="font-style:italic">Open</span> ← {<span style="font-style:italic">s</span>} 
+	<span style="font-style:italic">Open</span> ≠ ∅ 
+		<span style="font-style:italic">u</span> ← <span style="font-style:italic">Open</span>.<span style="font-style:italic">pop</span>() 
+		<span style="font-style:italic">Closed</span>.<span style="font-style:italic">insert</span>(<span style="font-style:italic">u</span>) 
+		<span style="font-style:italic">Goal</span>(<span style="font-style:italic">u</span>) 
+			<span style="font-style:italic">Path</span>(<span style="font-style:italic">u</span>) 
+		
+		<span style="font-style:italic">Succ</span>(<span style="font-style:italic">u</span>) ← <span style="font-style:italic">Expand</span>(<span style="font-style:italic">u</span>) 
+		each <span style="font-style:italic">v</span> ∈ <span style="font-style:italic">Succ</span>(<span style="font-style:italic">u</span>) 
+			<span style="font-style:italic">Improve</span>(<span style="font-style:italic">u</span>, <span style="font-style:italic">v</span>) 
+		
+	
+	∅ 
+</p><p>
+<span style="font-style:italic">Improve</span>(<span style="font-style:italic">u</span>,<span style="font-style:italic">v</span>)
+<a id="alg:improve"></a>
+	Node u and its successor <span style="font-style:italic">v</span>
+	Update parent of <span style="font-style:italic">v</span>, <span style="font-style:italic">Open</span>, and <span style="font-style:italic">Closed</span>
+	<span style="font-style:italic">v</span> ∉ <span style="font-style:italic">Closed</span> ∪ <span style="font-style:italic">Open</span> 
+		<span style="font-style:italic">Open</span>.<span style="font-style:italic">insert</span>(<span style="font-style:italic">v</span>) 
+		<span style="font-style:italic">parent</span>(<span style="font-style:italic">v</span>) ← <span style="font-style:italic">u</span> 
+	
+</p><p>[todo]グラフ探索アルゴリズム: 重複検出に関連して何か付け足す</p>
+<!--BEGIN NOTES chapter-->
+<hr class="footnoterule"><dl class="thefootnotes"><dt class="dt-thefootnotes">
+<a id="note2" href="#text2">1</a></dt><dd class="dd-thefootnotes"><div class="footnotetext">歴史的な経緯でリストと呼ばれているが、データ構造がリストで実装されるという意味ではない。効率的なデータ構造は<a href="#ch%3Asearch-performance">4</a>章で紹介する。</div></dd></dl>
+<!--END NOTES-->
+<!--TOC chapter id="sec16" ヒューリスティック探索-->
+<h1 id="sec16" class="chapter">Chapter 3  ヒューリスティック探索</h1><!--SEC END --><p>
+<a id="ch:heuristic-search"></a></p><p><a href="#ch%3Ablind-search">2</a>章では問題の知識を利用しないグラフ探索手法について解説した。
+本章では問題の知識を利用することでより効率的なグラフ探索を行う手法、特にヒューリスティック探索について解説する。</p>
+<!--TOC section id="sec17" ヒューリスティックとは？-->
+<h2 id="sec17" class="section">3.1  ヒューリスティックとは？</h2><!--SEC END --><p>
+<a id="sec:heursitic"></a></p><p>経路探索問題を幅優先探索で解くことを考えよう。
+図<a href="#fig%3Agrid">??</a>の初期状態からゴールへの最短経路の長さはXである。このとき、幅優先探索は図<a href="#fig%3Agrid-brfs">??</a>の領域を探索する。
+しかし人間が経路探索を行うときにこんなに広い領域を探索しないだろう。なぜか。
+それは人間が問題の特徴を利用して、このノードを探索したほうがよいだろう、という推論を働かせているからである。
+問題の特徴を利用してノードの<span style="font-weight:bold">有望さ</span>をヒューリスティック関数として定量化し、ヒューリスティック関数を利用した探索アルゴリズムをヒューリスティック探索と呼ぶ。
+ヒューリスティック関数は人間が自分の知識を利用してコーディングする場合もあるが、特にプランニング問題などでは自動的にヒューリスティックを生成する手法も広く使われている。</p><p>[todo]ヒューリスティックとは: grid, grid-brfsの図を挿入</p>
+<!--TOC section id="sec18" ヒューリスティック関数-->
+<h2 id="sec18" class="section">3.2  ヒューリスティック関数</h2><!--SEC END --><p>
+<a id="sec:heuristic-function"></a>
+[todo]ヒューリスティック関数： 性質と定義の説明
+ヒューリスティック関数はある状態からゴールまでの最短距離の見積もりである。</p><div class="theorem"><span style="font-weight:bold">Definition 5</span> <span style="font-weight:bold">(ヒューリスティック関数)</span>  <em>
+ヒューリスティック関数</em><span style="font-style:italic">h</span><em>はノードの評価関数である。</em><span style="font-style:italic">h</span>: <span style="font-style:italic">V</span> → ℝ<sub>≥ 0</sub><em>
+</em></div><p>ヒューリスティック値が低いノードほどゴールに近いと推測できるので、探索ではヒューリスティック値が小さいノードを優先して展開する。
+ヒューリスティック関数の値をそのノードの<span style="font-style:italic">h</span>値と呼ぶことが多い。</p><p>ヒューリスティック関数の望ましい性質として、まず正確である方が望ましい。すなわち、<span style="font-style:italic">h</span>値が実際のゴールまでの最短距離に近いほど、有用な情報であると言える。
+もう一つ望ましい性質は<span style="font-style:italic">h</span>値が最適解コストの下界である場合である。
+<a href="#sec%3Aastar-search">3.3</a>章で解説するが、<span style="font-style:italic">h</span>値が最短距離の下界である場合、それを用いた効率的な探索アルゴリズム(A*探索、重み付きA*探索)において解コストに理論的保証が得られることが広く知られている。
+<span style="font-style:italic">h</span>値が常に最適解コストの下界であるヒューリスティック関数を許容的なヒューリスティックと呼ぶ。</p><div class="theorem"><span style="font-weight:bold">Definition 6</span> <span style="font-weight:bold">(許容的なヒューリスティック)</span>  <em>
+ヒューリスティック関数</em><span style="font-style:italic">h</span><em>は最適解のコストの下界である場合、許容的である。すなわち、全てのノード</em><span style="font-style:italic">u</span> ∈ <span style="font-style:italic">V</span><em>に対して</em><span style="font-style:italic">h</span>(<span style="font-style:italic">u</span>) ≤ <span style="font-style:italic">h</span><sup>*</sup>(<span style="font-style:italic">u</span>)<em>が成り立つ。
+</em></div><p>ただし、<span style="font-style:italic">h</span><sup>*</sup>(<span style="font-style:italic">u</span>)はノード<span style="font-style:italic">u</span>からゴールノード集合<span style="font-style:italic">T</span>のいずれかへたどり着くための最短経路である。</p><p>一般に、許容的なヒューリスティックを得る方法としては、元問題の<span style="font-weight:bold">緩和問題</span>を解き、その最適解コストをヒューリスティック値とすることである。ある問題の緩和問題とは、解集合に元の問題の解を含む問題を指す。要するに元の問題より簡単な問題である<sup><a id="text3" href="#note3">1</a></sup>。</p><p>もう一つ重要な性質は無矛盾性である。</p><div class="theorem"><span style="font-weight:bold">Definition 7</span> <span style="font-weight:bold">(無矛盾なヒューリスティック)</span>  <em>
+ヒューリスティック関数</em><span style="font-style:italic">h</span><em>は全てのエッジ</em><span style="font-style:italic">e</span> = (<span style="font-style:italic">u</span>, <span style="font-style:italic">v</span>) ∈ <span style="font-style:italic">E</span><em>に対して</em><span style="font-style:italic">h</span>(<span style="font-style:italic">u</span>) ≤ <span style="font-style:italic">h</span>(<span style="font-style:italic">v</span>) + <span style="font-style:italic">w</span>(<span style="font-style:italic">u</span>,<span style="font-style:italic">v</span>)<em>が成り立つ場合、無矛盾である。
+</em></div><p>無矛盾性は特に<a href="#sec%3Aastar-search">3.3</a>章で後述するA*探索において探索の効率性に重要な性質である。</p><p>また、無矛盾なヒューリスティックのうちゴールノードの<span style="font-style:italic">h</span>値が0となるヒューリスティックは許容的である。</p><div class="theorem"><span style="font-weight:bold">Theorem 1</span>  <em>
+ゴールノード</em><span style="font-style:italic">n</span> ∈ <span style="font-style:italic">T</span><em>に対して</em><span style="font-style:italic">h</span>(<span style="font-style:italic">n</span>) = 0<em>となる無矛盾なヒューリスティックは許容的なヒューリスティックである。
+</em></div><p><span style="font-weight:bold">Proof.</span></p><p>あるノード<span style="font-style:italic">n</span><sub>0</sub>からゴールノード<span style="font-style:italic">n</span><sub><span style="font-style:italic">k</span></sub> ∈ <span style="font-style:italic">T</span>への最短経路(ノードの列)を(<span style="font-style:italic">n</span><sub>0</sub>, <span style="font-style:italic">n</span><sub>1</sub>,...)と置く。無矛盾なヒューリスティック<span style="font-style:italic">h</span>(<span style="font-style:italic">n</span>)は
+</p><table class="display dcenter"><tr style="vertical-align:middle"><td class="dcell">
+     
+
+</td><td class="dcell"><table style="border-spacing:6px;border-collapse:separate;" class="cellpading0"><tr><td style="text-align:right;white-space:nowrap" >	<span style="font-style:italic">h</span>(<span style="font-style:italic">n</span><sub>0</sub>)</td><td style="text-align:left;white-space:nowrap" >≤ <span style="font-style:italic">h</span>(<span style="font-style:italic">n</span><sub>1</sub>) + <span style="font-style:italic">w</span>(<span style="font-style:italic">n</span><sub>0</sub>, <span style="font-style:italic">n</span><sub>1</sub>) </td><td style="text-align:right;white-space:nowrap" >&nbsp;</td><td style="text-align:left;white-space:nowrap" >&nbsp;</td><td style="text-align:right;white-space:nowrap" >&nbsp;</td><td style="text-align:left;white-space:nowrap" >&nbsp;</td><td style="text-align:right;white-space:nowrap" >&nbsp;</td><td style="text-align:left;white-space:nowrap" >&nbsp;</td><td style="text-align:right;white-space:nowrap" >&nbsp;</td><td style="text-align:left;white-space:nowrap" >&nbsp;</td><td style="text-align:right;white-space:nowrap" >    (1)</td></tr>
+<tr><td style="text-align:right;white-space:nowrap" >
+			</td><td style="text-align:left;white-space:nowrap" >≤ <span style="font-style:italic">h</span>(<span style="font-style:italic">n</span><sub>2</sub>) + <span style="font-style:italic">w</span>(<span style="font-style:italic">n</span><sub>0</sub>, <span style="font-style:italic">n</span><sub>1</sub>) + <span style="font-style:italic">w</span>(<span style="font-style:italic">n</span><sub>1</sub>, <span style="font-style:italic">n</span><sub>2</sub>) </td><td style="text-align:right;white-space:nowrap" >&nbsp;</td><td style="text-align:left;white-space:nowrap" >&nbsp;</td><td style="text-align:right;white-space:nowrap" >&nbsp;</td><td style="text-align:left;white-space:nowrap" >&nbsp;</td><td style="text-align:right;white-space:nowrap" >&nbsp;</td><td style="text-align:left;white-space:nowrap" >&nbsp;</td><td style="text-align:right;white-space:nowrap" >&nbsp;</td><td style="text-align:left;white-space:nowrap" >&nbsp;</td><td style="text-align:right;white-space:nowrap" >    (2)</td></tr>
+<tr><td style="text-align:right;white-space:nowrap" >
+			</td><td style="text-align:left;white-space:nowrap" >... </td><td style="text-align:right;white-space:nowrap" >&nbsp;</td><td style="text-align:left;white-space:nowrap" >&nbsp;</td><td style="text-align:right;white-space:nowrap" >&nbsp;</td><td style="text-align:left;white-space:nowrap" >&nbsp;</td><td style="text-align:right;white-space:nowrap" >&nbsp;</td><td style="text-align:left;white-space:nowrap" >&nbsp;</td><td style="text-align:right;white-space:nowrap" >&nbsp;</td><td style="text-align:left;white-space:nowrap" >&nbsp;</td><td style="text-align:right;white-space:nowrap" >    (3)</td></tr>
+<tr><td style="text-align:right;white-space:nowrap" >
+			</td><td style="text-align:left;white-space:nowrap" ><table class="display"><tr style="vertical-align:middle"><td class="dcell">≤ <span style="font-style:italic">h</span>(<span style="font-style:italic">n</span><sub><span style="font-style:italic">k</span></sub>) + </td><td class="dcell"><table class="display"><tr><td class="dcell" style="text-align:center">&nbsp;</td></tr>
+<tr><td class="dcell" style="text-align:center"><span style="font-size:xx-large">∑</span></td></tr>
+<tr><td class="dcell" style="text-align:center"><span style="font-style:italic">i</span>=0..<span style="font-style:italic">k</span>−1</td></tr>
+</table></td><td class="dcell">(<span style="font-style:italic">w</span>(<span style="font-style:italic">n</span><sub><span style="font-style:italic">i</span></sub>,<span style="font-style:italic">n</span><sub><span style="font-style:italic">i</span>+1</sub>)) </td></tr>
+</table></td><td style="text-align:right;white-space:nowrap" >&nbsp;</td><td style="text-align:left;white-space:nowrap" >&nbsp;</td><td style="text-align:right;white-space:nowrap" >&nbsp;</td><td style="text-align:left;white-space:nowrap" >&nbsp;</td><td style="text-align:right;white-space:nowrap" >&nbsp;</td><td style="text-align:left;white-space:nowrap" >&nbsp;</td><td style="text-align:right;white-space:nowrap" >&nbsp;</td><td style="text-align:left;white-space:nowrap" >&nbsp;</td><td style="text-align:right;white-space:nowrap" >    (4)</td></tr>
+<tr><td style="text-align:right;white-space:nowrap" >
+			</td><td style="text-align:left;white-space:nowrap" >= <span style="font-style:italic">h</span><sup>*</sup>(<span style="font-style:italic">n</span><sub>0</sub>)
+</td><td style="text-align:right;white-space:nowrap" >&nbsp;</td><td style="text-align:left;white-space:nowrap" >&nbsp;</td><td style="text-align:right;white-space:nowrap" >&nbsp;</td><td style="text-align:left;white-space:nowrap" >&nbsp;</td><td style="text-align:right;white-space:nowrap" >&nbsp;</td><td style="text-align:left;white-space:nowrap" >&nbsp;</td><td style="text-align:right;white-space:nowrap" >&nbsp;</td><td style="text-align:left;white-space:nowrap" >&nbsp;</td><td style="text-align:right;white-space:nowrap" >    (5)</td></tr>
+</table></td></tr>
+</table><p>
+よって<span style="font-style:italic">h</span>(<span style="font-style:italic">n</span><sub>0</sub>) ≤ <span style="font-style:italic">h</span><sup>*</sup>(<span style="font-style:italic">n</span><sub>0</sub>)より許容的である。</p><p><br>
+</p>
+<!--TOC section id="sec19" A*探索-->
+<h2 id="sec19" class="section">3.3  A*探索</h2><!--SEC END --><p>
+<a id="sec:astar-search"></a></p><p>A*探索はヒューリスティック探索の代名詞である、最も広く知られている
+手法である[<a href="#fikes%3A71">12</a>]。
+A*探索は以下のf値が最小となるノードを優先したグラフ探索アルゴリズムである。</p><table class="display dcenter"><tr style="vertical-align:middle"><td class="dcell">
+	<span style="font-style:italic">f</span>(<span style="font-style:italic">n</span>) = <span style="font-style:italic">g</span>(<span style="font-style:italic">n</span>) + <span style="font-style:italic">h</span>(<span style="font-style:italic">n</span>)
+    (6)</td></tr>
+</table><p>ノードnのf値は、初期状態からnを通過してゴール状態に辿り着くためのコストの見積もりである。g値は初期状態からノードnまでの既知の最短経路コストである。一方h値はヒューリスティック関数によるnからゴール状態までの最短経路の見積もりである。
+A*探索は非明示的グラフ探索アルゴリズム(アルゴリズム<a href="#alg%3Aimplicit-graph-search">2.4</a>)の一つであり、<span style="font-style:italic">Open</span>.<span style="font-style:italic">pop</span>()を<span style="font-style:italic">f</span>値最小ノードを返すようにしただけである。
+ここでは実際のアルゴリズムの動きを追えるよう、アルゴリズム全体のコードを置いた<a href="#alg%3Aastar-search">3.3</a>。</p><p>
+A* search
+	Implicit problem graph with initial node <span style="font-style:italic">n</span><sub>0</sub>, weight function <span style="font-style:italic">w</span>, successor generation function <span style="font-style:italic">Expand</span>, goal function <span style="font-style:italic">Goal</span>
+	Path from <span style="font-style:italic">n</span><sub>0</sub> to a goal node <span style="font-style:italic">t</span> ∈ <span style="font-style:italic">T</span>, or ∅ if no such path exists
+	Initialize <span style="font-style:italic">OPEN</span> to {<span style="font-style:italic">n</span><sub>0</sub>} 
+<span style="font-style:italic">OPEN</span> ≠ ∅ 
+	 Get and remove from OPEN a node <span style="font-style:italic">n</span> with a smallest <span style="font-style:italic">f</span>(<span style="font-style:italic">n</span>) 
+	 Add <span style="font-style:italic">n</span> to CLOSED 
+	 <span style="font-style:italic">n</span> ∈ <span style="font-style:italic">T</span> 
+	 	Return solution path from <span style="font-style:italic">n</span><sub>0</sub> to <span style="font-style:italic">n</span> 
+	 
+	 
+	 each <span style="font-style:italic">n</span>′ ∈ <span style="font-style:italic">Expand</span>(<span style="font-style:italic">n</span>) 
+	 	<span style="font-style:italic">g</span><sub>1</sub> = <span style="font-style:italic">g</span>(<span style="font-style:italic">n</span>) + <span style="font-style:italic">w</span>(<span style="font-style:italic">n</span>,<span style="font-style:italic">n</span>′) 
+	 	<span style="font-style:italic">n</span>′ ∈ <span style="font-style:italic">CLOSED</span> 
+	 		<span style="font-style:italic">g</span><sub>1</sub> &lt; <span style="font-style:italic">g</span>(<span style="font-style:italic">n</span>′) 
+	 				 				 				 			Remove <span style="font-style:italic">n</span>′ from CLOSED and add it to OPEN  
+	 		 
+	 		 Continue 
+		 	
+	 	 
+		 	<span style="font-style:italic">n</span>′ ∉ <span style="font-style:italic">OPEN</span> 
+		 		Add <span style="font-style:italic">n</span>′ to OPEN 
+		 	
+		 	<span style="font-style:italic">g</span><sub>1</sub> ≥ <span style="font-style:italic">g</span>(<span style="font-style:italic">n</span>′) 
+		 		Continue 
+		 	
+		 
+			<span style="font-style:italic">g</span>(<span style="font-style:italic">n</span>′) ← <span style="font-style:italic">g</span><sub>1</sub> 
+			<span style="font-style:italic">f</span>(<span style="font-style:italic">n</span>′) ← <span style="font-style:italic">g</span>(<span style="font-style:italic">n</span>′) + <span style="font-style:italic">h</span>(<span style="font-style:italic">n</span>′) 
+			<span style="font-style:italic">parent</span>(<span style="font-style:italic">n</span>′) ← <span style="font-style:italic">n</span> 
+	 
+
+failure (no path exists) 
+	
+	A*
+	<a id="alg:astar-search"></a>
+</p><div class="theorem"><span style="font-weight:bold">Theorem 2</span>  <em>
+ヒューリスティックが許容的である時、A*は最適解を返す。
+</em></div><p><span style="font-weight:bold">Proof.</span></p><p>[todo]A*探索: 最適解の証明
+許容的なヒューリスティックh(n)はnからゴールへの経路の下界である。よって、ゴール状態のh値は0である。つまりゴール状態のf値はg値と同じである。この解のg(n’)値をf*と置こう(解のコストに相当)。
+A*のノードの展開順に従うと、f*のノードを展開する前に全てのf&lt;f*のノードが展開される。
+これらのノードがいずれもゴール状態でなければ、g(n)&lt;=f(n)より、g(n)&lt;f*となるゴール状態がない。すなわち、f*が最適解のコストとなり、n’がその時のゴール状態である。</p><p><br>
+</p><p>無矛盾なヒューリスティックである場合、全てのノードnは展開時までにg(n)がnに辿り着くための最短経路コストの値になる。</p><div class="theorem"><span style="font-weight:bold">Theorem 3</span>  <em>
+無矛盾なヒューリスティックを用いたA*探索はノードの再展開が生じない。
+</em></div>
+<!--TOC subsection id="sec20" 重み付きA*探索-->
+<h3 id="sec20" class="subsection">3.3.1  重み付きA*探索</h3><!--SEC END --><p>
+<a id="sec:weighted-astar-search"></a></p><p>許容的なヒューリスティックを用いたA*探索は最適解が得られるが、必ずしも最適解がほしいわけではない場合もある。解のクオリティよりもとにかく解が何か欲しい、という場合もある。
+重み付きA*探索(weighted A*, wA*)は解のクオリティが落ちる代わりにより素早く買いにたどり着くための手法である。
+wA*は重み付き<span style="font-style:italic">f</span>値、<span style="font-style:italic">f</span><sub><span style="font-style:italic">w</span></sub>が最小のノードを優先して探索する。</p><table class="display dcenter"><tr style="vertical-align:middle"><td class="dcell">
+	<span style="font-style:italic">f</span><sub><span style="font-style:italic">w</span></sub>(<span style="font-style:italic">n</span>) = <span style="font-style:italic">g</span>(<span style="font-style:italic">n</span>) + <span style="font-style:italic">w</span> <span style="font-style:italic">h</span>(<span style="font-style:italic">n</span>)
+    (7)</td></tr>
+</table><p>
+w A*: <span style="font-style:italic">Open</span>.<span style="font-style:italic">pop</span>()
+<a id="alg:wastar-open"></a>
+	Node <span style="font-style:italic">u</span>
+	argmin<sub><span style="font-style:italic">n</span></sub> <span style="font-style:italic">f</span><sub><span style="font-style:italic">w</span></sub>(<span style="font-style:italic">n</span>)
+</p><div class="theorem"><span style="font-weight:bold">Theorem 4</span>  <em>
+許容的なヒューリスティックを用いた重み付きA*探索は最適解のコスト</em><span style="font-style:italic">f</span><sup>*</sup><em>に対して、発見される解のコストが</em><span style="font-style:italic">w</span> <span style="font-style:italic">f</span><sup>*</sup><em>以下であることを保証する。
+</em></div><p>
+[todo]wA*: 解コストの上界の証明</p><p>wA*の利点はそこそこの計算時間で解のクオリティに保証がついた解を見つけることが出来ることにある。
+wA*の解は最適解のコストの上界になるので、A*探索の枝刈りに用いることが出来る。
+A*探索を実行する前にwA*を走らせ、解の上界を得、A*探索実行時にその値を超す<span style="font-style:italic">f</span>値を持ったノードを</p>
+<!--TOC section id="sec21" 貪欲最良優先探索 (Greedy Best-First Search)-->
+<h2 id="sec21" class="section">3.4  貪欲最良優先探索 (Greedy Best-First Search)</h2><!--SEC END --><p>
+<a id="sec:greedy-best-first-search"></a></p><p>解のクオリティに保証がない。</p><p>
+Greedy Best-First Search: <span style="font-style:italic">Open</span>.<span style="font-style:italic">pop</span>()
+<a id="alg:gfs-open"></a>
+	Node <span style="font-style:italic">u</span>
+	argmin<sub><span style="font-style:italic">n</span></sub> <span style="font-style:italic">h</span>(<span style="font-style:italic">n</span>)
+</p>
+<!--TOC section id="sec22" ヒューリスティック関数の例-->
+<h2 id="sec22" class="section">3.5  ヒューリスティック関数の例</h2><!--SEC END --><p>
+<a id="sec:heuristic-example"></a></p><p><a href="#sec%3Aheuristic-function">3.2</a>章にあるように、なるべく正確であり、許容的、無矛盾なヒューリスティックが望ましい。
+一般に、許容的なヒューリスティックを得る方法としては、元問題の<span style="font-weight:bold">緩和問題</span>を解き、その最適解コストをヒューリスティック値とすることである。ある問題の緩和問題とは、解集合に元の問題の解を含む問題を指す。要するに元の問題より簡単な問題である<sup><a id="text4" href="#note4">2</a></sup>。
+グラフ探索アルゴリズムにおいて緩和問題を作る方法は様々あるが、一つはグラフのエッジを増やすことで緩和が出来る。グラフのエッジを増やすには、問題の可能なアクションを増やすなどの方法がある。</p>
+<!--TOC subsection id="sec23" グリッド経路探索：マンハッタン距離-->
+<h3 id="sec23" class="subsection">3.5.1  グリッド経路探索：マンハッタン距離</h3><!--SEC END --><p>４方向グリッド経路探索問題の元問題は障害物のあるグリッドに移動することは出来ない。グリッド経路探索で有効なヒューリスティックの一つはマンハッタン距離ヒューリスティックである。これは現在位置とゴール位置のマンハッタン距離を<span style="font-style:italic">h</span>値とする。マンハッタン距離の意味としては、障害物を無視した最短経路の距離であるので、グラフのエッジを増やした緩和問題である。
+このように、問題の性質を理解していれば許容的なヒューリスティック関数を設計することが出来る。
+８方向グリッドにおいても斜め方向を加えた距離を考えることで許容的なヒューリスティックとすることが出来る。Any angleグリッドならば直線距離が許容的なヒューリスティックである。</p>
+<!--TOC subsection id="sec24" スライディングタイル:マンハッタン距離-->
+<h3 id="sec24" class="subsection">3.5.2  スライディングタイル:マンハッタン距離</h3><!--SEC END --><p>
+スライディングタイルにおけるマンハッタン距離ヒューリスティックは各タイルの現在の位置とゴール状態の位置のマンハッタン距離の総和を<span style="font-style:italic">h</span>値とする。
+スライディングタイル問題において一度に動かせるタイルは１つであり、その距離は１つである。
+そのため、マンハッタン距離ヒューリスティックは許容的なヒューリスティックである。
+</p>
+<!--TOC subsection id="sec25" 巡回セールスパーソン問題：最小全域木-->
+<h3 id="sec25" class="subsection">3.5.3  巡回セールスパーソン問題：最小全域木</h3><!--SEC END --><p>
+TSPの解の下界としては<span style="font-style:italic">最小全域木</span> (minimum spanning tree)のコストがよく用いられる。
+グラフの<span style="font-style:italic">全域木</span> (spanning tree)は全てのノードを含むループを含まない部分グラフである。
+最小全域木は全域木のうち最もエッジコストの総和が小さいものである。
+未訪問の都市によるグラフの最小全域木はTSPの下界となることが知られている。</p>
+<!--TOC subsection id="sec26" ゴールカウントヒューリスティック-->
+<h3 id="sec26" class="subsection">3.5.4  ゴールカウントヒューリスティック</h3><!--SEC END --><p>多くの問題ではゴールはいくつかの条件を満たした状態の集合として与えられる。
+ゴールカウントヒューリスティックは満たしていないゴール条件の数をヒューリスティック値とする関数である。
+例えばスライディングタイルのゴール条件は全てのタイルが所定の位置にあることである。
+なので所定の位置にないタイルの数を<span style="font-style:italic">h</span>値とすることが出来る。</p><p>ゴールカウントヒューリスティックは許容的であるとは限らない。コスト１のアクションが２つのゴールを同時に満たすかもしれないからだ。スライディングタイルであれば１つのアクションで動かせるタイルの数は１つなので、許容的である。</p>
+<!--BEGIN NOTES chapter-->
+<hr class="footnoterule"><dl class="thefootnotes"><dt class="dt-thefootnotes">
+<a id="note3" href="#text3">1</a></dt><dd class="dd-thefootnotes"><div class="footnotetext">解が多いほど簡単であるとは一概には言えないが</div></dd><dt class="dt-thefootnotes"><a id="note4" href="#text4">2</a></dt><dd class="dd-thefootnotes"><div class="footnotetext">解が多いほど簡単であるとは一概には言えないが</div></dd></dl>
+<!--END NOTES-->
+<!--TOC chapter id="sec27" 探索の高速化-->
+<h1 id="sec27" class="chapter">Chapter 4  探索の高速化</h1><!--SEC END --><p>
+<a id="ch:search-performance"></a>
+ヒューリスティック探索ではオープンリストとクローズドリストの２つのデータ構造を保持する。
+これらのデータ構造をどのように実装するかは探索の効率に大きな影響を与える。
+オープンリストはPriority queueであり、必要な操作はpopとpushである。
+クローズドリストはinsertとfindである。</p>
+<!--TOC section id="sec28" オープンリスト-->
+<h2 id="sec28" class="section">4.1  オープンリスト</h2><!--SEC END --><p>
+<a id="sec:open-list"></a>
+[todo]openlist
+Priority queueの実装方法は様々ある。
+まず、<span style="font-style:italic">f</span>値の定義域が実数か、整数かは重要である。
+実数である場合は二分木のような一般的なPriority queueを使うことが多い。
+整数である場合は<span style="font-style:italic">bucket</span>実装をすることが出来る。</p><p>次に、<span style="font-style:italic">f</span>値が同じノードが複数ある場合のタイブレーキング (tiebreaking)もパフォーマンスに影響を与える。
+<span style="font-style:italic">h</span>値が最も小さいノードを優先することが多い。
+FIFO, LIFOのどちらが良いかという問題もある。</p><p>bucket open list
+h tiebreaking
+FIFO, LIFO tiebreaking</p>
+<!--TOC section id="sec29" クローズドリスト-->
+<h2 id="sec29" class="section">4.2  クローズドリスト</h2><!--SEC END --><p>
+<a id="sec:closed-list"></a>
+[todo]closedlist</p><p>クローズドリストはハッシュテーブル
+incremental hashing
+perfect hashing
+universal hashing</p>
+<!--TOC subsection id="sec30" Delayed Duplicate Detection-->
+<h3 id="sec30" class="subsection">4.2.1  Delayed Duplicate Detection</h3><!--SEC END --><p>
+重複検出のタイミングは２通りある。</p>
+<!--TOC section id="sec31" 枝刈り-->
+<h2 id="sec31" class="section">4.3  枝刈り</h2><!--SEC END --><p>
+<a id="sec:pruning"></a>
+重複検出とか
+admissible pruning
+Branch and Bound
+wA* pruning (MSA)
+inadmissible pruning
+Novelty-based pruning
+Iterative Width search</p>
+<!--TOC chapter id="sec32" ヒューリスティック探索 variants-->
+<h1 id="sec32" class="chapter">Chapter 5  ヒューリスティック探索 variants</h1><!--SEC END --><p>
+<a id="ch:heuristic-serach-variants"></a>
+A*探索などのヒューリスティック探索は時間と空間の両方がボトルネックとなりうる。
+すなわち、A*はノードを一つずつ展開していかなければならないので、その数だけExpandを実行しなければならない。また、A*は重複検出のために展開済みノードをすべてクローズドリストに保存する。なので、必要な空間も展開ノード数に応じて増えていく。</p><p>残念ながら、ほぼ正しいコストを返すヒューリスティック関数を使っても、A*が展開するノードの数は指数的に増加することが知られている[<a href="#helmert%3A08">16</a>]。</p><p>そのため、ヒューリスティックの改善のみならず、アルゴリズム自体の工夫をしなければならない。
+この章では時間・空間制約がある場合のA*の代わりとなるヒューリスティック探索の発展を紹介する。
+これらのアルゴリズムはメリット・デメリットがあり、問題・計算機環境によって有効な手法が異なる。よって、A*を完全に取って代わるものは一つもないと言える。</p>
+<!--TOC section id="sec33" 反復深化A* (Iterative Deepening A*)-->
+<h2 id="sec33" class="section">5.1  反復深化A* (Iterative Deepening A*)</h2><!--SEC END --><p>
+<a id="sec:iterative-deepening-astar"></a></p><p>A*探索は時間・空間の両方がボトルネックになるが、現代の計算機環境では多くの場合空間制約がよりネックになる。
+これはA*が重複検出のために展開済みノードをすべてクローズドリストに保存していることに起因する。</p><p><a href="#sec%3Agraph-search-algorithm">2.4</a>節で述べたように、重複検出は正しい解を返すためには必須ではない。グラフに対して木探索を行うことも出来る。
+しかしながら、単純な幅優先木探索・深さ優先木探索はパフォーマンスの問題がある。</p><p>反復深化A* (IDA*)は木探索に対してヒューリスティックを用いた、非常にメモリ効率の良いアルゴリズムである[<a href="#korf%3A85a">24</a>]。
+アルゴリズム<a href="#alg%3Aiterative-deepening-astar">5.1</a>は反復深化A*の概要を示している。アイディアとしては、閾値<span style="font-style:italic">cost</span>を１ずつ大きくしながら、繰り返しコスト制限付き深さ優先木探索 (CLDFS)を実行する。コスト制限付き深さ優先探索が解を見つければその解を返して停止し、見つけられなければ<span style="font-style:italic">cost</span>を１つ大きくしてもう一度コスト制限付き深さ優先探索を実行する。</p><p>反復深化A*は閾値を大きくする度に一つ前のイテレーションで展開・生成したノードをすべて展開・生成しなおさなければならない。各イテレーション内でもクローズドリストを保持していないために重複検出が出来ない。なので、アルゴリズム全体を通して大量の重複ノードが出る可能性がある。
+これは非常に効率が悪いように思えるかもしれないが、様々な状況においてA*よりも有用な手法である。</p><p>反復深化A*のメリットはいくつかある。
+まず、コスト<span style="font-style:italic">w</span>が0となるアクションが存在しない場合、必要なメモリ量が最適解のコストに対して線形である。深さ優先木探索は可能な最長経路だけのノードを保持する必要がある。木探索はクローズドリストは保持しない。コスト制限付きの場合、最長経路は<span style="font-style:italic">cost</span>以下である。0&lt;<span style="font-style:italic">w</span>&lt;1となる実数コストがある場合、最小の<span style="font-style:italic">w</span>が1となるようにリスケールすることが出来る。 反復深化は<span style="font-style:italic">cost</span>が最適解のコストになった時に停止するので、必要なメモリ量は最適解のコストに対して線形である。
+そのため、A*ではメモリが足りなくなって解けないような難しい問題でも反復深化A*なら解ける可能性がある。</p><p>メモリ量と関連してもう一つの重要なメリットはキャッシュ効率である。上述のように反復深化A*は必要なメモリ量が非常にすくない。また、メモリアクセスパターンもかなりリニアである。そのため、ほぼキャッシュミスなく探索を行えるドメインも多い。例えば、15-puzzleなどの状態が少ないビット数で表せられるドメインでは特にキャッシュ効率が良く、1ノードの展開速度の差は<span style="font-weight:bold">TODO</span>倍という実験結果もある[<a href="#korf%3A85a">24</a>]。実際、15-puzzleではIDA*のほうがA*よりも速く解を見つけることが出来る[<a href="#korf%3A85a">24</a>]。何度も何度も重複して同じノードを展開しているのにも関わらずである。</p><p>反復深化A*は解を返す場合、得られた解が最適解であることを保証する。
+反復深化A*をはじめとする重複検出のないアルゴリズムを用いる際の問題は、停止性を満たさないことである。すなわち、問題に解がなく、グラフにループがある場合、単純な木探索は停止しない。よって、この手法は解が間違いなく存在することが分かっている問題に対して適用される。あるいは、解が存在することを判定してから用いる。
+例えば15-puzzleは解が存在するか非常に高速に判定することが出来る。</p><p>
+Iterative Deepening A*
+<a id="alg:iterative-deepening-astar"></a>
+	Initial node <span style="font-style:italic">s</span>, weight function <span style="font-style:italic">w</span>, successor generation function <span style="font-style:italic">Expand</span>, goal function <span style="font-style:italic">Goal</span>
+	Path from <span style="font-style:italic">s</span> to a goal node <span style="font-style:italic">t</span> ∈ <span style="font-style:italic">T</span>, or ∅ if no such path exists
+	<span style="font-style:italic">cost</span> from 0 to ∞ 
+		<span style="font-style:italic">found</span> ← <span style="font-style:italic">CLA</span>*(<span style="font-style:italic">s</span>, <span style="font-style:italic">cost</span>) 
+		<span style="font-style:italic">found</span> ≠ ∅ 
+			<span style="font-style:italic">found</span>;
+		
+	
+</p><p>
+CLDFS: Cost Limited Depth First Search
+<a id="alg:cldfs"></a>
+	Initial node <span style="font-style:italic">s</span>, cost <span style="font-style:italic">c</span>
+	Path from <span style="font-style:italic">s</span> to a goal node <span style="font-style:italic">t</span> ∈ <span style="font-style:italic">T</span>, or ∅ if no such path with cost ≤ <span style="font-style:italic">cost</span>
+	<span style="font-style:italic">Goal</span>(<span style="font-style:italic">s</span>) 
+		<span style="font-style:italic">s</span> 
+	
+	each <span style="font-style:italic">child</span> ∈ <span style="font-style:italic">Expand</span>(<span style="font-style:italic">s</span>) 
+		<span style="font-style:italic">found</span> ← <span style="font-style:italic">CLDFS</span>(<span style="font-style:italic">child</span>, <span style="font-style:italic">cost</span> − 1) 
+		<span style="font-style:italic">found</span> ≠ ∅ 
+			sequence (<span style="font-style:italic">s</span>, <span style="font-style:italic">found</span>) 
+		
+	
+	∅ 
+</p>
+<!--TOC subsection id="sec34" Transposition Table-->
+<h3 id="sec34" class="subsection">5.1.1  Transposition Table</h3><!--SEC END --><p>
+[todo]Transposition table: なんか説明</p><p>反復深化A*で必要な空間は最適解のコストに対して線形である。
+そうすると、むしろかなりの量のメモリが余ることになる。
+そこで、メモリの余った分だけを使って重複検出をするというTransposition Tableという手法がある。
+A*で用いられるClosedと異なり、このテーブルはすべての生成済みノードを保持しない。</p><p>ここでもミソは重複検出は生成済み</p>
+<!--TOC section id="sec35" 両方向探索 (Bidirectional Search)-->
+<h2 id="sec35" class="section">5.2  両方向探索 (Bidirectional Search)</h2><!--SEC END --><p>
+<a id="sec:bidirectional-search"></a>
+[todo]両方向探索: 図、説明</p><p>状態空間グラフの特徴を理解するための重要な指標として枝分数(Branching factor)がある。枝分数はExpand関数によって得られる子ノードの数の平均である。
+すなわち、重複検出をしないとすると、枝分数が<span style="font-style:italic">b</span>であるグラフにおいて深さ<span style="font-style:italic">d</span>のノードの数はおおよそ<span style="font-style:italic">b</span><sup><span style="font-style:italic">d</span>−1</sup>である。
+例えば15-puzzleはXであり、２次元４方向グリッド経路探索問題は４である。
+幅優先探索において最も浅い解の深さが<span style="font-style:italic">C</span><sup>*</sup>であると仮定すると、少なくとも<span style="font-style:italic">b</span><sup><span style="font-style:italic">C</span><sup>*</sup>−2</sup>個のノードをExpandしなければならない。</p>
+<!--TOC section id="sec36" External Search-->
+<h2 id="sec36" class="section">5.3  External Search</h2><!--SEC END --><p>
+<a id="sec:external-search"></a></p><p>グラフ探索は重複検出のために今までに展開したノードをすべて保持しなければならない。
+よって、保持できるノードの量によって解ける問題が決まってくる。
+探索空間があまりに大きすぎると、ノードが多すぎてメモリに乗り切らないということが起きる。</p><p>External Searchは外部記憶、HDDやSDDを用いることでこの問題を解決する。
+すなわち、Open、Closedの一部を外部記憶に保持し、必要に応じて参照しRAMに持ってくる、ということをする。
+External Searchのミソは、外部記憶へのアクセス回数をどのように減らすかにある。
+表<a href="#tbl%3Alatency">5.1</a>は一般的なコンピュータのキャッシュ・メモリ・ハードディスクへのアクセスレイテンシーを比較した表である。メモリから1MB<span style="font-style:italic">逐次に</span>読みだすオペレーションは250,000 nanosecかかるが、ハードディスクからの読出しは20,000,000 nanosecもかかる。更にハードディスクにランダムアクセスする場合(Disk seek)は8,000,000 nanosecもかかる。
+よって、HDDは工夫して使わなければ実行時間が非常に遅くなってしまう。</p><blockquote class="table"><div class="center"><div class="center"><hr style="width:80%;height:2"></div>
+<div class="caption"><table style="border-spacing:6px;border-collapse:separate;" class="cellpading0"><tr><td style="vertical-align:top;text-align:left;" >Table 5.1: 一般的なハードウェアのアクセス速度。メモリへのアクセス速度に対して外部記憶のアクセスは遅い。加えて、ランダムアクセスはseekの時間がかかるためさらに遅くなる。 (https://gist.github.com/jboner/2841832)</td></tr>
+</table></div>
+<a id="tbl:latency"></a>
+<table border=1  style="border-spacing:0;" class="cellpadding1"><tr><td style="text-align:left;border:solid 1px;white-space:nowrap" >		</td><td style="text-align:right;border:solid 1px;white-space:nowrap" >nano sec </td></tr>
+<tr><td style="text-align:left;border:solid 1px;white-space:nowrap" >	命令実行</td><td style="text-align:right;border:solid 1px;white-space:nowrap" >1 </td></tr>
+<tr><td style="text-align:left;border:solid 1px;white-space:nowrap" >	fetch from L1 cache memory</td><td style="text-align:right;border:solid 1px;white-space:nowrap" >0.5 </td></tr>
+<tr><td style="text-align:left;border:solid 1px;white-space:nowrap" >	branch misprediction 		</td><td style="text-align:right;border:solid 1px;white-space:nowrap" >5 </td></tr>
+<tr><td style="text-align:left;border:solid 1px;white-space:nowrap" >	fetch from L2 cache memory</td><td style="text-align:right;border:solid 1px;white-space:nowrap" >7 </td></tr>
+<tr><td style="text-align:left;border:solid 1px;white-space:nowrap" >	mutex lock/unlock 			</td><td style="text-align:right;border:solid 1px;white-space:nowrap" >25 </td></tr>
+<tr><td style="text-align:left;border:solid 1px;white-space:nowrap" >	fetch from main memory 	</td><td style="text-align:right;border:solid 1px;white-space:nowrap" >100 </td></tr>
+<tr><td style="text-align:left;border:solid 1px;white-space:nowrap" >	Read 4K randomly from SSD</td><td style="text-align:right;border:solid 1px;white-space:nowrap" >150,000 </td></tr>
+<tr><td style="text-align:left;border:solid 1px;white-space:nowrap" >	read 1MB sequentially from memory</td><td style="text-align:right;border:solid 1px;white-space:nowrap" >250,000 </td></tr>
+<tr><td style="text-align:left;border:solid 1px;white-space:nowrap" >	fetch from new disk location (seek)</td><td style="text-align:right;border:solid 1px;white-space:nowrap" >8,000,000 </td></tr>
+<tr><td style="text-align:left;border:solid 1px;white-space:nowrap" >	Read 1 MB sequentially from SSD		</td><td style="text-align:right;border:solid 1px;white-space:nowrap" >1,000,000 </td></tr>
+<tr><td style="text-align:left;border:solid 1px;white-space:nowrap" >	read 1MB sequentially from disk 	</td><td style="text-align:right;border:solid 1px;white-space:nowrap" >20,000,000 </td></tr>
+<tr><td style="text-align:left;border:solid 1px;white-space:nowrap" >	
+</td></tr>
+</table>
+<div class="center"><hr style="width:80%;height:2"></div></div></blockquote>
+<!--TOC subsection id="sec37" External 幅優先探索-->
+<h3 id="sec37" class="subsection">5.3.1  External 幅優先探索</h3><!--SEC END --><p>
+<a id="sec:external-brfs"></a></p><p>[todo]External BrFS</p><p>
+External Breadth-first search
+<a id="alg:external-brfs"></a>
+	Initial node <span style="font-style:italic">s</span>
+	Path from <span style="font-style:italic">s</span> to a goal node <span style="font-style:italic">t</span> ∈ <span style="font-style:italic">T</span>, or ∅ if no such path with cost ≤ <span style="font-style:italic">cost</span>
+	<span style="font-style:italic">Open</span>(−1) ← ∅ 
+	<span style="font-style:italic">Open</span>(0) ← {<span style="font-style:italic">s</span>} 
+	<span style="font-style:italic">i</span> ← 1 
+	<span style="font-style:italic">Open</span>(<span style="font-style:italic">i</span>−1) ≠ ∅
+		<span style="font-style:italic">A</span>(<span style="font-style:italic">i</span>) ← <span style="font-style:italic">Succ</span>(<span style="font-style:italic">Open</span>(<span style="font-style:italic">i</span>−1)) 
+		<span style="font-style:italic">Goal</span>(<span style="font-style:italic">Open</span>(<span style="font-style:italic">i</span>)) 
+			<span style="font-style:italic">Construct</span>(<span style="font-style:italic">Open</span>(<span style="font-style:italic">i</span>)) 
+		
+		<span style="font-style:italic">A</span>′(<span style="font-style:italic">i</span>) ← <span style="font-style:italic">RemoveDuplicates</span>(<span style="font-style:italic">A</span>(<span style="font-style:italic">i</span>)) 
+		<span style="font-style:italic">Open</span>(<span style="font-style:italic">i</span>) ← <span style="font-style:italic">A</span>′(<span style="font-style:italic">i</span>) ∖ (<span style="font-style:italic">Open</span>(<span style="font-style:italic">i</span>−1)∪ <span style="font-style:italic">Open</span>(<span style="font-style:italic">i</span>−2)) 
+		<span style="font-style:italic">i</span> ← <span style="font-style:italic">i</span> + 1 
+	
+	No solution found
+</p>
+<!--TOC subsection id="sec38" External A*-->
+<h3 id="sec38" class="subsection">5.3.2  External A*</h3><!--SEC END --><p>
+<a id="sec:external-astar"></a>
+[todo]external A*: ALL</p><p>
+External A* search
+<a id="alg:external-astar"></a>
+	Initial node <span style="font-style:italic">s</span>
+	Path from <span style="font-style:italic">s</span> to a goal node <span style="font-style:italic">t</span> ∈ <span style="font-style:italic">T</span>, or ∅ if no such path with cost ≤ <span style="font-style:italic">cost</span>
+	
+	XXX
+	No solution found
+</p>
+<!--TOC section id="sec39" Symbolic Search-->
+<h2 id="sec39" class="section">5.4  Symbolic Search</h2><!--SEC END --><p>
+<a id="sec:symbolic-search"></a>
+Binary Decision Diagram (BDD)は二分木によってブーリアンvectorからブーリアンへの関数(<span style="font-style:italic">x</span><sub>0</sub>,<span style="font-style:italic">x</span><sub>1</sub>,...,<span style="font-style:italic">x</span><sub><span style="font-style:italic">n</span></sub>) → {0, 1}を効率良く表すグラフ構造である。
+Symbolic SearchではBDDを使って状態の集合、アクションの集合を表し、BDD同士の演算によって状態の集合を一気に同時に展開していく。
+A*探索がノードを一つずつ展開していき、一つずつ生成していく手間と比較して非常に効率的に演算が出来るポテンシャルを秘めている。
+International Planning Competition (2014)のSequential Optimal部門(最適解を見つけるパフォーマンスを競う部門)の一位から三位までをSymbolic Searchが総なめした。現在(2017年)のstate-of-the-artの手法であるといえるだろう。</p>
+<!--TOC subsection id="sec40" Binary Decision Diagram-->
+<h3 id="sec40" class="subsection">5.4.1  Binary Decision Diagram</h3><!--SEC END --><p>
+<a id="sec:binary-decision-diagram"></a></p><p>BDDを使う準備として、状態をブーリアンvectorに変換する。
+状態空間問題の状態<span style="font-style:italic">s</span>が定数長のvectorであるとすると、例えばそのビットvectorをBDDに使うブーリアンvectorとして使うことが出来る。</p><div class="theorem"><span style="font-weight:bold">Definition 8</span> <span style="font-weight:bold">(特徴関数)</span>  <em>
+特徴関数</em>φ: <span style="font-style:italic">s</span> → {0, 1}<em>は状態の集合を表すために用いられ、状態</em><span style="font-style:italic">s</span><em>が集合に含まれれば1を返し、なければ0を返す。
+</em></div>
+<!--TOC subsubsection id="sec41" 例: Sliding-token puzzle-->
+<h4 id="sec41" class="subsubsection">例: Sliding-token puzzle</h4><!--SEC END --><p>図<a href="#fig%3Asliding-token">??</a>はSliding-token puzzleという説明のために作られた問題である。
+初期状態でタイルは位置０にある。タイルは右か左に動かすことが出来る。ゴール状態はタイルを位置３に置いた状態である。</p>
+<!--TOC section id="sec42" 並列探索 (Parallel Search)-->
+<h2 id="sec42" class="section">5.5  並列探索 (Parallel Search)</h2><!--SEC END --><p>
+<a id="sec:parallel-search"></a></p><p>近年コンピュータ一台当たりのコア数は増加を続けており、コンピュータクラスタにも比較的容易にアクセスが出来るようになった。Amazon Web Serviceのようなクラウドの計算資源も普及し、将来的には並列化が当然になると考えられる。
+並列化の成功例は枚挙にいとまないが、近年のディープラーニングはまさに効率的な並列計算アーキテクチャによって得られたブレイクスルーであるといえる。
+もしCPU/GPUを利用した効率的なグラフ探索アルゴリズムが開発出来れば、非常に大きなインパクトになるかもしれない。
+グラフ探索アルゴリズムの並列化に考えなければならないオーバーヘッドは様々であり、それらの重要性は問題、インスタンス、マシン、さまざまな状況に依存する。加えてハードウェアは刻々と変化を続けており、数年後にどのような環境がメジャーとなるのかはなかなか想像をすることが出来ないだろう。
+本書ではCPUを用いた分散メモリ並列アルゴリズムとGPU一台を用いた並列アルゴリズムについて説明する。
+CPU並列ではハッシュによってノードを各プロセスにアサインし、各プロセスはアサインされたノードのみを担当して探索を行うというフレームワークが現在のstate-of-the-artである。
+一方、執筆時現在、GPUを用いたアルゴリズムはあまり研究が進んでいない。原因としては、既存のCPUを用いた探索アルゴリズムにはない様々な難しさがあるだろう。
+たとえば、GPUはスレッド当りのメモリ量が非常に少ない。A*探索はメモリが大きなボトルネックであり、メモリ量が少ないとそのまま解ける問題の大きさが制限されてしまう。この問題を解決する方法は提示されていない。
+もうひとつの難しさは、GPUは複数のスレッドが同じ命令を実行するSingle instruction multiple thread (SIMT)という計算モデルであることである。そのため、既知の有力なヒューリスティック関数をGPU環境において効率的に実装する方法が自明ではない。
+パターンデータベースなどのシンプルな命令によるヒューリスティックも考えることが出来るが、このようなヒューリスティックは今度はメモリを沢山消費するという問題点がある。
+効率的なGPU並列化アルゴリズムの開発は大きな成果が期待されるブルーオーシャンであるといえる<sup><a id="text5" href="#note5">1</a></sup>。</p>
+<!--TOC subsection id="sec43" 並列化オーバーヘッド-->
+<h3 id="sec43" class="subsection">5.5.1  並列化オーバーヘッド</h3><!--SEC END --><p>
+<a id="sec:parallel-overheads"></a></p><p>理想的には<span style="font-style:italic">n</span>プロセスで並列化したら<span style="font-style:italic">n</span>倍速くなってほしい。
+逐次アルゴリズムと比較して、プロセス数倍の高速化が得られることを<span style="font-style:italic">perfect linear speedup</span>と呼ぶ。
+しかしながら、殆どの場合perfect linear speedupは得られない。
+それは並列化にさいして様々なオーバーヘッドがかかるからである。
+[<a href="#jinnai2017work">20</a>]の記法に従うと、並列化オーバーヘッドは主に以下の３つに分けられる。</p><p><span style="font-weight:bold">通信オーべーヘッド (Communication overhead, CO)</span>:
+通信オーバーヘッドはプロセス間で情報交換を行うことにかかるオーバーヘッドである。
+通信する情報は様々なものが考えられるが、オーバーヘッドとなるものはノードの生成回数に比例した回数通信を必要とするものである。
+すなわち、ノードの生成回数<span style="font-style:italic">n</span>に対して<span style="font-style:italic">log</span>(<span style="font-style:italic">n</span>)回しか通信を行わない場合、その通信によるオーバーヘッドは無視出来るだろう。
+ここではノードの生成回数に対するメッセージ送信の割合をCOと定義する：
+</p><table class="display dcenter"><tr style="vertical-align:middle"><td class="dcell">
+	<span style="font-style:italic">CO</span> := </td><td class="dcell"><table class="display"><tr><td class="dcell" style="text-align:center"># messages sent to other threads</td></tr>
+<tr><td class="hbar"></td></tr>
+<tr><td class="dcell" style="text-align:center"># nodes generated</td></tr>
+</table></td><td class="dcell">.
+    (1)</td></tr>
+</table><p>例えば、ハッシュなどによってプロセス間でノードの送受信を行いロードバランスを行う手法の場合、通信するメッセージは主にノードである。この場合：</p><table class="display dcenter"><tr style="vertical-align:middle"><td class="dcell">
+	<span style="font-style:italic">CO</span> := </td><td class="dcell"><table class="display"><tr><td class="dcell" style="text-align:center"># nodes sent to other threads</td></tr>
+<tr><td class="hbar"></td></tr>
+<tr><td class="dcell" style="text-align:center"># nodes generated</td></tr>
+</table></td><td class="dcell">.
+    (2)</td></tr>
+</table><p>
+となる。
+COは通信にかかるディレイだけでなく、メッセージキューなどのデータ構造の操作も行わなければならないので、特にノードの展開速度が速いドメインにおいて重要なオーバーヘッドになる。一般に、プロセス数が多いほどCOは大きくなる。
+</p><p><span style="font-weight:bold">探索オーバーヘッド (Search Overhead, SO):</span>
+一般に並列探索は逐次探索より多くのノードを展開することになる。
+このとき、余分に展開したノードは逐次と比較して増えた仕事量だと言える。
+本書では以下のように探索オーバーヘッドを定義する：</p><table class="display dcenter"><tr style="vertical-align:middle"><td class="dcell">
+<span style="font-style:italic">SO</span> := </td><td class="dcell"><table class="display"><tr><td class="dcell" style="text-align:center"># nodes expanded in parallel</td></tr>
+<tr><td class="hbar"></td></tr>
+<tr><td class="dcell" style="text-align:center">#nodes expanded in sequential search</td></tr>
+</table></td><td class="dcell"> − 1.
+    (3)</td></tr>
+</table><p>SOはロードバランス (load balance, LB)が悪い場合に生じることが多い。</p><table class="display dcenter"><tr style="vertical-align:middle"><td class="dcell">
+<span style="font-style:italic">LB</span> := </td><td class="dcell"><table class="display"><tr><td class="dcell" style="text-align:center">Maximum number of nodes assigned to a thread</td></tr>
+<tr><td class="hbar"></td></tr>
+<tr><td class="dcell" style="text-align:center">Average number of nodes assigned to a thread</td></tr>
+</table></td><td class="dcell">.
+    (4)</td></tr>
+</table><p>ロードバランスが悪いと、ノードが集中しているスレッドがボトルネックとなり、他のスレッドはノードがなくなるか、あるいはよりf値の大きい(有望でない)ノードを展開することになり、探索オーバーヘッドになる。</p><p>探索オーバーヘッドは実行時間だけでなく、空間オーバーヘッドでもある。ムダに探索をした分だけ、消費するメモリ量も多くなる。分散メモリ環境においてもコア当りのRAM量は大きくなるわけではないので、探索オーバーヘッドによるメモリ消費は問題となる。</p><p><span style="font-weight:bold">同期オーバーヘッド (Coordination Overhead)</span>
+同期オーバーヘッドは他のスレッドの処理を待つためにアイドル状態にならなければならない時に生じるオーバーヘッドを指す。
+アルゴリズム自体が同期を必要としないものだとしても、メモリバスのコンテンションによって同期オーバーヘッドが生じることがある[<a href="#burnslrz10">7</a>, <a href="#kishimotofb13">23</a>].</p><p>これらのオーバーヘッドは独立ではなく、むしろ相互に関係しており、トレードオフの関係にある。
+多くの場合、通信・同期オーバーヘッドと探索オーバーヘッドがトレードオフの関係にあたる。</p>
+<!--TOC subsection id="sec44" Hash Distributed A*-->
+<h3 id="sec44" class="subsection">5.5.2  Hash Distributed A*</h3><!--SEC END --><p>
+<a id="sec:hash-distributed-astar"></a></p><p>ハッシュ分配A* (Hash Distributed A*, HDA*) [<a href="#kishimotofb13">23</a>]はCPUを用いたstate-of-the-artの並列A*探索アルゴリズムである。
+HDA*の各プロセスはそれぞれローカルなオープンリスト、クローズドリストを保持する。ローカルとは、データ構造を保持するプロセスが独占してアクセスを行い、他のプロセスからはアクセスが不可能であるという意味である。
+グローバルなハッシュ関数によって全ての状態は一意に定まる担当のプロセスが定められる。
+各プロセス<span style="font-style:italic">T</span>の動作は以下を繰り返す：</p><ol class="enumerate" type=1><li class="li-enumerate">
+			プロセス<span style="font-style:italic">T</span>はメッセージキューを確認し、ノードが届いているかを確認する。届いているノードのうち重複でないものをオープンリストに加える(A*同様、クローズドリストに同じ状態が存在しないか、クローズドリストにある同じ状態のノードよりも<span style="font-style:italic">f</span>値が小さい場合に重複でない)。
+	</li><li class="li-enumerate">		オープンリストにあるノードのうち最もプライオリティ(<span style="font-style:italic">f</span>値)の高いノードを展開する。生成されたそれぞれのノード<span style="font-style:italic">n</span>についてハッシュ値<span style="font-style:italic">H</span>(<span style="font-style:italic">n</span>)を計算し、ハッシュ値<span style="font-style:italic">H</span>(<span style="font-style:italic">n</span>)を担当するプロセスに非同期的に送信される。
+</li></ol><p>HDA*の重要な特徴は２つある。
+まず、HDA*は非同期通信を行うため、同期オーバーヘッドが非常に小さい。
+各プロセスがそれぞれローカルにオープン・クローズドリストを保持するため、これらのデータ構造へのアクセスにロックを必要としない。
+次に、HDA*は手法が非常にシンプルであり、ハッシュ関数<span style="font-style:italic">Hash</span>: <span style="font-style:italic">S</span> → 1..<span style="font-style:italic">P</span>を必要とするだけである (<span style="font-style:italic">P</span>はプロセス数)。
+しかしながらハッシュ関数は通信オーバーヘッドとロードバランスの両方を決定する為、その選択はパフォーマンスに非常に大きな影響を与える。</p><p>HDA*が提案された論文[<a href="#kishimotofb13">23</a>]ではZobrist hashing [<a href="#zobrist%3A70">39</a>]がハッシュ関数として用いられていた。
+状態<span style="font-style:italic">s</span> = (<span style="font-style:italic">x</span><sub>1</sub>,<span style="font-style:italic">x</span><sub>2</sub>,...,<span style="font-style:italic">x</span><sub><span style="font-style:italic">n</span></sub>)に対してZobrist hashingのハッシュ値<span style="font-style:italic">Z</span>(<span style="font-style:italic">s</span>)は以下のように計算される：</p><table class="display dcenter"><tr style="vertical-align:middle"><td class="dcell">
+<a id="eq:zobrist"></a>
+	<span style="font-style:italic">Z</span>(<span style="font-style:italic">s</span>) := <span style="font-style:italic">R</span><sub>0</sub>[<span style="font-style:italic">x</span><sub>0</sub>]  <span style="font-style:italic">xor</span>  <span style="font-style:italic">R</span><sub>1</sub>[<span style="font-style:italic">x</span><sub>1</sub>]  <span style="font-style:italic">xor</span>  ⋯  <span style="font-style:italic">xor</span>  <span style="font-style:italic">R</span><sub><span style="font-style:italic">n</span></sub>[<span style="font-style:italic">x</span><sub><span style="font-style:italic">n</span></sub>]    (5)</td></tr>
+</table><p>Zobrist hashingは初めにランダムテーブル<span style="font-style:italic">R</span>を初期化する<a href="#alg%3Ainit-zobrist-hashing">5.5.2</a>。
+これを用いてハッシュ値を計算する。</p><p>
+	<span style="font-style:italic">s</span> = (<span style="font-style:italic">x</span><sub>0</sub>, <span style="font-style:italic">x</span><sub>1</sub>,...,<span style="font-style:italic">x</span><sub><span style="font-style:italic">n</span></sub>)
+	<span style="font-style:italic">hash</span> ← 0 
+	each <span style="font-style:italic">x</span><sub><span style="font-style:italic">i</span></sub> ∈ <span style="font-style:italic">s</span> 
+		<span style="font-style:italic">hash</span> ← <span style="font-style:italic">hash</span>   <span style="font-style:italic">xor</span>   <span style="font-style:italic">R</span>[<span style="font-style:italic">x</span><sub><span style="font-style:italic">i</span></sub>] 
+	
+	<span style="font-weight:bold">Return</span> <span style="font-style:italic">hash</span> 
+	ZHDA*
+	<a id="alg:zobrist-hashing"></a>
+</p><p>
+	<span style="font-style:italic">V</span> = (<span style="font-style:italic">dom</span>(<span style="font-style:italic">x</span><sub>0</sub>),<span style="font-style:italic">dom</span>(<span style="font-style:italic">x</span><sub>1</sub>),...)
+	each <span style="font-style:italic">x</span><sub><span style="font-style:italic">i</span></sub> 
+		each <span style="font-style:italic">t</span> ∈ <span style="font-style:italic">dom</span>(<span style="font-style:italic">x</span><sub><span style="font-style:italic">i</span></sub>)  
+			<span style="font-style:italic">R</span><sub><span style="font-style:italic">i</span></sub>[<span style="font-style:italic">t</span>] ← <span style="font-style:italic">random</span>() 
+		
+	
+	<span style="font-weight:bold">Return</span> <span style="font-style:italic">R</span> = (<span style="font-style:italic">R</span><sub>1</sub>, <span style="font-style:italic">R</span><sub>2</sub>,...,<span style="font-style:italic">R</span><sub><span style="font-style:italic">n</span></sub>)
+	Initialize ZHDA*
+	<a id="alg:init-zobrist-hashing"></a>
+</p><p>Zobrist hashingを使うメリットは２つある。
+一つは計算が非常に速いことである、XOR命令はCPUの演算で最も速いものの一つである。かつ、状態の差分を参照することでハッシュ値を計算することが出来るので、アクション適用によって値が変化した変数の<span style="font-style:italic">R</span>[<span style="font-style:italic">x</span>]のみ参照すれば良い。
+もうひとつは、状態が非常にバランスよく分配され、ロードバランスが良いことである。
+一方、この手法の問題点は通信オーバーヘッドが大きくなってしまうことにある。
+この問題を解決するためにState abstractionという手法が提案された[<a href="#burnslrz10">7</a>]。
+State abstractionは状態<span style="font-style:italic">s</span> = (<span style="font-style:italic">x</span><sub>1</sub>,<span style="font-style:italic">x</span><sub>2</sub>,...,<span style="font-style:italic">x</span><sub><span style="font-style:italic">n</span></sub>)に対して簡約化状態 (abstract state) <span style="font-style:italic">s</span>′ = (<span style="font-style:italic">x</span><sub>1</sub>′,<span style="font-style:italic">x</span><sub>2</sub>′,...,<span style="font-style:italic">x</span><sub><span style="font-style:italic">m</span></sub>′), <span style="font-style:italic">where</span> <span style="font-style:italic">m</span> &lt; <span style="font-style:italic">n</span>, <span style="font-style:italic">x</span><sub><span style="font-style:italic">i</span></sub>′ = <span style="font-style:italic">x</span><sub><span style="font-style:italic">j</span></sub> (1 ≤ <span style="font-style:italic">j</span> ≤ <span style="font-style:italic">n</span>). State abstractionは簡約化状態からハッシュ値への関数の定義はされておらず、単純なlinear congrugent hashingが用いられていた。そのため、ロードバランスが悪かった。</p><p>Abstract Zobrist hashing (AZH)はZobrist hashingとAbstractionの良い点を組み合わせた手法である[<a href="#jinnai2016structured">18</a>]。AZHはfeatureからabstract featureへのマッピングを行い、abstract featureをZobrist hashingへの入力とするという手法である：</p><table class="display dcenter"><tr style="vertical-align:middle"><td class="dcell">
+<a id="eq:abstract-zobrist"></a>
+	<span style="font-style:italic">Z</span>(<span style="font-style:italic">s</span>) := <span style="font-style:italic">R</span><sub>0</sub>[<span style="font-style:italic">A</span><sub>0</sub>(<span style="font-style:italic">x</span><sub>0</sub>)]  <span style="font-style:italic">xor</span>  <span style="font-style:italic">R</span><sub>1</sub>[<span style="font-style:italic">A</span><sub>1</sub>(<span style="font-style:italic">x</span><sub>1</sub>)]  <span style="font-style:italic">xor</span>  ⋯  <span style="font-style:italic">xor</span>  <span style="font-style:italic">R</span><sub><span style="font-style:italic">n</span></sub>[<span style="font-style:italic">A</span><sub><span style="font-style:italic">n</span></sub>(<span style="font-style:italic">x</span><sub><span style="font-style:italic">n</span></sub>)]    (6)</td></tr>
+</table><p>ここで関数<span style="font-style:italic">A</span>はfeatureからabstract featureへのマッピングであり、<span style="font-style:italic">R</span>はabstract featureに対して定義されている。</p><p>AZHはパラメータとしてabstract featureを設定しなければならない。
+Abstract featureを自動的に生成する手法は複数提案されており、最もシンプルなものはGreedy abstract feature generation [<a href="#jinnai2016automated">19</a>]である。</p><p>Domain transition graph</p><p>Abstract featureの生成方法としてstate-of-the-artの手法はGraph partitioning-based [<a href="#jinnai2017work">20</a>]であり、各DTGを与えられた最適化指標下で分割することでabstract featureを生成する。</p>
+<!--BEGIN NOTES chapter-->
+<hr class="footnoterule"><dl class="thefootnotes"><dt class="dt-thefootnotes">
+<a id="note5" href="#text5">1</a></dt><dd class="dd-thefootnotes"><div class="footnotetext">個人の感想である</div></dd></dl>
+<!--END NOTES-->
+<!--TOC chapter id="sec45" 古典的プランニング問題-->
+<h1 id="sec45" class="chapter">Chapter 6  古典的プランニング問題</h1><!--SEC END --><p>
+<a id="ch:classical-planning"></a>
+この章では古典的プランニング問題について説明する。
+古典的プランニング問題はエージェントの自動行動計画を行うための問題の一つであり、状態空間問題の一つである [<a href="#fikes%3A71">12</a>]。</p><p>ロジスティック[<a href="#helmert2010scanalyzer">15</a>, <a href="#sousa2013toward">36</a>]、セルアセンブリ[<a href="#asai2014fully">4</a>]、遺伝子距離計算[<a href="#erdem2005genome">11</a>]、ビデオゲーム[<a href="#lipovetzky2015a">27</a>]など、様々な応用問題を含むフレームワークである。</p><p>環境が決定的であり、完全情報を仮定する。
+これらの仮定を緩和した問題（確率的モデルや不完全情報モデル）もグラフ探索によって解かれることが多いが、本文の範囲外とする。詳細はAIの教科書を参照されたい[<a href="#russelln03">32</a>]。</p><p>なお、プランニング問題はA*などの状態空間探索アルゴリズム以外にも、SATやCSPなどの制約充足問題に変換して解く方法もあるがこれも本書の範囲外とする[<a href="#kautz%3A92">22</a>]。</p>
+<!--TOC section id="sec46" 定義-->
+<h2 id="sec46" class="section">6.1  定義</h2><!--SEC END --><p>
+<a id="sec:planning-definition"></a></p><p>古典的プランニングは述語論理によって世界が記述される[<a href="#fikes%3A71">12</a>]。
+Proposition <span style="font-style:italic">AP</span>は世界の状態において何が真・偽であるかを記述する。
+世界の状態はエージェントがアクションを行うことによって遷移し、遷移後の状態は遷移前の状態と異なるpropositionが真・偽でありうる。
+古典的プランニングの目的は与えられた初期状態からゴール条件を満たすまでのアクションの列を求めることにある。
+以下、定義は[<a href="#edelkamp%3A2010%3Ahst%3A1875144">9</a>]に従う。</p><div class="theorem"><span style="font-weight:bold">Definition 9</span> <span style="font-weight:bold">(古典的プランニング問題、Classical Planning Problem)</span>  <em>
+古典的プランニング問題は有限状態空間問題</em><span style="font-style:italic">P</span> = (<span style="font-style:italic">S</span>,<span style="font-style:italic">A</span>,<span style="font-style:italic">s</span><sub>0</sub>,<span style="font-style:italic">T</span>)<em>の一つである。
+</em><span style="font-style:italic">S</span> ⊆ 2<sup><span style="font-style:italic">AP</span></sup><em>は状態の集合であり、</em><span style="font-style:italic">s</span><sub>0</sub> ∈ <span style="font-style:italic">S</span><em>は初期状態、</em><span style="font-style:italic">T</span> ⊆ <span style="font-style:italic">S</span><em>はゴール状態の集合、</em><span style="font-style:italic">A</span>: <span style="font-style:italic">S</span> → <span style="font-style:italic">S</span><em>は可能なアクションの集合である。
+</em></div><p>古典的プランニング問題の最も基本となるSTRIPSモデル[<a href="#fikes%3A71">12</a>]の場合、ゴールはpropositionのリストで表せられる<span style="font-style:italic">Goal</span> ⊆ <span style="font-style:italic">AP</span>。ゴール状態の集合<span style="font-style:italic">T</span>は<span style="font-style:italic">p</span> ∈ <span style="font-style:italic">Goal</span>となるすべての<span style="font-style:italic">p</span>が真である状態の集合である。
+アクション<span style="font-style:italic">a</span> ∈ <span style="font-style:italic">A</span>は条件<span style="font-style:italic">pre</span>(<span style="font-style:italic">a</span>)、効果(<span style="font-style:italic">add</span>(<span style="font-style:italic">a</span>), <span style="font-style:italic">del</span>(<span style="font-style:italic">a</span>))で表せられる。条件<span style="font-style:italic">pre</span>(<span style="font-style:italic">a</span>) ⊆ <span style="font-style:italic">AP</span>はアクション<span style="font-style:italic">a</span>を実行するために状態が満たすべきpropositionの集合である。効果<span style="font-style:italic">add</span>(<span style="font-style:italic">a</span>)はアクション<span style="font-style:italic">a</span>を適用後に真になるpropositionの集合であり、<span style="font-style:italic">del</span>(<span style="font-style:italic">a</span>)は偽になる集合である。
+従って、アクション<span style="font-style:italic">a</span>を状態<span style="font-style:italic">s</span>に適用後の状態<span style="font-style:italic">s</span>′ = <span style="font-style:italic">suc</span>(<span style="font-style:italic">s</span>,<span style="font-style:italic">a</span>)は
+</p><table class="display dcenter"><tr style="vertical-align:middle"><td class="dcell">
+	<span style="font-style:italic">s</span>′ = (<span style="font-style:italic">s</span> ⋃ <span style="font-style:italic">add</span>(<span style="font-style:italic">a</span>)) ∖ <span style="font-style:italic">del</span>(<span style="font-style:italic">a</span>)
+    (1)</td></tr>
+</table><p>
+である。
+このようにして、古典的プランニング問題は後述のグラフ探索問題に帰着することが出来る。</p><p>As such, a classical planning problem can be solved by an A* search (<span style="font-style:italic">G</span>(<span style="font-style:italic">V</span>′, <span style="font-style:italic">E</span>′, <span style="font-style:italic">w</span>′), <span style="font-style:italic">s</span><sub>0</sub>′, <span style="font-style:italic">T</span>′); <span style="font-style:italic">V</span>′ = <span style="font-style:italic">S</span>, <span style="font-style:italic">e</span>(<span style="font-style:italic">v</span><sub><span style="font-style:italic">i</span></sub>, <span style="font-style:italic">v</span><sub><span style="font-style:italic">j</span></sub>) ∈ <span style="font-style:italic">E</span>′ exists if there exists <span style="font-style:italic">a</span> such that <span style="font-style:italic">v</span><sub><span style="font-style:italic">j</span></sub> = <span style="font-style:italic">succ</span>(<span style="font-style:italic">v</span><sub><span style="font-style:italic">i</span></sub>, <span style="font-style:italic">a</span>), <span style="font-style:italic">s</span><sub>0</sub>′ = <span style="font-style:italic">s</span><sub>0</sub>, <span style="font-style:italic">T</span>′ = <span style="font-style:italic">T</span>.</p>
+<!--TOC section id="sec47" Planning Domain Definition Language-->
+<h2 id="sec47" class="section">6.2  Planning Domain Definition Language</h2><!--SEC END --><p>
+<a id="sec:pddl"></a></p><p>Planning Domain Definition Language (PDDL) [<a href="#aeronautiques1998pddl">1</a>]はプランニング問題を記述されるために用いられる言語の一つである。PDDLはdomainファイルとinstanceファイルの２つのファイルによって一つの入力となる。domainファイルはpredicateとアクションが定義され、instanceファイルは初期状態、ゴール状態とオブジェクトが定義される。
+図<a href="#fig%3Apddl-domain">6.1</a>はblocks-worldのdomainファイルである。
+図<a href="#fig%3Apddl-instance">6.2</a>はblocks-worldのinstanceファイルである。</p><blockquote class="figure"><div class="center"><hr style="width:80%;height:2"></div>
+width=@percent,keepaspectratio
+
+<div class="lstlisting">;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; 4 Op-blocks world
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (domain BLOCKS)
+  (:requirements :strips)
+  (:predicates (on ?x ?y)
+               (ontable ?x)
+               (clear ?x)
+               (handempty)
+               (holding ?x)
+               )
+
+  (:action pick-up
+             :parameters (?x)
+             :precondition (and (clear ?x) (ontable ?x) (handempty))
+             :effect
+             (and (not (ontable ?x))
+                   (not (clear ?x))
+                   (not (handempty))
+                   (holding ?x)))
+
+  (:action put-down
+             :parameters (?x)
+             :precondition (holding ?x)
+             :effect
+             (and (not (holding ?x))
+                   (clear ?x)
+                   (handempty)
+                   (ontable ?x)))
+  (:action stack
+             :parameters (?x ?y)
+             :precondition (and (holding ?x) (clear ?y))
+             :effect
+             (and (not (holding ?x))
+                   (not (clear ?y))
+                   (clear ?x)
+                   (handempty)
+                   (on ?x ?y)))
+  (:action unstack
+             :parameters (?x ?y)
+             :precondition (and (on ?x ?y) (clear ?x) (handempty))
+             :effect
+             (and (holding ?x)
+                   (clear ?y)
+                   (not (clear ?x))
+                   (not (handempty))
+                   (not (on ?x ?y)))))</div>
+<div class="caption"><table style="border-spacing:6px;border-collapse:separate;" class="cellpading0"><tr><td style="vertical-align:top;text-align:left;" >Figure 6.1: blocks-worldのdomainファイル</td></tr>
+</table></div>
+<a id="fig:pddl-domain"></a>
+<div class="center"><hr style="width:80%;height:2"></div></blockquote><blockquote class="figure"><div class="center"><hr style="width:80%;height:2"></div>
+width=@percent,keepaspectratio
+
+<div class="lstlisting">(define (problem BLOCKS-4-0)
+(:domain BLOCKS)
+(:objects D B A C )
+(:INIT (CLEAR C) (CLEAR A) (CLEAR B) (CLEAR D) (ONTABLE C) (ONTABLE A)
+ (ONTABLE B) (ONTABLE D) (HANDEMPTY))
+(:goal (AND (ON D C) (ON C B) (ON B A)))
+)</div>
+<div class="caption"><table style="border-spacing:6px;border-collapse:separate;" class="cellpading0"><tr><td style="vertical-align:top;text-align:left;" >Figure 6.2: blocks-worldのinstanceファイル</td></tr>
+</table></div>
+<a id="fig:pddl-instance"></a>
+<div class="center"><hr style="width:80%;height:2"></div></blockquote>
+<!--TOC section id="sec48" ブラックボックスプランニング-->
+<h2 id="sec48" class="section">6.3  ブラックボックスプランニング</h2><!--SEC END --><p>
+<a id="sec:black-box-planning"></a></p><p>プランナーはPDDLを用いることでドメインの知識を吸い出し、それを利用して探索を効率化する。しかしながら、完全なモデルを得るのが難しい問題の場合、PDDLのような記述を得ることが出来ない。
+例えばビデオゲームのような環境では、ゲームをクラックしない限り、完全なモデルを得ることは出来ない。
+このような中身を見ることの出来ない環境でのプランニング問題をブラックボックスプランニング問題と呼ぶ。</p><p>ブラックボックスプランニングはAtari 2600や[<a href="#lipovetzky2015a">27</a>]や、General Video Game Playing [<a href="#geffner2015">13</a>]などのビデオゲームなどの環境に応用されている。</p><p>ブラックボックスプランニング問題は状態空間問題である。状態<span style="font-style:italic">s</span>は有限長の配列<span style="font-style:italic">V</span>で表せられ、<span style="font-style:italic">v</span> ∈ <span style="font-style:italic">V</span>の値域は<span style="font-style:italic">D</span>(<span style="font-style:italic">v</span>)とする。ただし、<span style="font-style:italic">V</span>の各変数がどのような意味を持つのかは未知である。
+Expand関数、Goal関数はブラックボックスとして与えられる。また、ある状態に対して<span style="font-style:italic">A</span>のうち実行可能なアクションの集合が既知とは限らない<sup><a id="text6" href="#note6">1</a></sup>。</p><p>このようなドメインではドメインの知識を得ることが出来ないので、<a href="#ch%3Aheuristic-search">3</a>章で解説したようなヒューリスティック関数を用いることは出来ない。</p><p>幅優先探索などによってBrute-forceに探索しつくす方法を取ることも出来るが問題のサイズが大きい場合に解くことが出来ない[<a href="#Bellemare2013">6</a>]。
+Iterative Width探索 (IW search)[<a href="#lipovetzky2015a">27</a>]は幅優先探索に新奇性による枝刈りを加えた手法である<sup><a id="text7" href="#note7">2</a></sup>。IW(1)は新しく生成された状態は新しいatomを真にしない場合、枝刈りされる。</p>
+<!--BEGIN NOTES chapter-->
+<hr class="footnoterule"><dl class="thefootnotes"><dt class="dt-thefootnotes">
+<a id="note6" href="#text6">1</a></dt><dd class="dd-thefootnotes"><div class="footnotetext">厳密にブラックボックスである場合は既知とするべきではないが、多くの研究ではオラクルによって実行可能なアクションが知らされるというモデルを用いている。</div></dd><dt class="dt-thefootnotes"><a id="note7" href="#text7">2</a></dt><dd class="dd-thefootnotes"><div class="footnotetext">Iterative Width探索はドメインモデルのある場合でも有用であることが知られている[<a href="#lipovetzkyg12">26</a>]。</div></dd></dl>
+<!--END NOTES-->
+<!--TOC chapter id="sec49" 機械学習と探索・プランニング-->
+<h1 id="sec49" class="chapter">Chapter 7  機械学習と探索・プランニング</h1><!--SEC END --><p>
+<a id="ch:machine-learning"></a>
+A review of ML for AP [<a href="#jimenez2012review">17</a>]</p>
+<!--TOC section id="sec50" 強化学習と探索-->
+<h2 id="sec50" class="section">7.1  強化学習と探索</h2><!--SEC END --><p>
+<a id="sec:rl"></a>
+R. Sutton
+David Silver RL and simulation-based search</p>
+<!--TOC section id="sec51" Alpha Go-->
+<h2 id="sec51" class="section">7.2  Alpha Go</h2><!--SEC END --><p>
+<a id="sec:alpha-go"></a>
+AlphaGo [<a href="#silver2016mastering">34</a>]</p>
+<!--TOC section id="sec52" 探索の為の機械学習-->
+<h2 id="sec52" class="section">7.3  探索の為の機械学習</h2><!--SEC END --><p>
+A review of ML for AP [<a href="#jimenez2012review">17</a>]</p>
+<!--TOC subsection id="sec53" 探索の効率化-->
+<h3 id="sec53" class="subsection">7.3.1  探索の効率化</h3><!--SEC END --><p>
+YJ DASP</p>
+<!--TOC subsection id="sec54" ドメインモデルの生成-->
+<h3 id="sec54" class="subsection">7.3.2  ドメインモデルの生成</h3><!--SEC END --><p>
+Konidaris et al.</p>
+<!--TOC section id="sec55" 参考文献-->
+<h2 id="sec55" class="section">7.4  参考文献</h2><!--SEC END --><p>
+Predictron
+DL for Reward design in MCTS
+Juhn, Satinder, et al.</p><!--TOC chapter id="sec56" References-->
+<h1 id="sec56" class="chapter">References</h1><!--SEC END --><dl class="thebibliography"><dt class="dt-thebibliography">
+
+
+
+<a id="aeronautiques1998pddl">[1]</a></dt><dd class="dd-thebibliography">
+Aeronautiques, C., Howe, A., Knoblock, C., McDermott, I.D., Ram, A., Veloso,
+M., Weld, D., SRI, D.W., Barrett, A., Christianson, D., et al.: Pddl—the
+planning domain definition language version 1.2 (1998)</dd><dt class="dt-thebibliography"><a id="algfoor2015comprehensive">[2]</a></dt><dd class="dd-thebibliography">
+Algfoor, Z.A., Sunar, M.S., Kolivand, H.: A comprehensive study on pathfinding
+techniques for robotics and video games.
+International Journal of Computer Games Technology <span style="font-weight:bold">2015</span>, 7
+(2015)</dd><dt class="dt-thebibliography"><a id="applegate2006traveling">[3]</a></dt><dd class="dd-thebibliography">
+Applegate, D.L.: The traveling salesman problem: a computational study.
+Princeton University Press (2006)</dd><dt class="dt-thebibliography"><a id="asai2014fully">[4]</a></dt><dd class="dd-thebibliography">
+Asai, M., Fukunaga, A.: Fully automated cyclic planning for large-scale
+manufacturing domains.
+In: Proc. ICAPS (2014)</dd><dt class="dt-thebibliography"><a id="asai2016tiebreaking">[5]</a></dt><dd class="dd-thebibliography">
+Asai, M., Fukunaga, A.: Tiebreaking strategies for a* search: How to explore
+the final frontier.
+In: Proc. AAAI (2016)</dd><dt class="dt-thebibliography"><a id="Bellemare2013">[6]</a></dt><dd class="dd-thebibliography">
+Bellemare, M.G., Naddaf, Y., Veness, J., Bowling, M.: The arcade learning
+environment: An evaluation platform for general agents.
+Journal of Artificial Intelligence Research <span style="font-weight:bold">47</span>, 253–279
+(2013).
+DOI 10.1613/jair.3912.
+URL <span style="font-family:monospace">http://arxiv.org/abs/1207.4708
+  http://dx.doi.org/10.1613/jair.3912</span></dd><dt class="dt-thebibliography"><a id="burnslrz10">[7]</a></dt><dd class="dd-thebibliography">
+Burns, E., Lemons, S., Ruml, W., Zhou, R.: Best-first heuristic search for
+multicore machines.
+Journal of Artificial Intelligence Research (JAIR) <span style="font-weight:bold">39</span>,
+689–743 (2010)</dd><dt class="dt-thebibliography"><a id="culberson1997sokoban">[8]</a></dt><dd class="dd-thebibliography">
+Culberson, J.: Sokoban is pspace-complete (1997)</dd><dt class="dt-thebibliography"><a id="edelkamp:2010:hst:1875144">[9]</a></dt><dd class="dd-thebibliography">
+Edelkamp, S., Schroedl, S.: Heuristic Search: Theory and Applications.
+Morgan Kaufmann Publishers Inc., San Francisco, CA, USA (2010)</dd><dt class="dt-thebibliography"><a id="edgar2006multiple">[10]</a></dt><dd class="dd-thebibliography">
+Edgar, R.C., Batzoglou, S.: Multiple sequence alignment.
+Current opinion in structural biology <span style="font-weight:bold">16</span>(3), 368–373 (2006)</dd><dt class="dt-thebibliography"><a id="erdem2005genome">[11]</a></dt><dd class="dd-thebibliography">
+Erdem, E., Tillier, E.: Genome rearrangement and planning.
+In: Proc. AAAI, pp. 1139–1144 (2005)</dd><dt class="dt-thebibliography"><a id="fikes:71">[12]</a></dt><dd class="dd-thebibliography">
+Fikes, R.E., Nilsson, N.: STRIPS: A New Approach to the Application
+of Theorem Proving to Problem Solving.
+Artificial Intelligence <span style="font-weight:bold">5</span>(2), 189–208 (1971)</dd><dt class="dt-thebibliography"><a id="geffner2015">[13]</a></dt><dd class="dd-thebibliography">
+Geffner, T., Geffner, H.: Width-based planning for general video-game playing.
+In: The IJCAI-15 Workshop on General Game Playing, pp. 15–21 (2015)</dd><dt class="dt-thebibliography"><a id="held1970traveling">[14]</a></dt><dd class="dd-thebibliography">
+Held, M., Karp, R.M.: The traveling-salesman problem and minimum spanning
+trees.
+Operations Research <span style="font-weight:bold">18</span>(6), 1138–1162 (1970)</dd><dt class="dt-thebibliography"><a id="helmert2010scanalyzer">[15]</a></dt><dd class="dd-thebibliography">
+Helmert, M., Lasinger, H.: The scanalyzer domain: Greenhouse logistics as a
+planning problem.
+In: Proc. ICAPS (2010)</dd><dt class="dt-thebibliography"><a id="helmert:08">[16]</a></dt><dd class="dd-thebibliography">
+Helmert, M., Roger, G.: How good is almost perfect?
+In: Proceedings of the 23rd National Conference on Artificial
+Intelligence AAAI-08, pp. 944–949 (2008)</dd><dt class="dt-thebibliography"><a id="jimenez2012review">[17]</a></dt><dd class="dd-thebibliography">
+Jiménez, S., De La Rosa, T., Fernández, S., Fernández, F., Borrajo,
+D.: A review of machine learning for automated planning.
+The Knowledge Engineering Review <span style="font-weight:bold">27</span>(04), 433–467 (2012)</dd><dt class="dt-thebibliography"><a id="jinnai2016structured">[18]</a></dt><dd class="dd-thebibliography">
+Jinnai, Y., Fukunaga, A.: Abstract Zobrist hash: An efficient work
+distribution method for parallel best-first search.
+In: Proc. AAAI, pp. 717–723 (2016)</dd><dt class="dt-thebibliography"><a id="jinnai2016automated">[19]</a></dt><dd class="dd-thebibliography">
+Jinnai, Y., Fukunaga, A.: Automated creation of efficient work distribution
+functions for parallel best-first search.
+In: Proc. ICAPS (2016)</dd><dt class="dt-thebibliography"><a id="jinnai2017work">[20]</a></dt><dd class="dd-thebibliography">
+Jinnai, Y., Fukunaga, A.: On work distribution functions for parallel
+best-first search.
+Journal of Artificial Intelligence Research (JAIR) (2017).
+(to appear)</dd><dt class="dt-thebibliography"><a id="johnson1879notes">[21]</a></dt><dd class="dd-thebibliography">
+Johnson, W.W., Story, W.E., et al.: Notes on the” 15” puzzle.
+American Journal of Mathematics <span style="font-weight:bold">2</span>(4), 397–404 (1879)</dd><dt class="dt-thebibliography"><a id="kautz:92">[22]</a></dt><dd class="dd-thebibliography">
+Kautz, H., Selman, B.: Planning as Satisfiability.
+In: ECAI, pp. 359–363 (1992)</dd><dt class="dt-thebibliography"><a id="kishimotofb13">[23]</a></dt><dd class="dd-thebibliography">
+Kishimoto, A., Fukunaga, A., Botea, A.: Evaluation of a simple, scalable,
+parallel best-first search strategy.
+Artificial Intelligence <span style="font-weight:bold">195</span>, 222–248 (2013).
+DOI 10.1016/j.artint.2012.10.007.
+URL <span style="font-family:monospace">http://linkinghub.elsevier.com/retrieve/pii/S0004370212001294</span></dd><dt class="dt-thebibliography"><a id="korf:85a">[24]</a></dt><dd class="dd-thebibliography">
+Korf, R.: Depth-first iterative deepening: An optimal admissible tree search.
+Artificial Intelligence <span style="font-weight:bold">97</span>, 97–109 (1985)</dd><dt class="dt-thebibliography"><a id="korf:2000">[25]</a></dt><dd class="dd-thebibliography">
+Korf, R.E., Zhang, W.: Divide-and-conquer frontier search applied to optimal
+sequence alignment.
+In: Proceedings of the 17th National Conference on Artificial
+Intelligence AAAI-00, pp. 910–916 (2000)</dd><dt class="dt-thebibliography"><a id="lipovetzkyg12">[26]</a></dt><dd class="dd-thebibliography">
+Lipovetzky, N., Geffner, H.: Width and serialization of classical planning
+problems.
+In: Proc. ECAI, pp. 540–545 (2012).
+DOI 10.3233/978-1-61499-098-7-540.
+URL <span style="font-family:monospace">http://dx.doi.org/10.3233/978-1-61499-098-7-540</span></dd><dt class="dt-thebibliography"><a id="lipovetzky2015a">[27]</a></dt><dd class="dd-thebibliography">
+Lipovetzky, N., Ramirez, M., Geffner, H.: Classical planning with simulators:
+Results on the Atari video games.
+In: Proc. IJCAI, pp. 1610–1616 (2015)</dd><dt class="dt-thebibliography"><a id="mcdowell2011cracking">[28]</a></dt><dd class="dd-thebibliography">
+McDowell, G.L.: Cracking the coding interview.
+CarrerCup (2011)</dd><dt class="dt-thebibliography"><a id="nash2007theta">[29]</a></dt><dd class="dd-thebibliography">
+Nash, A., Daniel, K., Koenig, S., Felner, A.: Theta^*: Any-angle path
+planning on grids.
+In: Proc. AAAI, pp. 1177–1183 (2007)</dd><dt class="dt-thebibliography"><a id="pearl84">[30]</a></dt><dd class="dd-thebibliography">
+Pearl, J.: Heuristics - Intelligent Search Strategies for Computer Problem
+Solving.
+Addison–Wesley (1984)</dd><dt class="dt-thebibliography"><a id="pearson1990">[31]</a></dt><dd class="dd-thebibliography">
+Pearson, W.R.: Rapid and sensitive sequence comparison with FASTP and
+FASTA.
+Methods in enzymology <span style="font-weight:bold">183</span>, 63–98 (1990).
+Matrix score is available at
+http://prowl.rockefeller.edu/aainfo/pam250.htm</dd><dt class="dt-thebibliography"><a id="russelln03">[32]</a></dt><dd class="dd-thebibliography">
+Russell, S., Norvig, P.: Artificial Intelligence: A Modern Approach, 2nd
+edition edn.
+Prentice-Hall, Englewood Cliffs, NJ (2003)</dd><dt class="dt-thebibliography"><a id="shleyfmantd16">[33]</a></dt><dd class="dd-thebibliography">
+Shleyfman, A., Tuisov, A., Domshlak, C.: Blind search for Atari-like online
+planning revisited.
+In: Proc. IJCAI, pp. 3251–3257 (2016).
+URL <span style="font-family:monospace">http://www.ijcai.org/Abstract/16/460</span></dd><dt class="dt-thebibliography"><a id="silver2016mastering">[34]</a></dt><dd class="dd-thebibliography">
+Silver, D., Huang, A., Maddison, C.J., Guez, A., Sifre, L., Van Den Driessche,
+G., Schrittwieser, J., Antonoglou, I., Panneershelvam, V., Lanctot, M.,
+et al.: Mastering the game of go with deep neural networks and tree search.
+Nature <span style="font-weight:bold">529</span>(7587), 484–489 (2016)</dd><dt class="dt-thebibliography"><a id="skiena2006programming">[35]</a></dt><dd class="dd-thebibliography">
+Skiena, S.S., Revilla, M.A.: Programming challenges: The programming contest
+training manual.
+Springer Science &amp; Business Media (2006)</dd><dt class="dt-thebibliography"><a id="sousa2013toward">[36]</a></dt><dd class="dd-thebibliography">
+Sousa, A., Tavares, J.: Toward automated planning algorithms applied to
+production and logistics.
+IFAC Proceedings Volumes <span style="font-weight:bold">46</span>(24), 165–170 (2013)</dd><dt class="dt-thebibliography"><a id="sturtevant2012benchmarks">[37]</a></dt><dd class="dd-thebibliography">
+Sturtevant, N.R.: Benchmarks for grid-based pathfinding.
+IEEE Transactions on Computational Intelligence and AI in Games
+<span style="font-weight:bold">4</span>(2), 144–148 (2012)</dd><dt class="dt-thebibliography"><a id="yap2002grid">[38]</a></dt><dd class="dd-thebibliography">
+Yap, P.: Grid-based path-finding.
+In: Conference of the Canadian Society for Computational Studies of
+Intelligence, pp. 44–55. Springer (2002)</dd><dt class="dt-thebibliography"><a id="zobrist:70">[39]</a></dt><dd class="dd-thebibliography">
+Zobrist, A.L.: A new hashing method with applications for game playing.
+Tech. rep., Dept of CS, Univ. of Wisconsin, Madison (1970).
+Reprinted in <span style="font-style:italic">International Computer Chess Association Journal</span>,
+13(2):169-173, 1990</dd></dl><!--CUT END -->
+<!--HTMLFOOT-->
+<!--ENDHTML-->
+<!--FOOTER-->
+<hr style="height:2"><blockquote class="quote"><em>This document was translated from L<sup>A</sup>T<sub>E</sub>X by
+</em><a href="http://hevea.inria.fr/index.html"><em>H</em><em><span style="font-size:small"><sup>E</sup></span></em><em>V</em><em><span style="font-size:small"><sup>E</sup></span></em><em>A</em></a><em>.</em></blockquote></body>
+</html>
