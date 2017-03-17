@@ -388,7 +388,7 @@ Trap vs. reversible
 \ref{ch:introduction}章で紹介した状態空間問題を広く扱うことの出来る手法としてグラフ探索アルゴリズムがある。
 本章では最もシンプルな問題（ドメイン）の知識を利用しない探索を紹介する。
 情報なし探索 (Blind Search)は状態空間グラフのみに注目し、背景にある問題に関する知識を一切使わないアルゴリズムである。
-情報なし探索で重要なのは1. 重複検知を行うかと 2. ノードの展開順序の二点である。
+このような探索を設計に重要なことは{\bf 1. 重複検知を行うか 2. ノードの展開順序}の二点である。
 重複検出は訪問済みのノードを保存しておくことで同じノードを繰り返し探索することを防ぐ手法である。対価としては、メモリの消費量が非常に大きくなることにある。
 ノードの展開順序とは、例えば幅優先探索・深さ優先探索などのバリエーションを指す。
 効率的な展開順序は問題によって大きく異なり、問題を選べばこれらの手法によって十分に効率的な探索を行うことが出来る。
@@ -413,9 +413,9 @@ Trap vs. reversible
 \begin{adjustbox}{width=\textwidth}
 \begin{tabular}{ccc}
 	展開順序  	& プライオリティ 	& 性質 \\  
-	幅優先探索 	& $\arg \min_n d(n)$ & ユニットコストドメインだと最初に発見した解が最適解である \\
-	深さ優先探索 	& $\arg \max_n d(n)$ & \TODO \\
-	ダイクストラ法	& $\arg \min_n g(n)$ & 非負コストドメインで最適解が得られる \\
+	幅優先	& $\arg \min_n d(n)$ & ユニットコストドメインだと最初に発見した解が最適解である \\
+	深さ優先 	& $\arg \max_n d(n)$ & \TODO \\
+	最良優先	& $\arg \min_n g(n)$ & 非負コストドメインで最適解が得られる \\
 \end{tabular}
 \end{adjustbox}
 \end{table}
@@ -446,15 +446,35 @@ Trap vs. reversible
 	\Return $\emptyset$\;
 \end{algorithm}
 
+\begin{algorithm}
+\caption{Expand}
+\label{alg:expand}
+	\Input{Parent node $s$, a set of actions applicable to the state $A(s)$}
+	\Output{A set of child nodes $S$}
+	\For {$a \in A(s)$} {
+		$s' \leftarrow a(s)$\;
+		$d(s') \leftarrow d(s) + 1$\;
+		$d(s') \leftarrow d(s) + w(s, s')$\;
+		$S = S \cup {s'}$\;
+	}
+	\Return $S$\;
+\end{algorithm}
+
+
 以下、(k)と書いて疑似コードのk行目を指すことにする。
 木探索はオープンリスト\footnote{歴史的な経緯でリストと呼ばれているが、データ構造がリストで実装されるという意味ではない。効率的なデータ構造は\ref{ch:search-performance}章で紹介する。}と呼ばれるノードの集合をPriority queueに保持する。探索の開始時には、初期状態のみがオープンリストに入っている(1)。
 木探索は、このオープンリストから一つノード$u$を選び(3)、ゴール条件を満たしているかを確認する(4)。満たしていれば初期状態から$u$への経路を返す。満たしていなければ、そのノードを展開する(6-)。展開とは、そのノードの子ノードを列挙し、オープンリストに入れる(8)ことを指す。
 
+アルゴリズム\ref{alg:expand}は展開関数の動作を表している。
+初期状態からノード$n$への既知の最小経路コストを$g$値と呼ぶ。
+状態を更新すると同時に$g$値を更新する。これによって解を発見した時に解ノードの$g$値が解のコストとなる。
+なお、状態$s$に対して適用可能なアクションの集合$A(s)$は与えられていると仮定する。
+
 探索の進行によってエージェントが保持する情報は変化していく。ここでは探索がどのように進行するかを記述するため、以下の３つの言葉を定義する：
 
 \begin{enumerate}
-\item 展開済みノード: $Expand(u)$によって子ノードが参照されたノードを指す。$Open$からは省かれる。
-\item 生成済みノード: $Open.insert(v)$によってOpenに一度でも入れられたノードを指す。
+\item 展開済みノード: $Expand$によって子ノードが参照されたノードを指す。$Open$からは省かれる。
+\item 生成済みノード: $Open.insert$によってOpenに一度でも入れられたノードを指す。
 \item 未生成ノード: まだ生成されていないノード。よって、非明示的グラフに保持されていない。
 
 \end{enumerate}
@@ -479,7 +499,7 @@ Trap vs. reversible
 \section{幅優先探索 (Breadth-First Search)}
 \label{sec:breadth-first-search}
 
-木探索のパフォーマンスにおいて重要になるのは{\bf どのようにして展開するノードを選択するか}にある($Open.pop()$)。
+木探索のパフォーマンスにおいて重要になるのは{\bf どのようにして次に展開するノードを選択するか}にある($Open.pop()$)。
 ヒューリスティック探索の研究の非常に大きな部分はここに費やされているといえる。
 シンプルかつ強力なノード選択方法はFirst-in-first-out (FIFO)である。あるいは幅優先探索と呼ぶ。
 
@@ -495,7 +515,7 @@ Trap vs. reversible
 \begin{algorithm}
 \caption{Breadth-First Search: $Open.pop()$}
 \label{alg:brfs-open}
-	\Output{Node $u$}
+	\Output{Node $n$}
 	\Return $\arg \min_n d(n)$
 \end{algorithm}
 
@@ -514,7 +534,7 @@ Trap vs. reversible
 \begin{algorithm}
 \caption{Depth-First Search: $Open.pop()$}
 \label{alg:dfs-open}
-	\Output{Node $u$}
+	\Output{Node $n$}
 	\Return $\arg \max_n g(n)$
 \end{algorithm}
 
@@ -524,9 +544,9 @@ Trap vs. reversible
 \label{sec:graph-search-algorithm}
 
 
-明示的グラフのあるノードが初期状態から複数の経路でたどり着ける場合、同じ状態を表すノードが木探索による非明示的グラフに複数現れるということが生じる。このようなノードを重複(duplicate)と呼ぶ。ノードの重複は計算資源を消費してしまうので、重複の効率的な検出方法は重要な研究分野である。
+明示的グラフのあるノードが初期状態から複数の経路でたどり着ける場合、同じ状態を表すノードが木探索による非明示的グラフに複数現れるということが生じる。このようなノードを\define{重複}{duplicate}と呼ぶ。ノードの重複は計算資源を消費してしまうので、効率的な\define{重複検出}{duplicate detection}の方法は重要な研究分野である。
 
-本書ではノードの重複検出を行う探索アルゴリズムを狭義にグラフ探索アルゴリズムと呼び、重複検出を行わない探索を木探索と区別する。
+{\bf 本書ではノードの重複検出を行う探索アルゴリズムを狭義にグラフ探索アルゴリズムと呼び、重複検出を行わない探索を木探索と区別する。}
 
 
 
@@ -568,6 +588,26 @@ Trap vs. reversible
 
 \section{ダイクストラ法  (Dijkstra Algorithm)}
 \label{sec:dijkstra}
+
+\define{ダイクストラ法}{Dijkstra's Algorithm}は非負コストグラフにおいて最短経路を返すアルゴリズムである\cite{dijkstra1959note}。
+ダイクストラ法は$g$値が最も小さいノードを優先して展開するグラフ探索アルゴリズムである。
+%初期状態からノード$n$への既知の最小経路コストを$g$値と呼び、$g(n)$と書く。
+
+\begin{algorithm}
+\caption{Best-First Search: $Open.pop()$}
+\label{alg:dfs-open}
+	\Output{Node $u$}
+	\Return $\arg \max_n g(n)$
+\end{algorithm}
+
+
+グラフ理論の教科書などでも登場する情報科学全体に多岐に渡り重要とされるアルゴリズムである。
+例えばネットワークルーティングにおけるlink state algorithmなどにDijkstraが使われる\cite{mcquillan1980new}。
+
+ユニットコストドメインでは$\forall n (g(n) = d(n))$であるため、幅優先探索と同じ動作をする。
+フィボナッチヒープを用いてオープンリストを実装したダイクストラ法は$O(|E| + |V|log|V|)$時間でであることが知られている\cite{fredman84}。%任意の非負コスト有向グラフにおける最短経路問題を解くアルゴリズムとして知られている中で最も
+%Bellman-Fordアルゴリズムも重要である。
+実用するにあたっては、後述するヒューリスティック関数が得られない(難しい)問題においてはとりあえずダイクストラ法を試してみることは有効である。
 
 
 \chapter{ヒューリスティック探索 (Heuristic Search)}
@@ -648,69 +688,39 @@ $h$値が常に最適解コストの下界であるヒューリスティック�
 \section{A*探索}
 \label{sec:astar-search}
 
+\captionlistentry[todo]{ダイクストラ法の問題点を図示}
+ダイクストラ法は初期状態からそのノードまでのコストである$g$値が最小のノードを展開していく。これは間違った方針ではないだろうが、理想的にはゴール状態に向かっていくノードを展開していきたい。図\ref{fig:dijkstra-grid}はダイクストラ法による状態空間の探索を図示したものである。ダイクストラ法はゴールがどこにあるかということを無視して探索を進めているため、図のように探索空間が広がっていく。
+%人間の目で見れば一目で右に探索していけばよいというのは分かる。そのような人間の持っている知識を利用して探索を効率化出来ないだろうか？
+
+\define{A*探索}{A* search}はゴールまでの距離を見積もる\define{ヒューリスティック関数}{heuristic function}を用いることで図\ref{fig:astar-grid}のようにゴールに向かって探索していくことを目指した手法である。
+
 A*探索はヒューリスティック探索の代名詞である、最も広く知られている
 手法である\cite{fikes:71}。
-A*探索は以下のf値が最小となるノードを優先したグラフ探索アルゴリズムである。
+A*探索は以下の$f$値が最小となるノードを優先したグラフ探索アルゴリズムである。
 
 \begin{equation}
 	f(n) = g(n) + h(n)
 \end{equation}
 
-%\begin{algorithm}
-%\caption{A*: $Open.pop()$}
-%\label{alg:astar-open}
-%	\Output{Node $u$}
-%	\Return $\arg \min_n f(n)$
-%\end{algorithm}
 
-
-ノードnのf値は、初期状態からnを通過してゴール状態に辿り着くためのコストの見積もりである。g値は初期状態からノードnまでの既知の最短経路コストである。一方h値はヒューリスティック関数によるnからゴール状態までの最短経路の見積もりである。
-A*探索は非明示的グラフ探索アルゴリズム(アルゴリズム\ref{alg:implicit-graph-search})の一つであり、$Open.pop()$を$f$値最小ノードを返すようにしただけである。
-ここでは実際のアルゴリズムの動きを追えるよう、アルゴリズム全体のコードを置いた\ref{alg:astar-search}。
-
+ノード$n$の$f$値は、初期状態から$n$を通過してゴール状態に辿り着くためのコストの見積もりである。$g$値は初期状態からノード$n$までの既知の最短経路コストである。一方$h$値はヒューリスティック関数による$n$からゴール状態までの最短経路の見積もりである。
+A*探索は非明示的グラフ探索アルゴリズム(アルゴリズム\ref{alg:implicit-graph-search})の一つであり、$Open.pop()$を$f$値最小ノードを返すようにしただけである \ref{alg:astar-search}。
 
 \begin{algorithm}
-\caption{A* search}
-	\Input{Implicit problem graph with initial node $n_0$, weight function $w$, successor generation function $Expand$, goal function $Goal$}
-	\Output{Path from $n_0$ to a goal node $t \in T$, or $\emptyset$ if no such path exists}
-	Initialize $OPEN$ to $\{n_0\}$\;
-    \While {$OPEN \neq \emptyset$} {
-	    Get and remove from OPEN a node $n$ with a smallest $f(n)$\;
-	    Add $n$ to CLOSED\;
-	    \If {$n \in T$} {
-	    	Return solution path from $n_0$ to $n$\;
-	    }
-	    
-	    \For {each $n' \in Expand(n)$} {
-	    	$g_1 = g(n) + w(n,n')$\;
-	    	\If {$n' \in CLOSED$} {
-	    		\If {$g_1 < g(n')$} {
-	    			%Set $g(n') = g_1$\;
-	    			%Set $f(n') = g(n') + h(n')$\;
-	    			%Set $\mbox{parent}(n') = n$\;
-	    			Remove $n'$ from CLOSED and add it to OPEN \;
-	    		} \Else {
-	    		    Continue\;
-		    	}
-	    	} \Else {
-		    	\If {$n' \notin OPEN$} {
-		    		Add $n'$ to OPEN\;
-		    	}
-		    	\ElseIf {$g_1 \geq g(n')$} {
-		    		Continue\;
-		    	}
-		    }
-   			$g(n') \leftarrow g_1$\;
-   			$f(n') \leftarrow g(n') + h(n')$\;
-   			$parent(n') \leftarrow n$\;
-	    }
-    }
-    \Return failure (no path exists)\;
-	
-	\caption{A*}
-	\label{alg:astar-search}
+\caption{A* Search: $Open.pop()$}
+\label{alg:astar-search}
+	\Output{Node $n$}
+	\Return $\arg \min_n g(n) + h(n)$
 \end{algorithm}
 
+ダイクストラ法(\ref{sec:dijkstra}章)と比較すると、A*探索はゴール状態までのコストの見積もりを考慮して次に展開するノードを決めている。
+
+図\ref{fig:astar-grid}は\define{マンハッタン距離ヒューリスティック}{Manhattan distance heuristic}によるA*探索である。
+
+
+A*に用いるヒューリスティック関数に求められる要件とは何であるか。
+一つは正確であるほど良い。
+もう一つはヒューリスティック関数がゴールまでのコストの下界であると実用的・理論的に良い性質があることが知られている。
 
 \begin{theorem}
 ヒューリスティックが許容的である時、A*は最適解を返す。
@@ -811,9 +821,10 @@ TSPの解の下界としては{\it 最小全域木} (minimum spanning tree)の�
 
 
 
-\chapter{古典的プランニング問題 (Classical Planning Problem)}
+\chapter{自動行動計画問題 (Automated Planning Problem)}
+%\chapter{古典的プランニング問題 (Classical Planning Problem)}
 \label{ch:classical-planning}
-この章では古典的プランニング問題について説明する。
+この章では自動行動計画問題について説明する。
 古典的プランニング問題はエージェントの自動行動計画を行うための問題の一つであり、状態空間問題の一つである \cite{fikes:71}。
 
 ロジスティック\cite{helmert2010scanalyzer,sousa2013toward}、セルアセンブリ\cite{asai2014fully}、遺伝子距離計算\cite{erdem2005genome}、ビデオゲーム\cite{lipovetzky2015a}など、様々な応用問題を含むフレームワークである。
