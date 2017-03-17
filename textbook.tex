@@ -89,6 +89,11 @@
 
 \captionlistentry[todo]{why-search: Pearl's Heuristics}
 
+
+\section{本書の射程}
+\label{sec:coverage}
+
+
 \captionlistentry[todo]{Introduction: なんかいい感じの絵}
 
 人は様々な問題を探索によって解決している。
@@ -111,8 +116,10 @@
 
 \section{状態空間問題 (State-Space Problem)}
 \label{sec:state-space-problem}
+
+\captionlistentry[todo]{状態空間問題の例示}
 この本では主に初期状態とゴール条件が与えられたとき、ゴール条件を満たすための経路を返す問題を探索する手法を考える。
-このテキストでは探索の主な対象として\define{状態空間問題}{state-space problem}を考える。状態空間問題$P = (S, A, s, T)$は状態の集合$S$、初期状態$s \in S$、ゴール集合$T \in S$、アクション集合$A = {a_1, ....,a_n}$、$a_i : S \rightarrow S$がある。アクションはある状態を次の状態に遷移させる関数である。
+特に本書の主眼は\ref{ch:state-space-problem}章から\ref{ch:heuristic-serach-variants}章までで扱う\define{状態空間問題}{state-space problem}である。状態空間問題$P = (S, A, s, T)$は状態の集合$S$、初期状態$s \in S$、ゴール集合$T \in S$、アクション集合$A = {a_1, ....,a_n}$、$a_i : S \rightarrow S$がある。アクションはある状態を次の状態に遷移させる関数である。
 状態空間問題の解は初期状態からゴール状態へ遷移させるアクションの列を求めることである。
 
 よって、状態空間問題はグラフにモデルすることで考えやすくなる。
@@ -210,7 +217,7 @@ Expandはある状態からの次の状態の集合を返す関数である。Ex
 Web上に簡単に試せるデモがあるので、参照されたい\footnote{\url{http://qiao.github.io/PathFinding.js/visual/}}。とてもよくできており、この文章で説明する様々なグラフ探索手法をグリッド経路探索に試すことが出来る。
 
 グリッド経路探索はロボットのモーションプランニングやゲームAIなどで応用される\cite{algfoor2015comprehensive}。ストラテジーゲームなどでユニット（エージェント）を動かすために使われる。よく使われるベンチマーク問題集にもStarcraftのゲームのマップが含まれている\cite{sturtevant2012benchmarks}.
-またグリッドは様々な問題を経路探索に帰着して解くことができるという意味でも重要である。例えばMultiple Sequence Alignmentはグリッド経路探索に帰着して解くことが出来る(後述)。
+またグリッドは様々な問題を経路探索に帰着して解くことができるという意味でも重要である。例えば多重整列問題 (Multiple Sequence Alignment)はグリッド経路探索に帰着して解くことが出来る(後述)。
 ロボットのモーションプランニングも経路探索に帰着することが出来る。すなわち、$k$個の関節の角度を変えて、現在状態からゴール状態へ遷移させたい。各関節の角度がグリッドの各次元に相当する。ロボットの物理的な構造により、関節のある角度の組み合わせは不可能である。不可能な組み合わせが、障害物の置かれたグリッドに相当する。よって、障害物を避けた経路というのが関節の動かし方ということになる。
 
 %Starcraft 1ではA*探索が使われていた。
@@ -238,10 +245,10 @@ $1$から$(n^2)-1$までの数字が振られたタイルが$n\times n$の正方
 
 %ちなみに、スライディングタイルはpermutation problemの一つである。
 
-\subsection{Multiple Sequence Alignment (MSA)}
+\subsection{多重整列問題 (Multiple Sequence Alignment)}
 
 生物学・進化学では遺伝子配列・アミノ酸配列の編集距離(edit distance)を比較することでニ個体がどれだけ親しいかを推定することが広く研究されている。
-Multiple Sequence Alignment (MSA)は複数の遺伝子・アミノ酸配列が与えられた時、それらの配列間の編集距離とその時出来上がった配列を求める問題である\cite{edgar2006multiple}。
+\define{多重整列問題}{Multiple Sequence Alignment} (MSA)は複数の遺伝子・アミノ酸配列が与えられた時、それらの配列間の編集距離とその時出来上がった配列を求める問題である\cite{edgar2006multiple}。
 ２つの配列に対してそれぞれコストの定義された編集操作を繰り返し、同一の配列に並べ替える手続きをアライメントと呼ぶ。
 ２つの配列の編集距離は編集操作の合計コストの最小値である。
 ３つ以上の配列における距離の定義は様々考えられるが、ここでは全ての配列のペアの編集距離の総和を用いる。
@@ -359,6 +366,11 @@ TSPの解の下界としては{\it 最小全域木} (minimum spanning tree)の�
 
 TSPはヒューリスティック探索に限らず、様々なアプローチで研究されている問題ドメインである\cite{applegate2006traveling}。TSPについて特に詳しく知りたい方はそちらの教科書を参照されたい。
 
+\section{問題の難しさ}
+\label{sec:difficulity}
+状態数あるいは状態空間の大きさ
+\define{分枝度}{branching factor}
+Trap vs. reversible
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% CHAPTER: Blind Search
@@ -554,150 +566,11 @@ TSPはヒューリスティック探索に限らず、様々なアプローチ�
 
 \captionlistentry[todo]{グラフ探索アルゴリズム: 重複検出に関連して何か付け足す}
 
-\section{ダイクストラ法}
+\section{ダイクストラ法  (Dijkstra Algorithm)}
 \label{sec:dijkstra}
 
 
-
-
-\chapter{古典的プランニング問題}
-\label{ch:classical-planning}
-この章では古典的プランニング問題について説明する。
-古典的プランニング問題はエージェントの自動行動計画を行うための問題の一つであり、状態空間問題の一つである \cite{fikes:71}。
-
-ロジスティック\cite{helmert2010scanalyzer,sousa2013toward}、セルアセンブリ\cite{asai2014fully}、遺伝子距離計算\cite{erdem2005genome}、ビデオゲーム\cite{lipovetzky2015a}など、様々な応用問題を含むフレームワークである。
-
-環境が決定的であり、完全情報を仮定する。
-これらの仮定を緩和した問題（確率的モデルや不完全情報モデル）もグラフ探索によって解かれることが多いが、本文の範囲外とする。詳細はAIの教科書を参照されたい\cite{russelln03}。
-
-なお、プランニング問題はA*などの状態空間探索アルゴリズム以外にも、SATやCSPなどの制約充足問題に変換して解く方法もあるがこれも本書の範囲外とする\cite{kautz:92}。
-
-\section{定義}
-\label{sec:planning-definition}
-
-
-古典的プランニングは述語論理によって世界が記述される\cite{fikes:71}。
-Proposition $AP$は世界の状態において何が真・偽であるかを記述する。
-世界の状態はエージェントがアクションを行うことによって遷移し、遷移後の状態は遷移前の状態と異なるpropositionが真・偽でありうる。
-古典的プランニングの目的は与えられた初期状態からゴール条件を満たすまでのアクションの列を求めることにある。
-以下、定義は\cite{edelkamp:2010:hst:1875144}に従う。
-
-\begin{definition}[古典的プランニング問題、Classical Planning Problem]
-古典的プランニング問題は有限状態空間問題$P = (S,A,s_0,T)$の一つである。
-$S \subseteq 2^{AP}$は状態の集合であり、$s_0 \in S$は初期状態、$T \subseteq S$はゴール状態の集合、$A: S \rightarrow S$は可能なアクションの集合である。
-\end{definition}
-
-古典的プランニング問題の最も基本となるSTRIPSモデル\cite{fikes:71}の場合、ゴールはpropositionのリストで表せられる$Goal \subseteq AP$。ゴール状態の集合$T$は$p \in Goal$となるすべての$p$が真である状態の集合である。
-アクション$a \in A$は条件$pre(a)$、効果($add(a)$, $del(a)$)で表せられる。条件$pre(a) \subseteq AP$はアクション$a$を実行するために状態が満たすべきpropositionの集合である。効果$add(a)$はアクション$a$を適用後に真になるpropositionの集合であり、$del(a)$は偽になる集合である。
-従って、アクション$a$を状態$s$に適用後の状態$s' = suc(s,a)$は
-\begin{equation}
-	s' = (s \cup add(a)) \setminus del(a)
-\end{equation}
-である。
-このようにして、古典的プランニング問題は後述のグラフ探索問題に帰着することが出来る。
-
-As such, a classical planning problem can be solved by an A* search ($G(V', E', w'), s_0', T'$); $V' = S$, $e(v_i, v_j) \in E'$ exists if there exists $a$ such that $v_j = succ(v_i, a)$, $s_0' = s_0$, $T' = T$.
-
-\section{Planning Domain Definition Language}
-\label{sec:pddl}
-
-Planning Domain Definition Language (PDDL) \cite{aeronautiques1998pddl}はプランニング問題を記述されるために用いられる言語の一つである。PDDLはdomainファイルとinstanceファイルの２つのファイルによって一つの入力となる。domainファイルはpredicateとアクションが定義され、instanceファイルは初期状態、ゴール状態とオブジェクトが定義される。
-図\ref{fig:pddl-domain}はblocks-worldのdomainファイルである。
-図\ref{fig:pddl-instance}はblocks-worldのinstanceファイルである。
-
-
-\begin{figure}
-\begin{adjustbox}{width=\textwidth,keepaspectratio}
-\lstset{language=pddl}
-\begin{lstlisting}
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; 4 Op-blocks world
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(define (domain BLOCKS)
-  (:requirements :strips)
-  (:predicates (on ?x ?y)
-	       (ontable ?x)
-	       (clear ?x)
-	       (handempty)
-	       (holding ?x)
-	       )
-
-  (:action pick-up
-	     :parameters (?x)
-	     :precondition (and (clear ?x) (ontable ?x) (handempty))
-	     :effect
-	     (and (not (ontable ?x))
-		   (not (clear ?x))
-		   (not (handempty))
-		   (holding ?x)))
-
-  (:action put-down
-	     :parameters (?x)
-	     :precondition (holding ?x)
-	     :effect
-	     (and (not (holding ?x))
-		   (clear ?x)
-		   (handempty)
-		   (ontable ?x)))
-  (:action stack
-	     :parameters (?x ?y)
-	     :precondition (and (holding ?x) (clear ?y))
-	     :effect
-	     (and (not (holding ?x))
-		   (not (clear ?y))
-		   (clear ?x)
-		   (handempty)
-		   (on ?x ?y)))
-  (:action unstack
-	     :parameters (?x ?y)
-	     :precondition (and (on ?x ?y) (clear ?x) (handempty))
-	     :effect
-	     (and (holding ?x)
-		   (clear ?y)
-		   (not (clear ?x))
-		   (not (handempty))
-		   (not (on ?x ?y)))))
-\end{lstlisting}
-\end{adjustbox}
-\caption{blocks-worldのdomainファイル}
-\label{fig:pddl-domain}
-\end{figure}
-
-\begin{figure}
-\begin{adjustbox}{width=\textwidth,keepaspectratio}
-\lstset{language=pddl}
-\begin{lstlisting}
-(define (problem BLOCKS-4-0)
-(:domain BLOCKS)
-(:objects D B A C )
-(:INIT (CLEAR C) (CLEAR A) (CLEAR B) (CLEAR D) (ONTABLE C) (ONTABLE A)
- (ONTABLE B) (ONTABLE D) (HANDEMPTY))
-(:goal (AND (ON D C) (ON C B) (ON B A)))
-)
-
-\end{lstlisting}
-\end{adjustbox}
-\caption{blocks-worldのinstanceファイル}
-\label{fig:pddl-instance}
-\end{figure}
-
-
-\section{古典的プランニング問題の例}
-\label{sec:classical-planning-example}
-% TODO: これらのうちキャッチーなものはコラムとして紹介しよう。
-\subsection{ブロックスワールド}
-\subsection{クエリ最適化}
-\subsection{ロジスティック}
-\subsection{セルアセンブリ}
-\subsection{宇宙探査車}
-\subsection{サイバーセキュリティ}
-\subsection{ゲノムリアレンジメント}
-\subsection{グリッドコンピューティング}
-\subsection{プリンタースケジュリング}
-
-
-\chapter{ヒューリスティック探索}
+\chapter{ヒューリスティック探索 (Heuristic Search)}
 \label{ch:heuristic-search}
 
 \ref{ch:blind-search}章では問題の知識を利用しないグラフ探索手法について解説した。
@@ -936,6 +809,163 @@ TSPの解の下界としては{\it 最小全域木} (minimum spanning tree)の�
 未訪問の都市によるグラフの最小全域木はTSPの下界となることが知られている。
 
 
+
+
+\chapter{古典的プランニング問題 (Classical Planning Problem)}
+\label{ch:classical-planning}
+この章では古典的プランニング問題について説明する。
+古典的プランニング問題はエージェントの自動行動計画を行うための問題の一つであり、状態空間問題の一つである \cite{fikes:71}。
+
+ロジスティック\cite{helmert2010scanalyzer,sousa2013toward}、セルアセンブリ\cite{asai2014fully}、遺伝子距離計算\cite{erdem2005genome}、ビデオゲーム\cite{lipovetzky2015a}など、様々な応用問題を含むフレームワークである。
+
+環境が決定的であり、完全情報を仮定する。
+これらの仮定を緩和した問題（確率的モデルや不完全情報モデル）もグラフ探索によって解かれることが多いが、本文の範囲外とする。詳細はAIの教科書を参照されたい\cite{russelln03}。
+
+なお、プランニング問題はA*などの状態空間探索アルゴリズム以外にも、SATやCSPなどの制約充足問題に変換して解く方法もあるがこれも本書の範囲外とする\cite{kautz:92}。
+
+\section{定義}
+\label{sec:planning-definition}
+
+
+古典的プランニングは述語論理によって世界が記述される\cite{fikes:71}。
+Proposition $AP$は世界の状態において何が真・偽であるかを記述する。
+世界の状態はエージェントがアクションを行うことによって遷移し、遷移後の状態は遷移前の状態と異なるpropositionが真・偽でありうる。
+古典的プランニングの目的は与えられた初期状態からゴール条件を満たすまでのアクションの列を求めることにある。
+以下、定義は\cite{edelkamp:2010:hst:1875144}に従う。
+
+\begin{definition}[古典的プランニング問題、Classical Planning Problem]
+古典的プランニング問題は有限状態空間問題$P = (S,A,s_0,T)$の一つである。
+$S \subseteq 2^{AP}$は状態の集合であり、$s_0 \in S$は初期状態、$T \subseteq S$はゴール状態の集合、$A: S \rightarrow S$は可能なアクションの集合である。
+\end{definition}
+
+古典的プランニング問題の最も基本となるSTRIPSモデル\cite{fikes:71}の場合、ゴールはpropositionのリストで表せられる$Goal \subseteq AP$。ゴール状態の集合$T$は$p \in Goal$となるすべての$p$が真である状態の集合である。
+アクション$a \in A$は条件$pre(a)$、効果($add(a)$, $del(a)$)で表せられる。条件$pre(a) \subseteq AP$はアクション$a$を実行するために状態が満たすべきpropositionの集合である。効果$add(a)$はアクション$a$を適用後に真になるpropositionの集合であり、$del(a)$は偽になる集合である。
+従って、アクション$a$を状態$s$に適用後の状態$s' = suc(s,a)$は
+\begin{equation}
+	s' = (s \cup add(a)) \setminus del(a)
+\end{equation}
+である。
+このようにして、古典的プランニング問題は後述のグラフ探索問題に帰着することが出来る。
+
+As such, a classical planning problem can be solved by an A* search ($G(V', E', w'), s_0', T'$); $V' = S$, $e(v_i, v_j) \in E'$ exists if there exists $a$ such that $v_j = succ(v_i, a)$, $s_0' = s_0$, $T' = T$.
+
+\section{Planning Domain Definition Language}
+\label{sec:pddl}
+
+Planning Domain Definition Language (PDDL) \cite{aeronautiques1998pddl}はプランニング問題を記述されるために用いられる言語の一つである。PDDLはdomainファイルとinstanceファイルの２つのファイルによって一つの入力となる。domainファイルはpredicateとアクションが定義され、instanceファイルは初期状態、ゴール状態とオブジェクトが定義される。
+図\ref{fig:pddl-domain}はblocks-worldのdomainファイルである。
+図\ref{fig:pddl-instance}はblocks-worldのinstanceファイルである。
+
+
+\begin{figure}
+\begin{adjustbox}{width=\textwidth,keepaspectratio}
+\lstset{language=pddl}
+\begin{lstlisting}
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; 4 Op-blocks world
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(define (domain BLOCKS)
+  (:requirements :strips)
+  (:predicates (on ?x ?y)
+	       (ontable ?x)
+	       (clear ?x)
+	       (handempty)
+	       (holding ?x)
+	       )
+
+  (:action pick-up
+	     :parameters (?x)
+	     :precondition (and (clear ?x) (ontable ?x) (handempty))
+	     :effect
+	     (and (not (ontable ?x))
+		   (not (clear ?x))
+		   (not (handempty))
+		   (holding ?x)))
+
+  (:action put-down
+	     :parameters (?x)
+	     :precondition (holding ?x)
+	     :effect
+	     (and (not (holding ?x))
+		   (clear ?x)
+		   (handempty)
+		   (ontable ?x)))
+  (:action stack
+	     :parameters (?x ?y)
+	     :precondition (and (holding ?x) (clear ?y))
+	     :effect
+	     (and (not (holding ?x))
+		   (not (clear ?y))
+		   (clear ?x)
+		   (handempty)
+		   (on ?x ?y)))
+  (:action unstack
+	     :parameters (?x ?y)
+	     :precondition (and (on ?x ?y) (clear ?x) (handempty))
+	     :effect
+	     (and (holding ?x)
+		   (clear ?y)
+		   (not (clear ?x))
+		   (not (handempty))
+		   (not (on ?x ?y)))))
+\end{lstlisting}
+\end{adjustbox}
+\caption{blocks-worldのdomainファイル}
+\label{fig:pddl-domain}
+\end{figure}
+
+\begin{figure}
+\begin{adjustbox}{width=\textwidth,keepaspectratio}
+\lstset{language=pddl}
+\begin{lstlisting}
+(define (problem BLOCKS-4-0)
+(:domain BLOCKS)
+(:objects D B A C )
+(:INIT (CLEAR C) (CLEAR A) (CLEAR B) (CLEAR D) (ONTABLE C) (ONTABLE A)
+ (ONTABLE B) (ONTABLE D) (HANDEMPTY))
+(:goal (AND (ON D C) (ON C B) (ON B A)))
+)
+
+\end{lstlisting}
+\end{adjustbox}
+\caption{blocks-worldのinstanceファイル}
+\label{fig:pddl-instance}
+\end{figure}
+
+
+\section{古典的プランニング問題の例}
+\label{sec:classical-planning-example}
+% TODO: これらのうちキャッチーなものはコラムとして紹介しよう。
+ソリティア
+エレベーター
+空港最適化
+グリッド経路探索: ２章で紹介した問題がPDDLで表せられることを示すため
+グリッパー
+サテライト
+
+
+\subsection{ブロックスワールド (blocks world)}
+説明用候補
+\subsection{ロジスティック (logistics)}
+説明用候補
+\subsection{プリンタースケジュリング (printer scheduling)}
+説明用候補
+
+\subsection{セルアセンブリ (cell assembly)}
+コラム候補
+\subsection{クエリ最適化 (query optimization)}
+コラム候補
+\subsection{宇宙探査車 (rovers)}
+コラム候補
+\subsection{サイバーセキュリティ (cyber security)}
+コラム候補
+\subsection{ゲノムリアレンジメント (genome rearrangement)}
+コラム候補
+\subsection{グリッドコンピューティング}
+コラム候補
+
+
 \section{ヒューリスティック関数の自動生成}
 \label{sec:automated-heuristic}
 
@@ -955,7 +985,7 @@ TSPの解の下界としては{\it 最小全域木} (minimum spanning tree)の�
 %ランドマークカット
 
 
-\chapter{探索の高速化}
+\chapter{実験評価}
 \label{ch:search-performance}
 ヒューリスティック探索ではオープンリストとクローズドリストの２つのデータ構造を保持する。
 これらのデータ構造をどのように実装するかは探索の効率に大きな影響を与える。
@@ -1008,17 +1038,6 @@ universal hashing
 \subsection{Delayed Duplicate Detection}
 重複検出のタイミングは２通りある。
 
-\section{枝刈り}
-\label{sec:pruning}
-\subsection{解コストの上界による枝刈り}
-admissible pruning
- Branch and Bound
- wA* pruning (MSA)
-
-\subsection{状態の新奇性に基づく枝刈り}
-inadmissible pruning
- Novelty-based pruning
- Iterative Width search
 
 
 
@@ -1052,6 +1071,14 @@ A*探索などのヒューリスティック探索は時間と空間の両方が
 そのため、ヒューリスティックの改善のみならず、アルゴリズム自体の工夫をしなければならない。
 この章では時間・空間制約がある場合のA*の代わりとなるヒューリスティック探索の発展を紹介する。
 これらのアルゴリズムはメリット・デメリットがあり、問題・計算機環境によって有効な手法が異なる。よって、A*を完全に取って代わるものは一つもないと言える。
+
+\section{Branch-and-Bound}
+\label{sec:branch-and-bound}
+admissible pruning
+ Branch and Bound
+ wA* pruning (MSA)
+
+
 
 \section{反復深化A* (Iterative Deepening A*)}
 \label{sec:iterative-deepening-astar}
@@ -1411,7 +1438,7 @@ Abstract featureの生成方法としてstate-of-the-artの手法はGraph partit
 \chapter{探索問題の派生}
 \label{ch:search-problem-variants}
 
-\section{ブラックボックスプランニング}
+\section{ブラックボックスプランニング (Blackbox Planning)}
 \label{sec:black-box-planning}
 
 プランナーはPDDLを用いることでドメインの知識を吸い出し、それを利用して探索を効率化する。しかしながら、完全なモデルを得るのが難しい問題の場合、PDDLのような記述を得ることが出来ない。
@@ -1428,23 +1455,32 @@ Expand関数、Goal関数はブラックボックスとして与えられる。�
 幅優先探索などによってBrute-forceに探索しつくす方法を取ることも出来るが問題のサイズが大きい場合に解くことが出来ない\cite{Bellemare2013}。
 Iterative Width探索 (IW search)\cite{lipovetzky2015a}は幅優先探索に新奇性による枝刈りを加えた手法である\footnote{Iterative Width探索はドメインモデルのある場合でも有用であることが知られている\cite{lipovetzkyg12}。}。IW(1)は新しく生成された状態は新しいatomを真にしない場合、枝刈りされる。
 
+\subsection{新奇性に基づく枝刈り}
+\label{sec:novelty-based-pruning}
+inadmissible pruning
+ Novelty-based pruning
+ Iterative Width search
+ 
+
 \section{二人プレイヤーゲーム}
 \label{sec:two-player-game}
 and or tree
 Alpha beta pruning
 
+\subsection{αβ木}
+\label{sec:alpha-beta-tree}
 
 \section{オンラインプランニング}
 \label{sec:online-planning}
 
 
 % TODO: こういうチャプターがあるとキャッチーだね
-\chapter{機械学習と探索・プランニング}
+\chapter{機械学習と探索・プランニング (Machine Learning, Search, and Planning)}
 \label{ch:machine-learning}
 A review of ML for AP \cite{jimenez2012review}
 
 
-\section{強化学習と探索}
+\section{強化学習と探索・プランニング}
 \label{sec:rl}
 R. Sutton
 David Silver RL and simulation-based search
