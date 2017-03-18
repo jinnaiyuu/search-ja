@@ -1,43 +1,30 @@
-# ヒューリスティック探索
-ヒューリスティック探索の日本語の入門テキストを書いています。
-現在は書きかけであり、不正確な情報をたぶんに含みます。
+# 本の概要
+人工知能の重要な要素技術の一つであるグラフ探索アルゴリズムの基礎を解説する。
 
-# 目次(工事中)
+# 対象読者
+1. AIギーク、大学生の教科書、入門AIの授業の教科書
+2. 他分野の専門家、特に機械学習周りの研究者
 
-探索とは？  
-状態空間問題 (State-Space Problem)  
-探索問題  
-グリッド経路探索 (Grid Path-finding)  
-スライディングタイル (Sliding-tile Puzzle)  
-倉庫番 (Sokoban)  
-巡回セールスパーソン問題 (Travelling Salesperson Problem)  
-Multiple Sequence Alignment (MSA)  
-木探索アルゴリズム (Tree Search Algorithm)  
-グラフ探索アルゴリズム (Graph Search Algorithm)  
-幅優先探索 (Breadth-First Search)  
-深さ優先探索 (Depth-First Search)  
-ヒューリスティックとは？  
-ヒューリスティック関数  
-A\*探索  
-重み付きA\*探索  
-貪欲最良優先探索 (Greedy Best-First Search)  
-Openリスト  
-Closedリスト  
-キャッシュ効率  
-反復深化A\* (Iterative Deepening A\*)  
-Transposition Table  
-両方向探索 (Bidirectional Search)  
-External Search  
-External A\*  
-Symbolic Search  
-Binary Decision Diagram  
-Symbolic Blind Search  
-Symbolic Heuristic Search  
-Parallel Search  
-Hash Distributed A\*  
-GPU-based Parallelization  
-Online Search  
-古典的プランニング問題  
-Black-box Search in Video Game  
-Multiple Sequence Alignment  
-制約充足問題
+# この本を企画した理由
+探索アルゴリズムはAIの根幹技術の一つである。しかしながら、日本では歴史的な経緯から研究が盛んではない。これは日本の人工知能研究において大きなボトルネックとなる危険性をはらんでいる。最近流行っているのはDLを中心としたMLであるが、今Googleなどの企業はMLと探索を組み合わせた研究を行っている。AlphaGoはまさにこの技術の応用の一つである。日本では探索の専門家が少ないためDLにばかり注目されるバイアスがかかっているが、世界では探索は熱心に研究されているAIの要素技術の一つである。以上の理由から、日本のAI研究者が探索技術を理解するために、本書が必要になると考える。
+
+# この本が売れる理由
+近年機械学習は大きなブレイクスルーを迎え、研究者は次の大きなメジャーブレイクスルーを探して競っている。Google Deepmindなどの最先端の研究グループでは機械学習と探索を組み合わせた研究が多い。現状、多くの日本の技術者はそれに気付きつつも知識が少ないために手を出せないでいる。そのような技術者にとって本書は探索技術を扱うほぼ唯一の和書となる。
+本書の内容は学部の人工知能の基礎論の授業で扱われる内容である。地方大学でのAIの入門教科書として本書は相応しい。それらの大学でAI基礎論を教えている先生は実はその専門ではないため、なおのこと本書のようなまとまった本は希少である。
+以上の理由から、本書は技術者・大学の学部生・研究者に幅広く読まれることが見込まれる。
+
+# 進行
+20%~30%?
+現在は書きかけであるので、不正確な情報をたぶんに含む。
+
+# 目次
+1. Introduction
+2. 状態空間問題
+3. 情報なし探索
+4. ヒューリスティック探索
+5. 自動行動計画問題
+6. 探索アルゴリズムの派生
+7. 状態空間問題の派生
+8. 探索と機械学習
+8. 応用
+
