@@ -27,7 +27,7 @@
 \SetKwInOut{Input}{Input}
 \SetKwInOut{Output}{Output}
 \SetKwInOut{Side}{Side effect}
-\SetKwComment{Comment}{$\triangleright$\ }{}
+\SetKwComment{Comment}{$\triangleright$}{}
 
 \newtheorem{definition}{Definition}
 \newtheorem{theorem}{Theorem}
@@ -40,8 +40,6 @@
 \makeindex
 
 \setcounter{secnumdepth}{2}
-%\frenchspacing
-
 % Macros
 \newcommand{\define}[2]{{\bf #1} (#2) \index{#1}\index{#2}}
 \newcommand{\TODO}{{\bf TODO}}
@@ -74,18 +72,18 @@
 
 \newpage
 
+\begin{comment} % いらん
 \section*{まえがき}
 ヒューリスティック探索はグラフ探索のサブフィールドであり、解こうとしている問題の知識を探索方法に反映させることでより効率的に探索をしよう、という分野である。
 
 ヒューリスティック探索のイントロダクションと現在どのように発展しているのかというのをまとめてみようかと思い、本文を執筆した。
 以前、さる国内の高名なAI研究者がご講演で「ヒューリスティック探索は終わった技術であり、Toy Problemしか解けない」とおっしゃった。これは全くの勘違いであるが、思い返すと仕方がないことかと思われる。というのも、日本には探索分野、特にヒューリスティック探索の研究者というのは数えるほどしかいない。大御所の方々は大変忙しく、他分野、ましては自分では終わったと思っている分野の英語論文など読まないだろう。こうなると、その分野の知識は古いままで、なおのこと終わった分野だと思ってしまいがちである、と想像される。
 そこで、若輩者ながら、数少ない日本語の書けるヒューリスティック探索アルゴリズムの研究者として、日本のAI研究に微力を添えようと日本語のテキストを書こうと思った次第である。
+\end{comment}
 
 
 \chapter{イントロダクション}
 \label{ch:introduction}
-
-\captionlistentry[todo]{why-search: Pearl's Heuristics}
 
 朝起きて、ごはんをよそい、味噌汁を作る。
 ご飯を食べて、職場に向かう。
@@ -126,7 +124,6 @@
 
 \section{何故人工知能に探索が必要なのか}
 \label{sec:why-search}
-\captionlistentry[todo]{why-search rather than machine learning}
 
 グラフ探索アルゴリズムは人工知能に限らず情報科学に多岐に渡って有用な手法である。
 本書では特に人工知能の要素技術としての問題を扱うために解説する。
@@ -141,7 +138,7 @@
 \item Act Humanly
 \end{enumerate}
 
-グラフ探索アルゴリズムは主にThink Rationallyを実現するための技術である。
+グラフ探索アルゴリズムは主にThink Rationallyを実現するための技術である\footnote{探索は４つ全てに強く関係しているが本書は主にThink Rationallyに注視する}。
 探索によって\define{先読み}{lookahead}をし、最も合理的な手を選ぶというのが目的である。
 
 先読みをするという点が機械学習によるThink Rationallyと異なる点である。
@@ -161,20 +158,15 @@ AlphaGoなどはまさに探索と機械学習を組み合わせたエージェ�
 \section{本書の射程}
 \label{sec:coverage}
 
-
-
 世界を正確に表現することは不可能である。
-よって、実際に解きたい問題をより解きやすい問題に{\bf モデル化}し、モデル化された問題を解くことによって解決を図る。
+よって、殆どの問題はより解きやすい問題に{\bf モデル化}され、モデル化された問題を解くことによって解きたい問題を解決するというのが情報科学である。
 
 どのように世界をモデルするかは非常に難しい問題である。
 モデルを簡単なものにすればするほど解きやすくなるが、簡単で正しいモデルをデザインする・自動生成することは非常に難しい。
 
 
-本書では、簡単で正しいモデルが与えられていることを前提とする。
-%これは非常に大きな仮定であり
-
 % TODO: この辺の話は結構テクニカルなのでChapter 2に？
-特に、本書が主に扱うモデルは\define{完全情報}{perfect information}かつ\define{決定論的}{deterministic}モデルである(\ref{ch:state-space-problem}~\ref{ch:heuristic-serach-variants}章
+本書が主に扱うモデルは\define{完全情報}{perfect information}かつ\define{決定論的}{deterministic}モデルである(\ref{ch:state-space-problem}~\ref{ch:heuristic-serach-variants}章
 )。
 
 完全情報とは、エージェントが世界の状態を全て観察できるモデルである。神の目線に立っている。
@@ -182,10 +174,13 @@ AlphaGoなどはまさに探索と機械学習を組み合わせたエージェ�
 実世界で動くロボットなどを考えると不完全情報モデルの方が現実的であるが、多くの問題が完全情報で十二分に表現することが出来る。
 
 決定論的とはエージェントの行動によって世界の状態がどのように遷移するかが一意に(決定論的)に定まることである。
-非決定論的モデルでは遷移が一意に定まらない。自明に非決定論的モデルは決定論モデルを含む。
+非決定論的モデルでは遷移が一意に定まらない。同じ状態から同じアクションを取ったとしても、世界がどのように変化するかは一意に定まらない。
 非決定論的モデルにおける探索問題は\ref{sec:stocastic}章で扱う。
 
-モデルを自動生成する方法については\ref{sec:domain-acquisition}章でも簡単に触れるが、本書の主眼ではない。
+%モデルを自動生成する方法については\ref{sec:domain-acquisition}章でも簡単に触れるが、本書の主眼ではない。
+
+本書が扱う完全情報決定論的モデルは最もシンプルなモデルである。
+これを不完全情報、非決定論的モデルとすることでより元の問題も表現しやすくなることがあるが、一方でモデルのシンプルさを失うことになる。
 
 
 
@@ -1342,35 +1337,165 @@ Symbolic SearchではBDDを使って状態の集合、アクションの集合�
 A*探索がノードを一つずつ展開していき、一つずつ生成していく手間と比較して非常に効率的に演算が出来るポテンシャルを秘めている。
 International Planning Competition (2014)のSequential Optimal部門(最適解を見つけるパフォーマンスを競う部門)の一位から三位までをSymbolic Searchが総なめした。現在(2017年)のstate-of-the-artの手法であるといえるだろう。
 
+
+\subsection{特徴表現 (Symbolic Representation)}
+\label{sec:symbolic-representation}
+
+説明のためにシンプルなSliding-token puzzleを用いる(図\ref{fig:sliding-token})。
+初期状態でタイルは位置０にある。タイルは右か左に動かすことが出来る。ゴール状態はタイルを位置３に置いた状態である。
+タイルの位置$x (dom(x) = \{0,1,2,3\})$はバイナリ$(x_0,x_1)$に変換されている。
+状態および状態の集合は特徴関数$\phi: S \rightarrow \{0, 1\}$によって記述される。
+
+
+
+例えば$S = \{0, 1\}$とすると、$\phi_{S}(x)$は$x \in S$の場合に(かつその場合のみに)真を返す特徴関数は$\lnot x_0$である。面白いことに、1つの状態のみを含む状態集合$S' = \{0\}$を表す特徴関数よりも要素２つの$S$を表す特徴関数の方が表現がコンパクトになる。
+このように、特徴表現は明示的に列挙するよりも状態の集合をコンパクトに表現出来る場合がある。
+
+アクションによる状態遷移も特徴関数$Trans: S \times S \rightarrow \{0, 1\}$によって定義される。アクション$a \in A$によって状態$x$から$x'$に遷移するならば、$Trans_a(x,x')$は真を返す(かつその時のみ)。
+アクション集合$A$による遷移は$Trans(x,x')$によって表現され、$Trans(x,x')$は$Trans_a(x,x')$が真となる$a \in A$が存在する場合に真を返す(かつその時のみ)。
+
+Sliding-token puzzleで可能なアクションは$(00) \rightarrow (01), (01) \rightarrow (00), (01) \rightarrow (10), (10) \rightarrow (01), (10) \rightarrow (11), (11) \rightarrow (10)$の６つである。これらを表す遷移関数は
+
+\begin{equation}
+\begin{split}
+	Trans(x,x') &= (\lnot x_0 \lnot x_1 \lnot x'_0 x'_1) \\
+		&\lor (\lnot x_0 x_1 \lnot x'_0 \lnot x'_1) \\
+		&\lor (\lnot x_0 x_1 x'_0 \lnot x'_1) \\
+		&\lor (x_0 \lnot x_1 \lnot x'_0 x'_1) \\
+		&\lor (x_0 \lnot x_1 x'_0 x'_1) \\
+		&\lor (x_0 x_1 x'_0 \lnot x'_1)
+\end{split}
+\end{equation}
+
+となる。
+アクションのコストがある場合は$Trans(w, x, x')$として表現され、$Trans(x,x')$は$Trans_a(x,x')$が真となる$a \in A$が存在し、かつそのアクションのコストが$w$である場合に真を返す(かつその時のみ)。
+
+
+
+\begin{figure}
+\includegraphics[width=0.8\linewidth]{./snaps/sliding-token.png}
+\caption{Sliding-token puzzleとそのバイナリ表現}
+\label{fig:sliding-token}
+\end{figure}
+
+\begin{table}
+\centering
+\caption{Sliding-token puzzleのエンコーディング}
+\label{tbl:sliding-token}
+\begin{tabular}{c|c|c|c}
+	State ID & State Role & Binary Code & Boolean Formula \\ \hline
+	0		& 初期状態	& 00				& $\lnot x_0 \lnot x_1$ \\	
+	1		& -			& 01				& $\lnot x_0  x_1$ \\	
+	2		& -			& 10				& $x_0 \lnot x_1$ \\	
+	3		& ゴール状態	& 11				& $x_0 x_1$ \\	
+\end{tabular}
+\end{table}
+
+
 \subsection{Binary Decision Diagram}
 \label{sec:binary-decision-diagram}
 
 %Binary Decision Diagram (BDD)は関数$(x_0,x_1,...,x_n) \rightarrow \{0, 1\}$を表す二分木である。
-BDDを使う準備として、状態をブーリアンvectorに変換する。
-状態空間問題の状態$s$が定数長のvectorであるとすると、例えばそのビットvectorをBDDに使うブーリアンvectorとして使うことが出来る。
+状態集合およびアクション集合は\define{Binary Decision Diagram}{BDD}でコンパクトに表現することが出来る。
 
-\begin{definition}[特徴関数]
-特徴関数$\phi: s \rightarrow \{0, 1\}$は状態の集合を表すために用いられ、状態$s$が集合に含まれれば1を返し、なければ0を返す。
-\end{definition}
+\begin{define}{BDD}
+BDDはループのない有向グラフであり、ノードとエッジはラベルが付いている。単一の根ノードと２つのシンクがあり、シンクのラベルは1と0である。sink以外のノードのラベルは変数$x_i (i \in \{1,...,n\})$であり、エッジのラベルは1か0である。
+\end{define}
+
+BDDは決定木と同様な処理によって入力$x$に対して$\{1, 0\}$を返す。
+すなわち、根ノードから始まり、ノードのラベル$x_i$に対して、入力$x$の$x_i$が1であればラベル1が付いたエッジをたどり、0であればラベル0をたどる。これを繰り返し、シンクにたどり着いたらシンクのラベルの値を返す。
+決定木と異なりBDDは木ではなく、途中で合流などがあるため、決定木よりも空間効率が良い場合が多い。
+BDDを用いて集合演算を行うことが出来る。
+
+\captionlistentry[todo]{BDDの詳しい説明:集合演算}
 
 
-\subsubsection{例: Sliding-token puzzle}
+BDDを使って状態やアクションの特徴関数を表現することが出来る。
 
-図\ref{fig:sliding-token}はSliding-token puzzleという説明のために作られた問題である。
-初期状態でタイルは位置０にある。タイルは右か左に動かすことが出来る。ゴール状態はタイルを位置３に置いた状態である。
+\subsection{特徴関数による状態空間の探索}
 
-%\begin{figure}
-%\label{fig:sliding-token}
-%\end{figure}
+状態空間の探索は特徴関数の演算によって表現することが出来、その演算はBDDの演算によって実装することが出来る。
+
+ある状態集合$S$に対して、$s \in S$となる$s$の次状態の集合を$S$の{\it image}と呼ぶ。
+$S$のimageは以下の特徴関数によって表すことが出来る。
+
+\begin{equation}
+	Image_S(x') = \exists x (Trans(x,x') \land \phi_S(x))
+\end{equation}
+
+
+\subsubsection{BDD-幅優先木探索}
+
+imageを繰り返し求めていくことで幅優先木探索は簡単に実装することが出来る。
+まず、初期状態$s_0$だけによる集合$S_0 = \{s_0\}$を考える。これに対して$\phi_{S_{i}}$は集合$S_i$を表す特徴関数だとする。これを用いることで次状態集合を次々と求めることが出来る：
+
+\begin{equation}
+	\phi_{S_i}(x') = \exists x (\phi_{S_{i-1}}(x) \land Trans(x,x'))
+\end{equation}
+
+簡単に言えば、状態$x'$は、もし親状態$x$が$S_{i-1}$に含まれていれば、$S_i$に含まれる。
+探索を停止するためには探索した状態にゴール状態が含まれているかをテストしなければならない。
+ゴールテストも特徴関数を用いて表すことが出来る。
+ゴール状態集合$T$を表す特徴関数を$\phi_T$とすると、$\phi_{S_i}(x') \land \phi_T \neq false$であれば$S_i$はゴール状態を含む。
+
+アルゴリズム\ref{alg:symbolic-brfs-tree}はBDD-幅優先木探索である。
+imageの計算とゴールテストによって実装することが出来る。
+
+
+\begin{algorithm}
+\caption{BDD Breadth-first Tree Search}
+\label{alg:bdd-brfs-tree}
+	\Input{Initial node $s_0$}
+	\Output{Path from $s_0$ to a goal node $t \in T$}
+	$S_0 \leftarrow \{s_0\}$\;
+	\For {$i \leftarrow 1...$} {
+		$\phi_{S_i}(x) \leftarrow \exists x (\phi_{S_{i-1}}(x) \land Trans(x,x'))[x'/x]$\;
+		\If {$\phi_{S_i}(x) \land \phi_T \neq false$} {
+			\Return $Construct(\phi_{S_i} \land \phi_T(x), i)$\;
+		}
+	}
+%	\Return No solution found
+\end{algorithm}
+
+
+$Construct$関数はゴールに至るための経路を計算する関数である。
+$\phi_{S_i} \land \phi_T(x)$によってゴール状態、解経路における$i$ステップ目の状態($s_i$)が得られる。次に$Trans(\phi_{S_{i-1}}, s_i)$によって$i-1$ステップ目の状態$s_{i-1}$が得られ、$Trans_a$を見ていくことで$i-1$ステップ目のアクションが得られる。これを繰り返すことによって元の解経路を復元することが出来る。ゴール状態は一つ取り出せば十分であるため、$Construct$の計算時間は大きくはない。
+
+BDD-幅優先木探索は幅優先探索と同様、解の経路長が最短であることを保証する。
+
+
+\subsubsection{BDD-幅優先探索}
+
+重複検出を行う場合はクローズドリストに展開済みノードを保存する必要がある。
+この展開済みノードも特徴関数及びBDDで表すことが出来る。
+アルゴリズム\ref{alg:bdd-brfs}はBDD-幅優先探索のコードである。
+アルゴリズム\ref{alg:bdd-brfs-tree}と異なり特徴関数$Closed$を用いて重複検出を行っている。
+
+\begin{algorithm}
+\caption{BDD Breadth-first search}
+\label{alg:bdd-brfs}
+	\Input{Initial node $s_0$}
+	\Output{Path from $s_0$ to a goal node $t \in T$}
+	$S_0 \leftarrow \{s_0\}$\;
+	$Closed \leftarrow \{s_0\}$\;
+	\For {$i \leftarrow 1...$} {
+		$Succ(x) \leftarrow \exists x (\phi_{S_{i-1}}(x) \land Trans(x,x'))[x'/x]$\;
+		$\phi_{S_i}(x) \leftarrow Succ(x) \land \lnot Closed(x)$\;
+		$Closed(x) \leftarrow Closed(x) \lor Succ(x)$\;
+		\If {$\phi_{S_i}(x') \land \phi_T \neq false$} {
+			\Return $Construct(\phi_{S_i} \land \phi_T(x), i)$\;
+		}
+	}
+%	\Return No solution found
+\end{algorithm}
+
+\subsubsection{BDD-最適コスト探索}
+
 
 % Not for now
 %\subsection{Symbolic Tree Search}
 %\subsection{Symbolic Blind Search}
 %\subsection{Symbolic Heuristic Search}
-
-
-
-
 
 \section{並列探索 (Parallel Search)}
 \label{sec:parallel-search}
@@ -1534,6 +1659,12 @@ Abstract featureの生成方法としてstate-of-the-artの手法はGraph partit
 \chapter{探索問題の派生}
 \label{ch:search-problem-variants}
 
+この章では\ref{ch:state-space-problem}章で定式化した状態空間問題と少し定式化の異なる問題を扱う。
+ブラックボックスプランニングは状態空間問題の一つであるが、今まで扱った問題と異なり、ドメインモデルがブラックボックスで与えられるという違いがある(\ref{sec:black-box-planning}章)。よってヒューリスティック関数を生成することが出来ず、情報なし探索が必要となる。
+
+
+
+
 \section{ブラックボックスプランニング (Blackbox Planning)}
 \label{sec:black-box-planning}
 
@@ -1556,7 +1687,9 @@ Iterative Width探索 (IW search)\cite{lipovetzky2015a}は幅優先探索に新�
 inadmissible pruning
  Novelty-based pruning
  Iterative Width search
- 
+
+\subsection{ビデオゲームAI: Atari 2600} 
+\label{sec:video-game}
 
 \section{二人プレイヤーゲーム}
 \label{sec:two-player-game}
@@ -1566,8 +1699,13 @@ Alpha beta pruning
 \subsection{αβ木}
 \label{sec:alpha-beta-tree}
 
+\subsection{Monte Carlo Tree Search}
+\label{sec:monte-carlo-tree-search}
+
+
 \section{オンラインプランニング}
 \label{sec:online-planning}
+
 
 
 % TODO: こういうチャプターがあるとキャッチーだね
@@ -1576,24 +1714,35 @@ Alpha beta pruning
 A review of ML for AP \cite{jimenez2012review}
 
 
-\section{強化学習と探索・プランニング}
-\label{sec:rl}
+\section{機械学習による探索の効率化}
+\label{sec:ml-for-search}
+YJ DASP
+
+\section{ドメインモデルの生成}
+\label{sec:domain-acquisition}
+
+本書を通して扱ってきた状態空間問題の大きな問題点は、問題モデルをどのように獲得するか、である。
+\ref{sec:coverage}章で述べたように、本書はこれまで正しいモデルが与えられていることが前提として話を進めてきた。
+
+%では、正しいモデルはどのようにして得るのか？
+多くのアプリケーションではドメインモデル(e.g. PDDL)は人間のエキスパートが手でコーディングする。
+しかしながら、この方法だと人間のエキスパートがあらかじめ想定した環境にしか適用できない。ダイナミックな環境で活躍できるようなエージェントを実装するためには、エージェントが何らかの方法でドメインモデルを生成する方法が必要である。
+
+LOCMはプランからアクションスキームを生成する。
+LOCM staticなconstraintも見つける。
+
+階層的プランニング
+オプション
+Kaelbling
+Konidaris et al.
+
+\section{探索と機械学習の融合}
+\label{sec:search-and-ml}
 R. Sutton
 David Silver RL and simulation-based search
 
-\section{Alpha Go}
+\subsection{Alpha Go}
 \label{sec:alpha-go}
-AlphaGo \cite{silver2016mastering}
-
-\section{探索の為の機械学習}
-A review of ML for AP \cite{jimenez2012review}
-
-\subsection{探索の効率化}
-YJ DASP
-
-\subsection{ドメインモデルの生成}
-Konidaris et al.
-
 
 \section{参考文献}
 Predictron
