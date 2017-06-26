@@ -1076,7 +1076,7 @@ Planning Domain Definition Language (PDDL) \cite{aeronautiques1998pddl}はプラ
 %\subsection{参考文献}
 %パターンデータベースヒューリスティック
 %ランドマークカット
-
+% Declarative heuristic
 
 \chapter{実験評価}
 \label{ch:search-performance}
@@ -1104,7 +1104,8 @@ FIFO, LIFOのどちらが良いかという問題もある。
 \caption{オープンリストのデータ構造の比較}
 \label{tbl:open-list-data-structure}
 \begin{adjustbox}{width=\textwidth}
-\begin{tabular}{ccc}
+\begin{tabular}{ccc}pests are used to
+support farmer decisions. Such maps are costly to obtain since they require 
 	実装			& $pop$計算量	& $push$計算量 \\
 	二分木		& $O(log(n))$  	& XX \\
 	bucket 		& XXX			& XXX \\
@@ -1294,7 +1295,8 @@ External Searchのミソは、外部記憶へのアクセス回数をどのよ�
 
 \captionlistentry[todo]{External BrFS}
 
-\begin{algorithm}
+\begin
+
 \caption{External Breadth-first search}
 \label{alg:external-brfs}
 	\Input{Initial node $s$}
@@ -1657,13 +1659,34 @@ Domain transition graph
 Abstract featureの生成方法としてstate-of-the-artの手法はGraph partitioning-based \cite{jinnai2017work}であり、各DTGを与えられた最適化指標下で分割することでabstract featureを生成する。
 
 
+\section{新奇性に基づく枝刈り (Novelty-based Pruning)}
+\label{sec:novelty-based-pruning}
+
+新奇性に基づいて枝刈りを行う。
+
+\subsection{状態の新奇性 (Novelty)}
+\label{sec:novelty}
+
+
+\subsection{Width-Based Search (幅制限探索)}
+\label{sec:width-based-search}
+
+\subsection{Iterative Width Search (反復幅制限探索)}
+\label{sec:iterative-width-search}
+
+\subsection{Best-First Width Search (最良優先幅制限探索)}
+\label{sec:width-based-heuristic-search}
+
+\subsection{Novelty Heuristics (新奇性に基づくヒューリスティック)}
+\label{sec:novelty-heuristics}
+
+\begin{comment}
 
 \chapter{探索問題の派生}
 \label{ch:search-problem-variants}
 
 この章では\ref{ch:state-space-problem}章で定式化した状態空間問題と少し定式化の異なる問題を扱う。
 ブラックボックスプランニングは状態空間問題の一つであるが、今まで扱った問題と異なり、ドメインモデルがブラックボックスで与えられるという違いがある(\ref{sec:black-box-planning}章)。よってヒューリスティック関数を生成することが出来ず、情報なし探索が必要となる。
-
 
 
 
@@ -1750,7 +1773,7 @@ David Silver RL and simulation-based search
 Predictron
 DL for Reward design in MCTS
 Juhn, Satinder, et al.
-
+\end{comment}
 
 \printindex
 
