@@ -1,17 +1,18 @@
-\documentclass[b5paper]{report}
+\documentclass[10pt]{book}
 %\usepackage[utf8]{inputenc}
 \usepackage{times}
-\usepackage{helvet}
-\usepackage{courier}
+%\usepackage{helvet}
+%\usepackage{courier}
 \usepackage{comment}
 \usepackage{subfig}
-\usepackage{relsize}
+%\usepackage{relsize}
 \usepackage[dvipdfmx]{graphicx}
+%\usepackage{graphicx}
 
 \usepackage{enumitem}
-\usepackage{adjustbox}
-\usepackage{rotating}
-\usepackage{multirow}
+%\usepackage{adjustbox}
+%\usepackage{rotating}
+%\usepackage{multirow}
 \usepackage{url}
 \usepackage{listings}
 \usepackage{lstlang0}
@@ -19,7 +20,7 @@
 %\usepackage{tikz} % Drawing sliding-tile
 
 % Math
-\usepackage{mathtools}
+%\usepackage{mathtools}
 \usepackage{amsmath}
 \usepackage{amsthm}
 \usepackage{amssymb}
@@ -34,8 +35,9 @@
 
 
 % Utility macros: would be removed from the final version
-\usepackage{newfloat}
-\DeclareFloatingEnvironment{todo}
+%\usepackage{newfloat}
+%\DeclareFloatingEnvironment{todo}
+\newcommand{\todo}{\bf TODO: }
 \usepackage{makeidx}
 \makeindex
 
@@ -67,7 +69,7 @@
 \begin{document}
 
 \maketitle
-\listoftodos
+%\listoftodos
 \tableofcontents
 
 \newpage
@@ -108,7 +110,7 @@
 このようなエージェントを実装する方法は様々あるかもしれないが、その一つに探索アルゴリズム(を一要素に含む技術)があるだろう。
 
 %何故我々はこのような高度な
-{\bf 我々のGrand Schemeは、人間のように高度な先読みをし、高度な行動計画を行い実行の出来る人工知能を作ることにある！}
+{\bf 人工知能という言葉は、人間のように高度な先読みをし、高度な行動計画を行い実行の出来るシステムを作るという野望が言葉になったものである！}
 
 
 %人は様々な問題を探索によって解決している。
@@ -118,8 +120,8 @@
 %このような様々な問題はグラフ探索問題として統合してモデルすることが出来る。
 %もちろん、それぞれの問題はそれぞれの特徴があり、それぞれで効率的な解法が異なる。
 
-\captionlistentry[todo]{Introduction: なんかいい感じの絵}
-
+%\captionlistentry[todo]{Introduction: なんかいい感じの絵}
+{\todo いい感じの絵}
 
 
 \section{何故人工知能に探索が必要なのか}
@@ -197,7 +199,8 @@ AlphaGoなどはまさに探索と機械学習を組み合わせたエージェ�
 \section{状態空間問題 (State-Space Problem)}
 \label{sec:state-space-problem}
 
-\captionlistentry[todo]{状態空間問題の例示}
+%\captionlistentry[todo]{状態空間問題の例示}
+{\todo 状態空間問題の例示}
 この本では主に初期状態とゴール条件が与えられたとき、ゴール条件を満たすための経路を返す問題を探索する手法を考える。
 特に本書の主眼は\ref{ch:state-space-problem}章から\ref{ch:heuristic-serach-variants}章までで扱う\define{状態空間問題}{state-space problem}である。状態空間問題$P = (S, A, s, T)$は状態の集合$S$、初期状態$s \in S$、ゴール集合$T \in S$、アクション集合$A = {a_1, ....,a_n}$、$a_i : S \rightarrow S$がある。アクションはある状態を次の状態に遷移させる関数である。
 状態空間問題の解は初期状態からゴール状態へ遷移させるアクションの列を求めることである。
@@ -261,14 +264,14 @@ Expandはある状態からの次の状態の集合を返す関数である。Ex
 \begin{table}
 \caption{状態空間問題における問題の定式化。もっとも情報が多く与えられる定式化がドメイン依存エージェントであり、ヒューリスティック関数なども与えられる。ドメイン非依存エージェントはPDDLなどのモデル言語で書かれた入力が与えられ、その情報から用いるヒューリスティック関数や効率化手法を自動的に選択する必要がある。ブラックボックスエージェントは事前に何も与えられない、最も挑戦的な定式化である。}
 \label{tbl:search-problem-formulation}
-\begin{adjustbox}{width=\textwidth}
+%\begin{adjustbox}{width=\textwidth}
 \begin{tabular}{c|ccc}
 	問題		& 状態遷移関数 	& ヒューリスティック関数 & 効率化 \\ \hline
 	ドメイン依存 & Fully Available & hard-code & hard-code \\
 	ドメイン非依存 (PDDL) & Fully Available & 自動生成する必要がある & ドメイン非依存の最適化・ポートフォリオ戦略 \\
 	ブラックボックス & Unavailable (simulator) & Unavailable & 非許容的なノード・エッジの枝刈り
 \end{tabular}
-\end{adjustbox}
+%\end{adjustbox}
 \end{table}
 
 
@@ -284,7 +287,8 @@ Expandはある状態からの次の状態の集合を返す関数である。Ex
 
 
 \subsection{グリッド経路探索 (Grid Path-finding)}
-\captionlistentry[todo]{Grid Pathfinding: なんかいい感じの絵}
+%\captionlistentry[todo]{Grid Pathfinding: なんかいい感じの絵}
+{\todo Grid Pathfinding: なんかいい感じの絵}
 \begin{figure}
 	\includegraphics[width=0.5\linewidth]{figures/grid-pathfinding.jpg}
 	\caption{グリッド経路探索問題}
@@ -433,7 +437,8 @@ TSPは全ての都市を最短距離で回ってはじめの都市に戻る経�
 \caption{巡回セールスパーソン問題: 画像はwikipediaより。}
 \label{fig:sokoban}
 \end{figure}
-\captionlistentry[todo]{巡回セールスマン問題: 画像を挿入}
+%\captionlistentry[todo]{巡回セールスマン問題: 画像を挿入}
+{\todo travelling salesman絵}
 
 $n$個の都市があるとすると(最適・非最適含む)解の数は$(n-1)!/2$個である。
 可能なアクションは「都市$i \in \{1..n\}$を訪れる」であり、一度訪れた都市には行けない。
@@ -478,26 +483,26 @@ Trap vs. reversible
 \begin{table}
 \caption{木探索とグラフ探索}
 \label{tbl:tree-vs-graph-search}
-\begin{adjustbox}{width=\textwidth}
-\begin{tabular}{cccc}
+%\begin{adjustbox}{width=\textwidth}
+\begin{tabular}{c|ccc}
 				& 重複検出  	  & 保存するノード & 完全性 \\
 	木探索  		& 重複検出しない & オープンリストのみ & ループを含むグラフである場合停止性を満たさない \\
 	グラフ探索 		& 重複検出する  & オープンリストとクローズドリスト & (状態空間が有限ならば)完全 \\ 
 \end{tabular}
-\end{adjustbox}
+%\end{adjustbox}
 \end{table}
 
 
 \begin{table}
 \label{tbl:basic-priority}
-\begin{adjustbox}{width=\textwidth}
-\begin{tabular}{ccc}
+%\begin{adjustbox}{width=\textwidth}
+\begin{tabular}{c|cc}
 	展開順序  	& プライオリティ 	& 性質 \\  
 	幅優先	& $\arg \min_n d(n)$ & ユニットコストドメインだと最初に発見した解が最適解である \\
 	深さ優先 	& $\arg \max_n d(n)$ & \TODO \\
 	最良優先	& $\arg \min_n g(n)$ & 非負コストドメインで最適解が得られる \\
 \end{tabular}
-\end{adjustbox}
+%\end{adjustbox}
 \end{table}
 
 \section{木探索アルゴリズム (Tree Search Algorithm)}
@@ -666,7 +671,7 @@ Trap vs. reversible
 	}
 \end{algorithm}
 
-\captionlistentry[todo]{グラフ探索アルゴリズム: 重複検出に関連して何か付け足す}
+%\captionlistentry[todo]{グラフ探索アルゴリズム: 重複検出に関連して何か付け足す}
 
 \section{ダイクストラ法  (Dijkstra Algorithm)}
 \label{sec:dijkstra}
@@ -709,11 +714,11 @@ Trap vs. reversible
 ヒューリスティック関数は人間が自分の知識を利用してコーディングする場合もあるが、特にプランニング問題などでは自動的にヒューリスティックを生成する手法も広く使われている。
 
 
-\captionlistentry[todo]{ヒューリスティックとは: grid, grid-brfsの図を挿入}
+%\captionlistentry[todo]{ヒューリスティックとは: grid, grid-brfsの図を挿入}
+{\todo ヒューリスティックとは: grid, grid-brfsの図を挿入}
 
 \section{ヒューリスティック関数}
 \label{sec:heuristic-function}
-\captionlistentry[todo]{ヒューリスティック関数： 性質と定義の説明}
 ヒューリスティック関数はある状態からゴールまでの最短距離の見積もりである。
 
 \begin{definition}[ヒューリスティック関数]
@@ -770,7 +775,8 @@ $h$値が常に最適解コストの下界であるヒューリスティック�
 \section{A*探索}
 \label{sec:astar-search}
 
-\captionlistentry[todo]{ダイクストラ法の問題点を図示}
+%\captionlistentry[todo]{ダイクストラ法の問題点を図示}
+{\todo ダイクストラ法の問題点を図示}
 ダイクストラ法は初期状態からそのノードまでのコストである$g$値が最小のノードを展開していく。これは間違った方針ではないだろうが、理想的にはゴール状態に向かっていくノードを展開していきたい。図\ref{fig:dijkstra-grid}はダイクストラ法による状態空間の探索を図示したものである。ダイクストラ法はゴールがどこにあるかということを無視して探索を進めているため、図のように探索空間が広がっていく。
 %人間の目で見れば一目で右に探索していけばよいというのは分かる。そのような人間の持っている知識を利用して探索を効率化出来ないだろうか？
 
@@ -809,7 +815,7 @@ A*に用いるヒューリスティック関数に求められる要件とは何
 \end{theorem}
 \begin{proof}
 
-\captionlistentry[todo]{A*探索: 最適解の証明}
+{\todo 最適性の証明}
 %全てのノードnは展開時にg(n)がnに辿り着くための最短経路コストの値である。%これは無矛盾性か
 許容的なヒューリスティックh(n)はnからゴールへの経路の下界である。よって、ゴール状態のh値は0である。つまりゴール状態のf値はg値と同じである。この解のg(n')値をf*と置こう(解のコストに相当)。
 A*のノードの展開順に従うと、f*のノードを展開する前に全てのf<f*のノードが展開される。
@@ -851,8 +857,8 @@ wA*は重み付き$f$値、$f_w$が最小のノードを優先して探索する
 \begin{theorem}
 許容的なヒューリスティックを用いた重み付きA*探索は最適解のコスト$f^*$に対して、発見される解のコストが$w f^*$以下であることを保証する。
 \end{theorem}
-\captionlistentry[todo]{wA*: 解コストの上界の証明}
-
+%\captionlistentry[todo]{wA*: 解コストの上界の証明}
+{\todo wA*: 解コストの上界の証明}
 
 wA*の利点はそこそこの計算時間で解のクオリティに保証がついた解を見つけることが出来ることにある。
 wA*の解は最適解のコストの上界になるので、A*探索の枝刈りに用いることが出来る。
@@ -951,7 +957,7 @@ Planning Domain Definition Language (PDDL) \cite{aeronautiques1998pddl}はプラ
 
 
 \begin{figure}
-\begin{adjustbox}{width=\textwidth,keepaspectratio}
+%\begin{adjustbox}{width=\textwidth,keepaspectratio}
 \lstset{language=pddl}
 \begin{lstlisting}
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1003,13 +1009,13 @@ Planning Domain Definition Language (PDDL) \cite{aeronautiques1998pddl}はプラ
 		   (not (handempty))
 		   (not (on ?x ?y)))))
 \end{lstlisting}
-\end{adjustbox}
+%\end{adjustbox}
 \caption{blocks-worldのdomainファイル}
 \label{fig:pddl-domain}
 \end{figure}
 
 \begin{figure}
-\begin{adjustbox}{width=\textwidth,keepaspectratio}
+%\begin{adjustbox}{width=\textwidth,keepaspectratio}
 \lstset{language=pddl}
 \begin{lstlisting}
 (define (problem BLOCKS-4-0)
@@ -1021,7 +1027,7 @@ Planning Domain Definition Language (PDDL) \cite{aeronautiques1998pddl}はプラ
 )
 
 \end{lstlisting}
-\end{adjustbox}
+%\end{adjustbox}
 \caption{blocks-worldのinstanceファイル}
 \label{fig:pddl-instance}
 \end{figure}
@@ -1087,7 +1093,7 @@ Planning Domain Definition Language (PDDL) \cite{aeronautiques1998pddl}はプラ
 
 \section{オープンリスト}
 \label{sec:open-list}
-\captionlistentry[todo]{openlist}
+%\captionlistentry[todo]{openlist}
 Priority queueの実装方法は様々ある。
 まず、$f$値の定義域が実数か、整数かは重要である。
 実数である場合は二分木のような一般的なPriority queueを使うことが多い。
@@ -1103,14 +1109,14 @@ FIFO, LIFOのどちらが良いかという問題もある。
 \begin{table}
 \caption{オープンリストのデータ構造の比較}
 \label{tbl:open-list-data-structure}
-\begin{adjustbox}{width=\textwidth}
+%\begin{adjustbox}{width=\textwidth}
 \begin{tabular}{ccc}pests are used to
 support farmer decisions. Such maps are costly to obtain since they require 
 	実装			& $pop$計算量	& $push$計算量 \\
 	二分木		& $O(log(n))$  	& XX \\
 	bucket 		& XXX			& XXX \\
 \end{tabular}
-\end{adjustbox}
+%\end{adjustbox}
 \end{table}
 
 \subsection{タイブレーキング}
@@ -1121,8 +1127,8 @@ FIFO, LIFO tiebreaking
 
 \section{クローズドリスト}
 \label{sec:closed-list}
-\captionlistentry[todo]{closedlist}
-
+%\captionlistentry[todo]{closedlist}
+{\todo closed list}
 クローズドリストはハッシュテーブル
 incremental hashing
 perfect hashing
@@ -1138,13 +1144,13 @@ universal hashing
 % TODO: 基礎の説明が出来たら
 \chapter{ヒューリスティック探索の派生}
 \label{ch:heuristic-serach-variants}
-\captionlistentry[todo]{heuristic search variants: 表で手法を比較する}
-\captionlistentry[todo]{heuristic search variants: タイトルをかっこ良くする}
+%\captionlistentry[todo]{heuristic search variants: 表で手法を比較する}
+%\captionlistentry[todo]{heuristic search variants: タイトルをかっこ良くする}
 
 \begin{table}
 \caption{派生アルゴリズムの比較。}
 \label{tbl:search-variants}
-\begin{adjustbox}{width=\textwidth}
+%\begin{adjustbox}{width=\textwidth}
 \begin{tabular}{cccc}
 					& 空間計算量	& 時間計算量 & 有効な場面 \\
 	反復深化A*		& $O(n)$  	& 展開ノード数が大きくなる。キャッシュ効率が良くなる場合がある & キャッシュ効率が良いとA*よりも高速な場合がある \\
@@ -1153,7 +1159,7 @@ universal hashing
 	Symbolic Search & BDDによって効率的になる & 複数のノードを同時に展開できる & \TODO \\
 	並列探索 			& 使用する計算ノードのメモリの総計が使える & 線形スピードアップならコアの数だけ高速化 & 問題が難しい \\
 \end{tabular}
-\end{adjustbox}
+%\end{adjustbox}
 \end{table}
 
 
@@ -1233,7 +1239,7 @@ A*探索は時間・空間の両方がボトルネックになるが、現代の
 \end{algorithm}
 
 \subsection{Transposition Table}
-\captionlistentry[todo]{Transposition table: なんか説明}
+%\captionlistentry[todo]{Transposition table: なんか説明}
 
 反復深化A*で必要な空間は最適解のコストに対して線形である。
 そうすると、むしろかなりの量のメモリが余ることになる。
@@ -1244,7 +1250,7 @@ A*で用いられるClosedと異なり、このテーブルはすべての生成
 
 \section{両方向探索 (Bidirectional Search)}
 \label{sec:bidirectional-search}
-\captionlistentry[todo]{両方向探索: 図、説明}
+%\captionlistentry[todo]{両方向探索: 図、説明}
 
 状態空間グラフの特徴を理解するための重要な指標として枝分数(Branching factor)がある。枝分数はExpand関数によって得られる子ノードの数の平均である。
 すなわち、重複検出をしないとすると、枝分数が$b$であるグラフにおいて深さ$d$のノードの数はおおよそ$b^{d-1}$である。
@@ -1271,7 +1277,7 @@ External Searchのミソは、外部記憶へのアクセス回数をどのよ�
 \centering
 \caption{一般的なハードウェアのアクセス速度。メモリへのアクセス速度に対して外部記憶のアクセスは遅い。加えて、ランダムアクセスはseekの時間がかかるためさらに遅くなる。 (https://gist.github.com/jboner/2841832)}
 \label{tbl:latency}
-\begin{adjustbox}{width=\textwidth}
+%\begin{adjustbox}{width=\textwidth}
 \begin{tabular}{|l|r|}
 		   & nano sec \\ \hline
 	命令実行 & 1 \\
@@ -1287,16 +1293,15 @@ External Searchのミソは、外部記憶へのアクセス回数をどのよ�
 	read 1MB sequentially from disk 	& 20,000,000 \\
 	
 \end{tabular}
-\end{adjustbox}
+%\end{adjustbox}
 \end{table}
 
 \subsection{External 幅優先探索}
 \label{sec:external-brfs}
 
-\captionlistentry[todo]{External BrFS}
+%\captionlistentry[todo]{External BrFS}
 
-\begin
-
+\begin{algorithm}
 \caption{External Breadth-first search}
 \label{alg:external-brfs}
 	\Input{Initial node $s$}
@@ -1319,7 +1324,7 @@ External Searchのミソは、外部記憶へのアクセス回数をどのよ�
 
 \subsection{External A*}
 \label{sec:external-astar}
-\captionlistentry[todo]{external A*: ALL}
+%\captionlistentry[todo]{external A*: ALL}
 
 
 
@@ -1402,16 +1407,16 @@ Sliding-token puzzleで可能なアクションは$(00) \rightarrow (01), (01) \
 %Binary Decision Diagram (BDD)は関数$(x_0,x_1,...,x_n) \rightarrow \{0, 1\}$を表す二分木である。
 状態集合およびアクション集合は\define{Binary Decision Diagram}{BDD}でコンパクトに表現することが出来る。
 
-\begin{define}{BDD}
+\begin{definition}{BDD}
 BDDはループのない有向グラフであり、ノードとエッジはラベルが付いている。単一の根ノードと２つのシンクがあり、シンクのラベルは1と0である。sink以外のノードのラベルは変数$x_i (i \in \{1,...,n\})$であり、エッジのラベルは1か0である。
-\end{define}
+\end{definition}
 
 BDDは決定木と同様な処理によって入力$x$に対して$\{1, 0\}$を返す。
 すなわち、根ノードから始まり、ノードのラベル$x_i$に対して、入力$x$の$x_i$が1であればラベル1が付いたエッジをたどり、0であればラベル0をたどる。これを繰り返し、シンクにたどり着いたらシンクのラベルの値を返す。
 決定木と異なりBDDは木ではなく、途中で合流などがあるため、決定木よりも空間効率が良い場合が多い。
 BDDを用いて集合演算を行うことが出来る。
 
-\captionlistentry[todo]{BDDの詳しい説明:集合演算}
+%\captionlistentry[todo]{BDDの詳しい説明:集合演算}
 
 
 BDDを使って状態やアクションの特徴関数を表現することが出来る。
