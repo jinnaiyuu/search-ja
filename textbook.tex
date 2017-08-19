@@ -1,8 +1,9 @@
+\errorcontextlines=200
 \documentclass[10pt]{book}
 %\usepackage[utf8]{inputenc}
 \usepackage{times}
 %\usepackage{helvet}
-%\usepackage{courier}
+\usepackage{courier}
 \usepackage{comment}
 \usepackage{subfig}
 %\usepackage{relsize}
@@ -16,7 +17,7 @@
 \usepackage{url}
 \usepackage{listings}
 \usepackage{lstlang0}
-
+\usepackage[utf8]{inputenc}
 %\usepackage{tikz} % Drawing sliding-tile
 
 % Math
@@ -37,7 +38,6 @@
 % Utility macros: would be removed from the final version
 %\usepackage{newfloat}
 %\DeclareFloatingEnvironment{todo}
-\newcommand{\todo}{\bf TODO: }
 \usepackage{makeidx}
 \makeindex
 
@@ -62,8 +62,7 @@
 %\title{グラフ探索アルゴリズム}
 \title{ヒューリスティック探索}
 \author{陣内　佑 \\
-理化学研究所 革新知能統合研究センター
-{\it yuu.jinnai@riken.jp}}
+Brown University (yuu\_jinnai@brown.edu)}
 
 
 \begin{document}
@@ -102,15 +101,15 @@
 
 何故、我々は殆ど頭を(自覚的に)使わずにこのような計画を立てることが出来るのだろうか？何故ごはんをよそうためにお湯を沸かしたり、最寄り駅まで歩いたりする必要はないと分かるのだろうか？
 
-それは我々が{\bf 直感} (ヒューリスティック)によって正しそうな行動を絞り込むことが出来るからである。
+それは我々が{\bf 直感} (ヒューリスティック)的に正しそうな行動を絞り込むことが出来るからである。
 
 かつて人工知能の研究者らの一部は人間が直感と呼ぶものをコンピュータに実装することによってこれが実現できるのではないか、と考えた。
 %まだ現在、人間ほどの高度な自動行動計画を行うロボットはまだ実装されていない。
-まだ現在、「ごはんをよそう」という指令だけを受け、先にどういうことが起きるかを予想して、上記の行動を計画し、そして実際に実行するような人工知能は実装されていない。
+まだ現在、「ごはんをよそう」という指令だけを受け、先にどういうことが起きるかを予想して、上記の行動を計画し、そして実際に実行するような高度なシステムは実装されていない。
 このようなエージェントを実装する方法は様々あるかもしれないが、その一つに探索アルゴリズム(を一要素に含む技術)があるだろう。
 
 %何故我々はこのような高度な
-{\bf 人工知能という言葉は、人間のように高度な先読みをし、高度な行動計画を行い実行の出来るシステムを作るという野望が言葉になったものである！}
+{\bf 人工知能という言葉は、高度な先読みをし、高度な行動計画を行い実行の出来るシステムを作るという野望が言葉になったものである！}
 
 
 %人は様々な問題を探索によって解決している。
@@ -121,7 +120,7 @@
 %もちろん、それぞれの問題はそれぞれの特徴があり、それぞれで効率的な解法が異なる。
 
 %\captionlistentry[todo]{Introduction: なんかいい感じの絵}
-{\todo いい感じの絵}
+{\TODO いい感じの絵}
 
 
 \section{何故人工知能に探索が必要なのか}
@@ -134,10 +133,10 @@
 人工知能の教科書として有名なArtificial Intelligence: Modern Approach \cite{russelln03}では人工知能と呼ばれる研究は主に以下の４つの目標を目指していると説明している。
 
 \begin{enumerate}
-\item Think Rationally
-\item Think Humanly
-\item Act Rationally
-\item Act Humanly
+\item Think Rationally (合理的に考える)
+\item Think Humanly (人間的に考える)
+\item Act Rationally (合理的に行動する)
+\item Act Humanly (人間的に行動する)
 \end{enumerate}
 
 グラフ探索アルゴリズムは主にThink Rationallyを実現するための技術である\footnote{探索は４つ全てに強く関係しているが本書は主にThink Rationallyに注視する}。
@@ -147,14 +146,16 @@
 機械学習は過去に学習した経験を元に合理的な行動を選ぶというアイディアである。
 それに対して、探索は未来にどういう経験をするかを先読みして合理的な行動を選ぶ。
 
-探索は特に学習データを得ることが難しいエージェントに用いられてきた。
-例えば火星探査車などは宇宙のデータなどとても得られるものではないので、探索に基づくエージェントが用いられている。今後のNASAなどによる宇宙開発でも探索技術が重要であり続けるだろう。
+探索は特に学習データを得ることが難しい・不可能なシステムに用いられてきた。
+例えば火星探査車などは宇宙のデータなどとても得られるものではないので、探索に基づくエージェントが用いられている。今後のNASAなどによる宇宙開発でも探索技術が重要であり続けると考えられている。
 
 もちろん両手法は組み合わせて用いることでより賢い行動が出来るようになる。
 AlphaGoなどはまさに探索と機械学習を組み合わせたエージェントの強力さを体現しているといえるだろう。
 
 このように、探索アルゴリズムは人工知能技術を理解する上で欠かせない分野の一つである。
 特に最近大きなブレイクスルーのあった機械学習・深層学習とも強いシナジーを持っているため、これから大きな進展があると期待される分野の一つであると言えるだろう。
+
+%Think RationallyとAct Rationallyの間には大きなギャップが存在する。
 
 
 \section{本書の射程}
@@ -200,7 +201,8 @@ AlphaGoなどはまさに探索と機械学習を組み合わせたエージェ�
 \label{sec:state-space-problem}
 
 %\captionlistentry[todo]{状態空間問題の例示}
-{\todo 状態空間問題の例示}
+{\TODO 状態空間問題の例示}
+
 この本では主に初期状態とゴール条件が与えられたとき、ゴール条件を満たすための経路を返す問題を探索する手法を考える。
 特に本書の主眼は\ref{ch:state-space-problem}章から\ref{ch:heuristic-serach-variants}章までで扱う\define{状態空間問題}{state-space problem}である。状態空間問題$P = (S, A, s, T)$は状態の集合$S$、初期状態$s \in S$、ゴール集合$T \in S$、アクション集合$A = {a_1, ....,a_n}$、$a_i : S \rightarrow S$がある。アクションはある状態を次の状態に遷移させる関数である。
 状態空間問題の解は初期状態からゴール状態へ遷移させるアクションの列を求めることである。
@@ -281,14 +283,14 @@ Expandはある状態からの次の状態の集合を返す関数である。Ex
 \label{sec:search-problem}
 
 状態空間問題の例をいくつか紹介する。
-グリッド経路探索問題や倉庫番問題など、応用がありつつ、かつ分かりやすい問題を選んだ。これらの問題はすべてヒューリスティック探索研究でベンチマークとして広く使われているものである。
+グリッド経路探索問題など、応用がありつつ、かつ分かりやすい問題を選んだ。これらの問題はすべてヒューリスティック探索研究でベンチマークとして広く使われているものである。
 %グラフ探索アルゴリズムによって効率的に解くことが出来ると知られているドメインをいくつか紹介する。
 %ここで詳解する問題はグラフ探索以外の手法でも解くことが出来る。
 
 
 \subsection{グリッド経路探索 (Grid Path-finding)}
 %\captionlistentry[todo]{Grid Pathfinding: なんかいい感じの絵}
-{\todo Grid Pathfinding: なんかいい感じの絵}
+{\TODO Grid Pathfinding: なんかいい感じの絵}
 \begin{figure}
 	\includegraphics[width=0.5\linewidth]{figures/grid-pathfinding.jpg}
 	\caption{グリッド経路探索問題}
@@ -438,7 +440,7 @@ TSPは全ての都市を最短距離で回ってはじめの都市に戻る経�
 \label{fig:sokoban}
 \end{figure}
 %\captionlistentry[todo]{巡回セールスマン問題: 画像を挿入}
-{\todo travelling salesman絵}
+{\TODO travelling salesman絵}
 
 $n$個の都市があるとすると(最適・非最適含む)解の数は$(n-1)!/2$個である。
 可能なアクションは「都市$i \in \{1..n\}$を訪れる」であり、一度訪れた都市には行けない。
@@ -451,8 +453,14 @@ TSPの解の下界としては{\it 最小全域木} (minimum spanning tree)の�
 
 TSPはヒューリスティック探索に限らず、様々なアプローチで研究されている問題ドメインである\cite{applegate2006traveling}。TSPについて特に詳しく知りたい方はそちらの教科書を参照されたい。
 
-\section{問題の難しさ}
+\section{問題の性質・難しさ}
 \label{sec:difficulity}
+% TODO: どこにこの章を置くべきか？
+この節は最初に読む際は飛ばすべきである。
+
+問題の難しさは様々な要素に左右される。
+
+
 状態数あるいは状態空間の大きさ
 \define{分枝度}{branching factor}
 Trap vs. reversible
@@ -614,7 +622,7 @@ Trap vs. reversible
 このような問題を幅優先探索で解こうとすると、解は最も深いところにしかないので、最後の最後まで解が一つも得られないということになる。一方、深さ優先探索なら$n$回目の展開で一つ目の解を見つけることが出来る。
 
 良い解、最適解を見つけたい場合でも深さ優先探索が有用である場合がある。
-早めに一つ解が見つけられると、その解よりも質が悪い解にしかつながらないノードを枝刈り(pruning)することが出来る。詳しくは\ref{sec:pruning}章で解説する。
+早めに一つ解が見つけられると、その解よりも質が悪い解にしかつながらないノードを\define{枝刈り}{pruning}することが出来る。ノード$n$を枝刈りするとは、ノード$n$をオープンリストに加えずそのまま捨てることを指す。つまりアルゴリズム\ref{alg:implicit-tree-search}における$Open.insert(v)$をスキップする。詳しくは\ref{sec:pruning}章で解説する。
 
 % TODO: Frequent Itemset Mining
 
@@ -715,7 +723,7 @@ Trap vs. reversible
 
 
 %\captionlistentry[todo]{ヒューリスティックとは: grid, grid-brfsの図を挿入}
-{\todo ヒューリスティックとは: grid, grid-brfsの図を挿入}
+{\TODO ヒューリスティックとは: grid, grid-brfsの図を挿入}
 
 \section{ヒューリスティック関数}
 \label{sec:heuristic-function}
@@ -729,6 +737,11 @@ Trap vs. reversible
 ヒューリスティック関数の値をそのノードの$h$値と呼ぶことが多い。
 
 ヒューリスティック関数の望ましい性質として、まず正確である方が望ましい。すなわち、$h$値が実際のゴールまでの最短距離に近いほど、有用な情報であると言える。
+ノード$n$からゴールまでの正しい最短コストを$h^*$とする。
+ヒューリスティック関数$h$が任意の$n$に対して$h(n) = h^*(n)$である場合、\define{完璧なヒューリスティック}{Perfect Heuristic}と呼ぶ。完璧なヒューリスティック関数がある場合、
+現実には完璧なヒューリスティックはなかなか得られないが、多くの場合これに近いほど必要な展開ノード数が小さいことが知られている\cite{how good is almost perfect}。
+
+
 もう一つ望ましい性質は$h$値が最適解コストの下界である場合である。
 \ref{sec:astar-search}章で解説するが、$h$値が最短距離の下界である場合、それを用いた効率的な探索アルゴリズム(A*探索、重み付きA*探索)において解コストに理論的保証が得られることが広く知られている。
 $h$値が常に最適解コストの下界であるヒューリスティック関数を許容的なヒューリスティックと呼ぶ。
@@ -749,7 +762,6 @@ $h$値が常に最適解コストの下界であるヒューリスティック�
 \end{definition}
 
 無矛盾性は特に\ref{sec:astar-search}章で後述するA*探索において探索の効率性に重要な性質である。
-
 また、無矛盾なヒューリスティックのうちゴールノードの$h$値が0となるヒューリスティックは許容的である。
 
 \begin{theorem}
@@ -770,13 +782,17 @@ $h$値が常に最適解コストの下界であるヒューリスティック�
 
 \end{proof}
 
+後述するA*探索においてこれら二つの性質は非常に有用である。
+%無矛盾性の主張は、ヒューリスティックの値が小さいほどゴールに近いということを意味する。つまり、ノード$n_0, n_1$に対して$h(n_0) < h(n_1)$ならば、$n_0$からゴールへの最小コストは$n_1$からゴールへの最小コストよりも小さい。
+%これのうれしい点は、次にどのアクションを選択するべきかを考える際、よりゴールに近いノードに向かったほうが良いだろう、と判断をすることができる点にある。
+%例えばグリッド経路探索問題におけるマンハッタン距離ヒューリスティックは無矛盾なヒューリスティックである。マンハッタン距離ヒューリスティックは現在位置とゴール位置のマンハッタン距離を$h$値とする。
 
 
 \section{A*探索}
 \label{sec:astar-search}
 
 %\captionlistentry[todo]{ダイクストラ法の問題点を図示}
-{\todo ダイクストラ法の問題点を図示}
+{\TODO ダイクストラ法の問題点を図示}
 ダイクストラ法は初期状態からそのノードまでのコストである$g$値が最小のノードを展開していく。これは間違った方針ではないだろうが、理想的にはゴール状態に向かっていくノードを展開していきたい。図\ref{fig:dijkstra-grid}はダイクストラ法による状態空間の探索を図示したものである。ダイクストラ法はゴールがどこにあるかということを無視して探索を進めているため、図のように探索空間が広がっていく。
 %人間の目で見れば一目で右に探索していけばよいというのは分かる。そのような人間の持っている知識を利用して探索を効率化出来ないだろうか？
 
@@ -801,35 +817,38 @@ A*探索は非明示的グラフ探索アルゴリズム(アルゴリズム\ref{
 	\Return $\arg \min_n g(n) + h(n)$
 \end{algorithm}
 
-ダイクストラ法(\ref{sec:dijkstra}章)と比較すると、A*探索はゴール状態までのコストの見積もりを考慮して次に展開するノードを決めている。
+$g(n)$のみでノードを選択するダイクストラ法(\ref{sec:dijkstra}章)と比較すると、A*探索はゴール状態までのコストの見積もりを考慮して次に展開するノードを決めている。
 
 図\ref{fig:astar-grid}は\define{マンハッタン距離ヒューリスティック}{Manhattan distance heuristic}によるA*探索である。
+{\TODO 図で性能差をわかりやすく}
 
 
-A*に用いるヒューリスティック関数に求められる要件とは何であるか。
-一つは正確であるほど良い。
-もう一つはヒューリスティック関数がゴールまでのコストの下界であると実用的・理論的に良い性質があることが知られている。
+A*に用いるヒューリスティック関数は正確であるほど良いが、それに加えて許容的、無矛盾であるという性質も有用である。
 
 \begin{theorem}
 ヒューリスティックが許容的である時、A*は最適解を返す。
 \end{theorem}
 \begin{proof}
 
-{\todo 最適性の証明}
 %全てのノードnは展開時にg(n)がnに辿り着くための最短経路コストの値である。%これは無矛盾性か
-許容的なヒューリスティックh(n)はnからゴールへの経路の下界である。よって、ゴール状態のh値は0である。つまりゴール状態のf値はg値と同じである。この解のg(n')値をf*と置こう(解のコストに相当)。
-A*のノードの展開順に従うと、f*のノードを展開する前に全てのf<f*のノードが展開される。
-これらのノードがいずれもゴール状態でなければ、g(n)<=f(n)より、g(n)<f*となるゴール状態がない。すなわち、f*が最適解のコストとなり、n'がその時のゴール状態である。
+許容的なヒューリスティック$h(n)$は$n$からゴールへの経路の下界である。よって、ゴール状態の$h$値は$0$である。つまりゴール状態の$f$値は$g$値と同じである。この解の$g(n')$値を$f*$と置く(解のコストに相当)。
+A*のノードの展開順に従うと、$f*$のノードを展開する前に全ての$f<f*$のノードが展開される。
+これらのノードがいずれもゴール状態でなければ、$g(n) \leq f(n)$より、$g(n)<f*$となるゴール状態がない。すなわち、$f*$が最適解のコストとなり、$n'$がその時のゴール状態である。
 
 \end{proof}
 
-
+A*探索はノードの\define{再展開}{reexpansion}が生じる可能性がある。
+{\TODO kobayashi et alのような図を}
 
 無矛盾なヒューリスティックである場合、全てのノードnは展開時までにg(n)がnに辿り着くための最短経路コストの値になる。
 
 \begin{theorem}
 無矛盾なヒューリスティックを用いたA*探索はノードの再展開が生じない。
 \end{theorem}
+
+% TODO: exercise?
+%\begin{proof}
+%\end{proof}
 
 
 
@@ -839,7 +858,8 @@ A*のノードの展開順に従うと、f*のノードを展開する前に全�
 \label{sec:weighted-astar-search}
 
 許容的なヒューリスティックを用いたA*探索は最適解が得られるが、必ずしも最適解がほしいわけではない場合もある。解のクオリティよりもとにかく解が何か欲しい、という場合もある。
-重み付きA*探索(weighted A*, wA*)は解のクオリティが落ちる代わりにより素早く買いにたどり着くための手法である。
+最適解ではない解を\define{非最適解}{suboptimal solution}と呼び、最適解に限らず解を発見するアルゴリズムを\define{非最適探索}{suboptimal search}、あるいは\define{局所探索}{local search}と呼ぶ。
+\define{重み付きA*探索}{weighted A*} (wA*)は解のクオリティが落ちる代わりにより素早く買いにたどり着くための手法である。
 wA*は重み付き$f$値、$f_w$が最小のノードを優先して探索する。
 
 \begin{equation}
@@ -847,7 +867,7 @@ wA*は重み付き$f$値、$f_w$が最小のノードを優先して探索する
 \end{equation}
 
 \begin{algorithm}
-\caption{w A*: $Open.pop()$}
+\caption{Weighted A*: $Open.pop()$}
 \label{alg:wastar-open}
 	\Output{Node $u$}
 	\Return $\arg \min_n f_w(n)$
@@ -858,17 +878,25 @@ wA*は重み付き$f$値、$f_w$が最小のノードを優先して探索する
 許容的なヒューリスティックを用いた重み付きA*探索は最適解のコスト$f^*$に対して、発見される解のコストが$w f^*$以下であることを保証する。
 \end{theorem}
 %\captionlistentry[todo]{wA*: 解コストの上界の証明}
-{\todo wA*: 解コストの上界の証明}
+{\TODO wA*: 解コストの上界の証明}
+%\begin{proof}
+%\end{proof}
 
-wA*の利点はそこそこの計算時間で解のクオリティに保証がついた解を見つけることが出来ることにある。
+wA*の利点はA*よりもはるかに高速であることである。
+多くの場合、$w$の大きさに対して指数的な高速化が期待できる。これは深さ$d$のノードの個数は$d$に対して指数的(分枝度を$b$とすると$b^d$個)であることに対応する。
+
+wA*などの非最適探索を使う場合は最適解が得られないので、許容的でないヒューリスティックと組み合わせて使われることが多い。許容的でないアルゴリズムはその代わりに高速であることがある。% TODO lama?
+
 wA*の解は最適解のコストの上界になるので、A*探索の枝刈りに用いることが出来る。
-A*探索を実行する前にwA*を走らせ、解の上界を得、A*探索実行時にその値を超す$f$値を持ったノードを
+A*探索を実行する前にwA*を走らせ、解の上界$c^*$を得、A*探索実行時にノード$n$に対して$f$値が$f(n) \geq c^*$である場合、そのノードを枝刈りする。このテクニックは多重配列アライメントなどに使われる\cite{MSA this technique}。
 
 
-\section{貪欲最良優先探索 (Greedy Best-First Search)}
+\subsection{貪欲最良優先探索 (Greedy Best-First Search)}
 \label{sec:greedy-best-first-search}
 
-解のクオリティに保証がない。
+wA*の例で見たように、$g$値に対して$h$値に重きを置くことによって解のクオリティを犠牲により高速に解を得ることができる。
+問題によっては解のクオリティはあまり重要でなかったり、そもそもクオリティという概念がないことがある。
+このようにとにかく解があればよいという場合は\define{貪欲最良優先探索}{Greedy Best-First Search}が使われることが多い。
 
 \begin{algorithm}
 \caption{Greedy Best-First Search: $Open.pop()$}
@@ -876,6 +904,12 @@ A*探索を実行する前にwA*を走らせ、解の上界を得、A*探索実�
 	\Output{Node $u$}
 	\Return $\arg \min_n h(n)$
 \end{algorithm}
+
+貪欲最良優先探索は$g$値を無視し、$h$値のみで展開順を決定する。つまりwA*の$w$を無限大にしたものである。
+
+貪欲最良優先探索は解のクオリティに保証がない。
+しかし多くの問題で高速に解を発見できるとても強力な手法である。
+
 
 
 \section{ドメイン固有のヒューリスティック関数}
@@ -937,33 +971,74 @@ Proposition $AP$は世界の状態において何が真・偽であるかを記�
 $S \subseteq 2^{AP}$は状態の集合であり、$s_0 \in S$は初期状態、$T \subseteq S$はゴール状態の集合、$A: S \rightarrow S$は可能なアクションの集合である。
 \end{definition}
 
-古典的プランニング問題の最も基本となるSTRIPSモデル\cite{fikes:71}の場合、ゴールはpropositionのリストで表せられる$Goal \subseteq AP$。ゴール状態の集合$T$は$p \in Goal$となるすべての$p$が真である状態の集合である。
-アクション$a \in A$は条件$pre(a)$、効果($add(a)$, $del(a)$)で表せられる。条件$pre(a) \subseteq AP$はアクション$a$を実行するために状態が満たすべきpropositionの集合である。効果$add(a)$はアクション$a$を適用後に真になるpropositionの集合であり、$del(a)$は偽になる集合である。
+古典的プランニング問題の最も基本となるSTRIPSモデル\cite{fikes:71}の場合、ゴール条件は命題(proposition)のリストで表せられる$Goal \subseteq AP$。ゴール状態の集合$T$は$p \in Goal$となるすべての$p$が真である状態の集合である。
+アクション$a \in A$は適用条件$pre(a)$、効果($add(a)$, $del(a)$)で表せられる。適用条件$pre(a) \subseteq AP$はアクション$a$を実行するために状態が満たすべきpropositionの集合である。効果$add(a)$はアクション$a$を適用後に真になるpropositionの集合であり、$del(a)$は偽になる集合である。
 従って、アクション$a$を状態$s$に適用後の状態$s' = suc(s,a)$は
 \begin{equation}
 	s' = (s \cup add(a)) \setminus del(a)
 \end{equation}
 である。
-このようにして、古典的プランニング問題は後述のグラフ探索問題に帰着することが出来る。
 
-As such, a classical planning problem can be solved by an A* search ($G(V', E', w'), s_0', T'$); $V' = S$, $e(v_i, v_j) \in E'$ exists if there exists $a$ such that $v_j = succ(v_i, a)$, $s_0' = s_0$, $T' = T$.
+このようにして、古典的プランニング問題は状態空間問題に帰着することが出来る。
 
+状態空間問題はさらにグラフ探索問題に帰着することができる。
+グラフ探索による解法の利点は任意の状態空間問題に対して解法となる点である。
+例えば各ドメインに対して特化した手法を用いることも考えられるが、そのような人間の知識を必要とする手法を考えることは人工知能技術の目的とは離れてしまう。
+グラフ探索によって古典的プランニング問題を解く場合、問題の定義のみが必要である。解法についての知識は必要ではない。
+つまりプランナーを使う側に立ってみれば、何かの問題解決を行うにあたって問題の定義のみを与えれば、それをどうやって解くかを考えることなく、問題の解を得ることができるのである。
+逆に言えば、効率的なグラフ探索アルゴリズムが開発できれば、あらゆる状態空間問題に対して適用できる汎用な手法が高速化できた、ということだ。
+
+% TODO: show fast-downward.
+fast-downward \cite{}はプランニング問題を解くstate-of-the-artのプランナーである。
+本書で紹介するアルゴリズムの多くがfast-downwardに組み込まれている。
+
+
+%なのでグラフ探索アルゴリズムとプランニング研究の大きなテーマの一つとして、どのようにして少ない前提知識から効率的なグラフ探索を行うことができるかが盛んに研究されている。
+%具体的には効率的なヒューリスティック関数を自動生成する研究や、並列探索などのハードウエアを利用した方法、あるいは洗練されたデータ構造を利用する方法などが
+
+%As such, a classical planning problem can be solved by an A* search ($G(V', E', w'), s_0', T'$); $V' = S$, $e(v_i, v_j) \in E'$ exists if there exists $a$ such that $v_j = succ(v_i, a)$, $s_0' = s_0$, $T' = T$.
+
+% TODO: PDDLの文字フォントを\textttに
 \section{Planning Domain Definition Language}
 \label{sec:pddl}
 
-Planning Domain Definition Language (PDDL) \cite{aeronautiques1998pddl}はプランニング問題を記述されるために用いられる言語の一つである。PDDLはdomainファイルとinstanceファイルの２つのファイルによって一つの入力となる。domainファイルはpredicateとアクションが定義され、instanceファイルは初期状態、ゴール状態とオブジェクトが定義される。
-図\ref{fig:pddl-domain}はblocks-worldのdomainファイルである。
-図\ref{fig:pddl-instance}はblocks-worldのinstanceファイルである。
+Planning Domain Definition Language (PDDL) \cite{aeronautiques1998pddl}はプランニング問題を記述されるために用いられる言語の一つである。PDDLはプランニング問題を一階述語論理で表現する。
+PDDLはドメイン記述とインスタンス記述の２つに分けられ、Lispのような文法で書かれる。
+図\ref{fig:pddl-domain}と図\ref{fig:pddl-instance}はブロックスワールド問題のドメイン記述とインスタンス記述である。
+ここでドメインとインスタンスは計算理論などで定義される\define{問題}{problem}と\define{インスタンス}{instance}に対応する。
+ドメイン記述は問いの集合を定義し、インスタンスは一つの問いを指定する。
+例えば「グリッド経路探索問題」はドメインであり、そのうちの特定の一つのマップがインスタンスに対応する。
+ドメイン記述には\define{述語}{predicate} (\texttt{predicates})と\define{アクションスキーム}{action scheme} (\texttt{action})がある。
+インスタンス記述には\define{オブジェクト}{object} (\texttt{objects})と初期状態(\texttt{init})、ゴール状態(\texttt{goal})がある。
+これら以外にも例えばオブジェクトの型など様々な文法があるが、簡単のためここでは割愛する。
+これらの記述によって古典的プランニング問題が定義される。
 
+まず、命題集合$AP$は述語に含まれる変数にオブジェクトを割り当てることによって得られる。
+図の例だと例えば\texttt{(on A B), (on A C), (ontable D),...}などの命題が$AP$に含まれる。
+
+アクション集合$A$はアクションスキームに含まれる変数にオブジェクトを割り当てることによって得られ、アクションの変数は\texttt{parameters}に定義される。
+
+アクション$a$の適用条件$pre(a)$はアクションスキームの\texttt{precondition}にオブジェクトを割り当てることで得られる。\texttt{effect}のうち\texttt{not}のついていない命題は$add(a)$に対応し、\texttt{not}のついた命題は$del(a)$に対応する。
+例えばアクション\texttt{(pickup A)}の適用条件は{\texttt{(clear A), (ontable A), (handempty)}}、追加効果は{\texttt{(holding A)}}、削除効果{\texttt{(ontable A), (clear A), (handempty)}}である。
+初期状態$s_0$は\texttt{init}の命題集合である。この例では{\texttt{(CLEAR C) (CLEAR A) (CLEAR B) (CLEAR D) (ONTABLE C) (ONTABLE A)}}である。
+ゴール条件$Goal$は\texttt{goal}の命題集合である。つまり、ゴール状態集合$T$は$Goal$を含む状態の集合である。
+
+PDDLのミソは一階述語論理によってプランニング問題を記述する点である。
+状態空間に含まれる命題を一つ一つ記述するのではなく、述語とオブジェクトの組み合わせによって複数の命題をコンパクトに記述することができる。
+また、インスタンス記述を変えることで同じドメインの異なるインスタンスをモデルすることができる。
+例えばブロックスワールドのドメイン記述はそのままに、インスタンス記述のオブジェクトや\texttt{init}などを変えることで違う問いにすることができる。
+
+
+
+% TODO: blocksworldの絵を入れる
 
 \begin{figure}
 %\begin{adjustbox}{width=\textwidth,keepaspectratio}
-\lstset{language=pddl}
+\lstset{language=pddl,basicstyle=\ttfamily\footnotesize,breaklines=true}
 \begin{lstlisting}
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; 4 Op-blocks world
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 (define (domain BLOCKS)
   (:requirements :strips)
   (:predicates (on ?x ?y)
@@ -1016,7 +1091,7 @@ Planning Domain Definition Language (PDDL) \cite{aeronautiques1998pddl}はプラ
 
 \begin{figure}
 %\begin{adjustbox}{width=\textwidth,keepaspectratio}
-\lstset{language=pddl}
+\lstset{language=pddl,basicstyle=\ttfamily\footnotesize,breaklines=true}
 \begin{lstlisting}
 (define (problem BLOCKS-4-0)
 (:domain BLOCKS)
@@ -1032,10 +1107,23 @@ Planning Domain Definition Language (PDDL) \cite{aeronautiques1998pddl}はプラ
 \label{fig:pddl-instance}
 \end{figure}
 
-
-\section{古典的プランニング問題の例}
+\section{古典的プランニングモデルの例}
 \label{sec:classical-planning-example}
 % TODO: これらのうちキャッチーなものはコラムとして紹介しよう。
+
+
+%もちろん解法の知識があればプランナーにそれを組み込むことも可能である。
+
+%現在グラフ探索アルゴリズムは古典的プランニング問題のstate-of-the-artの手法である。
+
+
+%各ドメインに対してグラフ探索による解法は必ずしも最も効率の良い方法とは限らない。例えばTSPのようなドメインはTSPを解くために考えられた様々な手法があり、そちらのほうが効率的である。
+%しかし各ドメインに特化した手法はドメイン特有の知識を必要とする。
+%しかしここではグラフ探索として解く
+
+%PDDLによるモデルのメリットは様々な問題に対して統一してグラフ探索
+%いろいろな問題に対して
+
 ソリティア
 エレベーター
 空港最適化
@@ -1068,7 +1156,14 @@ Planning Domain Definition Language (PDDL) \cite{aeronautiques1998pddl}はプラ
 \section{ヒューリスティック関数の自動生成}
 \label{sec:automated-heuristic}
 
-ドメイン非依存エージェントはヒューリスティック関数を自動生成しなければならない。
+PDDLにはヒューリスティック関数は何を使えばよいかなどの情報は書かれていない。
+よって、PDDLを入力とする状態空間問題を解く場合、エージェントはヒューリスティック関数を自動生成しなければならない。
+PDDLからヒューリスティック関数を自動生成する手法はプランニング研究の最も重要とされている分野である。
+
+ヒューリスティックの生成方法の一つの指針としては\ref{sec:heuristic-example}節で言及した緩和問題によるヒューリスティックが分かりやすい。
+すなわち、元の問題$P$よりも簡単な問題$P'$を生成し、$P$の状態$s$から$P'$の状態$s'$へのふさわしい関数を定義する。そして$h(s)$の値を$P'$における$s'$を初期状態とするゴールへの最適解にする。
+このようにしてヒューリスティック関数は自動生成することができる。
+以下、具体的にどのような手法があるかを説明する。
 
 \subsection{ゴールカウントヒューリスティック}
 
@@ -1077,12 +1172,18 @@ Planning Domain Definition Language (PDDL) \cite{aeronautiques1998pddl}はプラ
 例えばスライディングタイルのゴール条件は全てのタイルが所定の位置にあることである。
 なので所定の位置にないタイルの数を$h$値とすることが出来る。
 
-ゴールカウントヒューリスティックは許容的であるとは限らない。コスト１のアクションが２つのゴールを同時に満たすかもしれないからだ。スライディングタイルであれば１つのアクションで動かせるタイルの数は１つなので、許容的である。
+ゴールカウントヒューリスティックは許容的であるとは限らない。コスト１のアクションが２つのゴールを同時に満たすかもしれないからだ。１つのアクションで同時に満たせるゴールが１つ以下である場合、そしてその時のみ、許容的である。
 
-%\subsection{参考文献}
-%パターンデータベースヒューリスティック
-%ランドマークカット
-% Declarative heuristic
+\subsection{パターンデータベースヒューリスティック}
+\define{パターンデータベースヒューリスティック}{Pattern database heuristic}は非常に強力なstate-of-the-artのヒューリスティック関数である。
+問題の命題集合$AP$に対して$AP' \subset AP$を置き、$AP'$を命題集合とする緩和問題$P'$を考えるというのが大筋の考え方である。
+シンプルだが、$AP'$の選び方によっては非常に正確であり、かつ高速なヒューリスティック関数になることが知られている。
+
+
+\subsection{state-of-the-art}
+ランドマークカット
+%宣言的ヒューリスティック
+Declarative heuristic
 
 \chapter{実験評価}
 \label{ch:search-performance}
@@ -1128,7 +1229,7 @@ FIFO, LIFO tiebreaking
 \section{クローズドリスト}
 \label{sec:closed-list}
 %\captionlistentry[todo]{closedlist}
-{\todo closed list}
+{\TODO closed list}
 クローズドリストはハッシュテーブル
 incremental hashing
 perfect hashing
