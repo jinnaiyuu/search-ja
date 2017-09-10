@@ -17,7 +17,7 @@
 \usepackage{url}
 \usepackage{listings}
 \usepackage{lstlang0}
-\usepackage[utf8]{inputenc}
+\usepackage[utf8x]{inputenc}
 %\usepackage{tikz} % Drawing sliding-tile
 
 % Math
@@ -44,7 +44,7 @@
 \usepackage{makeidx}
 \makeindex
 
-\setcounter{secnumdepth}{2}
+\setcounter{secnumdepth}{3}
 % Macros
 \newcommand{\define}[2]{{\bf #1} (#2) \index{#1}\index{#2}}
 \newcommand{\TODO}{{\bf TODO}}
@@ -150,15 +150,19 @@ Brown University (yuu\_jinnai@brown.edu)}
 機械学習は過去に学習した経験を元に合理的な行動を選ぶというアイディアである。
 それに対して、探索は未来にどういう経験をするかを先読みして合理的な行動を選ぶ。
 
-探索は特に学習データを得ることが難しい・不可能なシステムに用いられてきた。
-例えば火星探査車などは宇宙のデータなどとても得られるものではないので、探索に基づくエージェントが用いられている。今後のNASAなどによる宇宙開発でも探索技術が重要であり続けると考えられている。NASAのウェブページを見ると過去と現在の探索技術を用いたプロジェクトがたくさん紹介されている \url{https://ti.arc.nasa.gov/tech/asr/planning-and-scheduling/}。
 
 探索技術の大きな課題・欠点は世界のモデルを必要とする点である。
 モデルがないと未来にどういう経験をするかを先読みすることができない。
 例えば将棋であれば各コマがどのように動き、敵の王を詰ますと勝ち、といった情報を与えなければならない。加えてどの場面の時にどちらがどのくらい有利なのかという場面の評価値がないと強いエージェントは作れない。
 モデルは完璧である必要はないが、先読みをするためには有用なものでなくてはならない。
 
-なので探索と機械学習は組み合わせて用いることでより賢い行動が出来るようになると考えられ、研究されている。
+%探索は特に学習データを得ることが難しい・不可能なシステムに用いられてきた。
+なので、探索は世界のモデルが容易に得られる問題において用いられてきた。
+例えば経路探索問題など地図があればおおよその距離が推定できる。
+今後のNASAなどによる宇宙開発でも探索技術が重要であり続けると考えられている。NASAのウェブページを見ると過去と現在の探索技術を用いたプロジェクトがたくさん紹介されている \url{https://ti.arc.nasa.gov/tech/asr/planning-and-scheduling/}。
+
+
+探索と機械学習は組み合わせて用いることでより賢い行動が出来るようになると考えられ、研究されている。
 モンテカルロ木探索とディープラーニングを組み合わせてプロ棋士に勝利したAlphaGoなどはまさに探索と機械学習を組み合わせたエージェントの強力さを体現しているといえるだろう \cite{silver2016mastering}。これはディープラーニングによって場面と次の一手の評価値を機械学習で学び、それと探索を組み合わせて良い評価値の場面につながるような手を選んでいくということをしている。
 もう一つの組み合わせ方としては機械学習によってモデルを学習し、それを使って探索をするという方法がある。前述のように探索にはモデルが必要であるというのが重要な問題である。例えばAtariでディープラーニングを使って探索のためのモデルを学習する研究がある \cite{oh2015action,silver2016predictron,chiappa2017recurrent}。
 
@@ -175,7 +179,6 @@ Brown University (yuu\_jinnai@brown.edu)}
 グラフ探索アルゴリズムはこれに限らず様々な場面で使われるがこの本では状態空間問題に注目する。
 状態空間問題は与えられたゴールに到達するための行動の列、\define{プラン}{plan}を発見する問題である。
 
-% TODO: この辺の話は結構テクニカルなのでChapter 2に？
 本書が主に扱うの状態空間問題のうち
 \define{完全情報}{perfect information}かつ\define{決定論的}{deterministic}モデルである(\ref{ch:state-space-problem}~\ref{ch:heuristic-serach-variants}章
 )。
@@ -319,20 +322,22 @@ Expandはある状態からの次の状態の集合を返す関数である。Ex
 \subsection{グリッド経路探索 (Grid Path-finding)}
 %\captionlistentry[todo]{Grid Pathfinding: なんかいい感じの絵}
 %{\TODO Grid Pathfinding: なんかいい感じの絵}
+
+
+\define{グリッド経路探索問題}{grid path-finding problem}は$k$(多くの場合$k=2$)次元のグリッド上で初期配置からゴール位置までの経路を求める問題である\cite{yap2002grid}。グリッドには障害物がおかれ、通れない箇所がある。エージェントが移動できる方向は4方向($A= \{up, down, left, right\}$)か8方向(4方向に加えて斜め移動)とする場合が多い。自由方向(Any Angle)の問題を扱う研究も存在する\cite{nash2007theta}。
+
 \begin{figure}
-	\includegraphics[width=0.5\linewidth]{figures/grid-pathfinding.jpg}
+	\includegraphics[width=0.5\textwidth]{figures/grid-pathfinding.png}
 	\caption{グリッド経路探索問題}
 	\label{fig:grid-pathfinding}
 \end{figure}
 
 
-\define{グリッド経路探索問題}{grid path-finding problem}は$k$(多くの場合$k=2$)次元のグリッド上で初期配置からゴール位置までの経路を求める問題である\cite{yap2002grid}。グリッドには障害物がおかれ、通れない箇所がある。エージェントが移動できる方向は4方向($A= \{up, down, left, right\}$)か8方向(4方向に加えて斜め移動)とする場合が多い。自由方向(Any Angle)の問題を扱う研究も存在する\cite{nash2007theta}。
+Web上に簡単に試せるデモがあるので、参照されたい\footnote{\url{http://qiao.github.io/PathFinding.js/visual/}}。この本の画像の一部はこのデモをもとに作成している。この本で説明する様々なグラフ探索手法をグリッド経路探索に試すことが出来る。
 
-Web上に簡単に試せるデモがあるので、参照されたい\footnote{\url{http://qiao.github.io/PathFinding.js/visual/}}。とてもよくできており、この文章で説明する様々なグラフ探索手法をグリッド経路探索に試すことが出来る。
-
-グリッド経路探索はロボットのモーションプランニングやゲームAIなどで応用される\cite{algfoor2015comprehensive}。ストラテジーゲームなどでユニット（エージェント）を動かすために使われる。よく使われるベンチマーク問題集にもStarcraftのゲームのマップが含まれている\cite{sturtevant2012benchmarks}.
+グリッド経路探索はロボットのモーションプランニングやゲームAIなどで応用される\cite{algfoor2015comprehensive}。ストラテジーゲームなどでユニット（エージェント）を動かすために使われる \cite{cui2011based}。よく使われるベンチマーク問題集にもStarcraftのゲームのマップが含まれている\cite{sturtevant2012benchmarks}.
 またグリッドは様々な問題を経路探索に帰着して解くことができるという意味でも重要である。例えば多重整列問題 (Multiple Sequence Alignment)はグリッド経路探索に帰着して解くことが出来る(後述)。
-ロボットのモーションプランニングも経路探索に帰着することが出来る。すなわち、$k$個の関節の角度を変えて、現在状態からゴール状態へ遷移させたい。各関節の角度がグリッドの各次元に相当する。ロボットの物理的な構造により、関節のある角度の組み合わせは不可能である。不可能な組み合わせが、障害物の置かれたグリッドに相当する。よって、障害物を避けた経路というのが関節の動かし方ということになる。
+ロボットのモーションプランニングも経路探索に帰着することが出来る \cite{barraquand91}。すなわち、$k$個の関節の角度を変えて、現在状態からゴール状態へ遷移させたい。各関節の角度がグリッドの各次元に相当する。ロボットの物理的な構造により、関節のある角度の組み合わせは不可能である。不可能な組み合わせが、障害物の置かれたグリッドに相当する。よって、障害物を避けた経路というのが関節の動かし方ということになる。
 
 %Starcraft 1ではA*探索が使われていた。
 %しかしマルチエージェント
@@ -341,15 +346,16 @@ Web上に簡単に試せるデモがあるので、参照されたい\footnote{\
 
 \subsection{スライディングタイル (Sliding-tile Puzzle)}
 
-多くの一人ゲームはグラフ探索問題に帰着することが出来る。スライディングタイルはその例であり、ヒューリスティック探索研究においてメジャーなベンチマーク問題でもある (図\ref{fig:15-puzzle})。
+多くの一人ゲームはグラフ探索問題に帰着することが出来る。スライディングタイルはその例であり、ヒューリスティック探索研究においてメジャーなベンチマーク問題でもある (図\ref{fig:15-puzzle}) \cite{johnson1879notes}。
 $1$から$(n^2)-1$までの数字が振られたタイルが$n\times n$の正方形に並べられている。正方形には一つだけ{\it ブランク}と呼ばれるタイルのない位置があり、四方に隣り合うタイルのいずれかをその位置に移動する(スライドする)ことが出来る。スライディングタイル問題は、与えられた初期状態からスライドを繰り返し、ゴール状態にたどり着く経路を求める問題である。
 
 \begin{figure}
 \centering
-\includegraphics[bb=0 0 372 373,width=0.4\textwidth]{figures/15-puzzle.eps}
+\includegraphics[bb=0 0 372 373,width=0.5\textwidth]{figures/15-puzzle.png}
 \caption{15パズルのゴール状態の例}
 \label{fig:15-puzzle}
 \end{figure}
+
 
 スライディングタイルの到達可能な状態の数は$|V| = (n^2)!/2$\footnote{スライディングタイルは偶奇性があり、到達不可能な状態がある\cite{johnson1879notes}。}であり、$n$に対して指数的に増加する。
 可能なアクションは$A= \{up, down, left, right\}$の４つであり、アクションにかかるコストはすべて同じとする。
@@ -362,7 +368,7 @@ $1$から$(n^2)-1$までの数字が振られたタイルが$n\times n$の正方
 \subsection{多重整列問題 (Multiple Sequence Alignment)}
 \label{sec:msa}
 生物学・進化学では遺伝子配列・アミノ酸配列の編集距離(edit distance)を比較することでニ個体がどれだけ親しいかを推定することが広く研究されている。
-\define{多重整列問題}{Multiple Sequence Alignment} (MSA)は複数の遺伝子・アミノ酸配列が与えられた時、それらの配列間の編集距離とその時出来上がった配列を求める問題である\cite{edgar2006multiple}。
+\define{多重整列問題}{Multiple Sequence Alignment} (MSA)は複数の遺伝子・アミノ酸配列が与えられた時、それらの配列間の編集距離とその時出来上がった配列を求める問題である。
 ２つの配列に対してそれぞれコストの定義された編集操作を繰り返し、同一の配列に並べ替える手続きをアライメントと呼ぶ。
 ２つの配列の編集距離は編集操作の合計コストの最小値である。
 ３つ以上の配列における距離の定義は様々考えられるが、ここでは全ての配列のペアの編集距離の総和を用いる。
@@ -381,8 +387,17 @@ $n$配列のMSAは$n$次元のグリッドの経路探索問題に帰着する�
 このようにして、MSAはグリッド経路探索問題に帰着し、グラフ探索アルゴリズムよって解くことが出来る。
 状態空間問題として考えた場合にMSAの難しさはアクションのコストが幅広いことにある。また、可能なアクションの数も配列の数$n$に対して$2^n-1$と大きい。
 
-MSAは生物学研究に役立つというモチベーションから非常に熱心に研究されており、様々な定式化による解法が知られている\cite{edgar2006multiple}。
+MSAは生物学研究に役立つというモチベーションから非常に熱心に研究されており、様々な定式化による解法が知られている。
+詳しくは\cite{waterman1995introduction,
+gusfield1997algorithms,edgar2006multiple}を参照されたい。
 
+
+\begin{figure}
+\centering
+\includegraphics[width=0.95\textwidth]{figures/msa.png}
+\caption{多重整列問題: 画像はwikipediaより。}
+\label{fig:msa-gif}
+\end{figure}
 
 
 \begin{figure}
@@ -426,13 +441,13 @@ MSAは生物学研究に役立つというモチベーションから非常に�
 
 
 \subsection{倉庫番 (Sokoban)}
-倉庫番(Sokoban)は日本発のパズルゲームであり、倉庫の荷物を押していくことで指定された位置に置くというゲームである。現在でも様々なゲームでゲーム内ミニゲームとして親しまれている。
+倉庫番(Sokoban)はAtariなどでパズルゲームであり、倉庫の荷物を押していくことで指定された位置に置くというゲームである。現在でも様々なゲームの中で親しまれている \cite{junghanns1997sokoban,culberson1997sokoban}。
 プレイヤーは「荷物の後ろに回って押す」ことしか出来ず、引っ張ったり、横から動かしたりすることが出来ない。また、荷物の上を通ることも出来ない。
 PSPACE-completeであることが知られている\cite{culberson1997sokoban}。
 
 \begin{figure}
 \centering
-\includegraphics[bb=0 0 213 238,width=0.4\textwidth]{figures/sokoban.eps}
+\includegraphics[bb=0 0 213 238,width=0.6\textwidth]{figures/sokoban.eps}
 \caption{Sokoban: 画像はwikipediaより。}
 \label{fig:sokoban}
 \end{figure}
@@ -444,12 +459,12 @@ PSPACE-completeであることが知られている\cite{culberson1997sokoban}�
 グリッド経路探索やスライディングタイルは{\it 可逆な} (reversible)問題である。
 全てのアクション$a \in A$に対して$a^{-1} \in A$が存在し、$a(a^{-1}(s)) = s$かつ$a^{-1}(a(s)) = s$となる場合、問題は可逆であると言う。
 可逆な問題は対応するアクションのコストが同じであれば無向グラフとしてモデルすることも出来、初期状態から到達できる状態は、すべて初期状態に戻ることが出来る。
-一方、不可逆な問題ではこれが保証されず、詰み(trap)状態に陥る可能性がある。
+一方、不可逆な問題ではこれが保証されず、詰み(trap)状態に陥る可能性がある (\ref{sec:difficulity}節)。
 
 倉庫番では荷物を押すことは出来ても引っ張ることが出来ないため、不可逆な問題である。例えば、荷物を部屋の隅に置いてしまうと戻すことが出来ないため、詰み状態に陥る可能性がある問題である。
 このような性質を持つ問題では特にグラフ探索による先読みが効果的である。
 
-もうひとつ重要な問題はゼロコストアクションの存在である。%TODO
+もうひとつ重要な問題は\define{ゼロコストアクション}{zero-cost action}の存在である。ゼロコストアクションはコストが0のアクションである。%TODO
 倉庫番のアクションのうち$\{move-up,move-left,move-down,move-right\}$はコストゼロ($w(e)=0$)のアクションである。ヘタなアルゴリズムを実行すると無限に無駄なアクションを繰り返し続けるということもありうるだろう。
 
 
@@ -463,7 +478,7 @@ TSPは全ての都市を最短距離で回ってはじめの都市に戻る経�
 
 \begin{figure}
 \centering
-\includegraphics[bb=0 0 328 352,width=0.4\textwidth]{figures/tsp.eps}%TODO
+\includegraphics[bb=0 0 328 352,width=0.6\textwidth]{figures/tsp.eps}%TODO
 \caption{巡回セールスパーソン問題: 画像はwikipediaより。}
 \label{fig:sokoban}
 \end{figure}
@@ -474,7 +489,7 @@ $n$個の都市があるとすると(最適・非最適含む)解の数は$(n-1)
 可能なアクションは「都市$i \in \{1..n\}$を訪れる」であり、一度訪れた都市には行けない。
 TSPのゴール条件はすべての都市を訪れることである。よって、$n$回どれかアクションを実行すれば、とりあえず解を得ることが出来る。一方、最適解を得る問題はNP完全であることが知られている。
 
-TSPの解の下界としては{\it 最小全域木} (minimum spanning tree)のコストがよく用いられる\cite{held1970traveling}。
+TSPの解の下界としては{\it 最小全域木} (minimum spanning tree)のコストがよく用いられる\cite{kruskal1956shortest,held1970traveling}。
 グラフの{\it 全域木} (spanning tree)は全てのノードを含むループを含まない部分グラフである。
 最小全域木は全域木のうち最もエッジコストの総和が小さいものである。
 未訪問の都市によるグラフの最小全域木はTSPの下界となることが知られている。
@@ -489,11 +504,13 @@ TSPはヒューリスティック探索に限らず、様々なアプローチ�
 問題の難しさは様々な要素に左右される。
 
 \begin{enumerate}
-\item 状態空間の大きさ
+\item {\bf 状態空間の大きさ}
+
 状態空間の大きさ$|S|$は大きい程概して問題は難しくなる。
 特に状態空間が無限である場合アルゴリズムは停止しない場合がある。
 
-\item 分枝度
+\item {\bf 分枝度}
+
 ある状態$s$の\define{分枝度}{branching factor}はそのノードの子ノードの数を指す。
 特に状態空間問題の分枝度は、すべての状態の分枝度の平均を指す。ただし多くの場合平均を厳密に求めることはなく、おおよその平均を指して分枝度をすることが多い。
 分枝度が大きいほど問題は難しいとは限らない。
@@ -501,18 +518,19 @@ TSPはヒューリスティック探索に限らず、様々なアプローチ�
 %エッジが多い程解の候補となる経路が多くなる。
 分枝度を$b$とすると、あるノード$s$の子ノードの数は$b$個であり、孫ノードの数は$b^2$である。$s$からの深さ$d$のノードは$b^d$個である。
 
-\item デッドエンド
+\item {\bf デッドエンド}
+
 問題によってはある状態に到達するともう問題を解くことは出来ないというシチュエーションがある。例えば倉庫番は荷物を角においてしまうともう動かすことができない。これによってもう問題がクリアできなくなるということがある。このような問題では状態空間を広く探索し、デッドエンド状態のみを探索し続けるということをうまく避ける必要がある。例えば\ref{sec:greedy-best-first-search}節の貪欲最良優先探索はデッドエンドに入ってしまうとなかなか抜け出せないかもしれない。
 あるいはデッドエンドを検知する手法も考えられる。
 概してデッドエンドがある問題では状態空間を広く探索する手法、探索済みの状態を記録する手法が有利であり、局所探索手法はうまくいかないことが多い。
 %このような問題では局所探索アルゴリズムではうまくいかないことがある。局所探索アルゴリズムは
 
+\item {\bf 解の存在}
 
-\item 解の存在
 当然解が存在しない問題もありうる。
 そのような場合、アルゴリズムは解が存在しないと示せれば理想的である。
 一部のアルゴリズムは解が存在しない場合永遠に停止しない場合がある。
-
+そのため解が存在しないことを検出するアルゴリズムの研究もされている \cite{backstrom2013fast,hoffmann2014distance}。
 
 \end{enumerate}
 
@@ -531,6 +549,9 @@ TSPはヒューリスティック探索に限らず、様々なアプローチ�
 
 本書では状態空間問題の解をゴールに到達するまでの経路と定義した。
 状態空間問題のもう一つの定式化として、状態とアクションの組に対して\define{報酬}{reward} ($R: (S, A) \rightarrow \mathbb{R}$)を定義し、報酬を最大化する経路を求める問題がある。この定式化は特に\define{強化学習}{reinforcement learning}で用いられる。
+
+状態空間問題の例としては\define{モデル検査}{model checking}がある。
+モデル検査はXXXYYY
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% CHAPTER: Blind Search
@@ -555,6 +576,9 @@ TSPはヒューリスティック探索に限らず、様々なアプローチ�
 これらの探索手法は競技プログラミングでもよく解法として使われる\cite{skiena2006programming}。また、いわゆるコーディング面接でもグラフ探索アルゴリズムは頻出である\cite{mcdowell2011cracking}。
 %\ref{ch:search-performance}章はグラフ探索の高速化の紹介をするので、特に競技プログラミングに興味がある場合はそちらも参照されたい。% TODO
 
+情報なし探索は\cite{cormen01}の22章Elementary Graph Algorithmsにも詳しく説明されている。
+
+
 \begin{table}
 \caption{木探索とグラフ探索}
 \label{tbl:tree-vs-graph-search}
@@ -574,7 +598,7 @@ TSPはヒューリスティック探索に限らず、様々なアプローチ�
 \begin{tabular}{c|cc}
 	展開順序  	& プライオリティ 	& 性質 \\  
 	幅優先	& $\arg \min_n d(n)$ & ユニットコストドメインだと最初に発見した解が最適解である \\
-	深さ優先 	& $\arg \max_n d(n)$ & \TODO \\
+	深さ優先 	& $\arg \max_n d(n)$ & メモリ消費が少ない場合がある \\
 	最良優先	& $\arg \min_n g(n)$ & 非負コストドメインで最適解が得られる \\
 \end{tabular}
 %\end{adjustbox}
@@ -583,7 +607,6 @@ TSPはヒューリスティック探索に限らず、様々なアプローチ�
 \section{木探索アルゴリズム (Tree Search Algorithm)}
 \label{sec:tree-search-algorithm}
 木探索アルゴリズムはグラフ探索アルゴリズムの基礎となるフレームワークであり、本文で紹介する手法のほとんどがこのフレームワークを基礎としているといえる。
-
 アルゴリズム\ref{alg:implicit-tree-search}は木探索の疑似コードである。
 
 \begin{algorithm}
@@ -646,7 +669,6 @@ TSPはヒューリスティック探索に限らず、様々なアプローチ�
 {\bf 紛らわしいが、木探索アルゴリズムはグラフを探索するアルゴリズムである。}
 グラフ探索アルゴリズムのうち、後述する重複検出を行わない手法を木探索アルゴリズムと呼ぶ。
 
-
 %同じ状態を複数回展開すると計算資源を無駄にすることになるのでなるべく重複を避けたい。
 
 
@@ -671,6 +693,7 @@ TSPはヒューリスティック探索に限らず、様々なアプローチ�
 
 幅優先探索のメリットは初めに発見した解が最短経路長であることである。
 問題がユニットコストドメインであれば、最短経路が最小コスト経路であるので、最適解が得られる。
+なお、後述するBest First Searchと区別するため、Breadth-First Searchの略称はBrFSを用いることがある (Best First SearchはBFSとなる)。
 
 \begin{algorithm}
 \caption{Breadth-First Search: $Open.pop()$}
@@ -785,7 +808,7 @@ $g$値をそのノードに到達できる既知の最小コストにするた�
 \section{ダイクストラ法 (Dijkstra Algorithm)}
 \label{sec:dijkstra}
 
-\define{ダイクストラ法}{Dijkstra's Algorithm}はグラフ探索アルゴリズムの一種であり、$g$値が最も小さいノードを優先して展開するアルゴリズムである。
+\define{ダイクストラ法}{Dijkstra's Algorithm}はグラフ探索アルゴリズムの一種であり、$g$値が最も小さいノードを優先して展開するアルゴリズムである \cite{dijkstra1959note}。
 グラフ理論の教科書などでも登場する情報科学全体に多岐に渡り重要とされるアルゴリズムである。
 例えばネットワークルーティングにおけるlink state algorithmなどにDijkstraが使われる\cite{mcquillan1980new}。
 %初期状態からノード$n$への既知の最小経路コストを$g$値と呼び、$g(n)$と書く。
@@ -797,9 +820,9 @@ $g$値をそのノードに到達できる既知の最小コストにするた�
 	\Return $\arg \max_n g(n)$
 \end{algorithm}
 
-ダイクストラ法は非負コストグラフにおいて最短経路を返す\cite{dijkstra1959note}。
+ダイクストラ法は非負コストグラフにおいて最短経路を返す。
 ユニットコストドメインでは$\forall n (g(n) = d(n))$であるため、幅優先探索と同じ動作をする。
-フィボナッチヒープを用いてオープンリストを実装したダイクストラ法は$O(|E| + |V|log|V|)$時間でであることが知られている\cite{fredman84}。%任意の非負コスト有向グラフにおける最短経路問題を解くアルゴリズムとして知られている中で最も
+フィボナッチヒープ \cite{fredman1987fibonacci}を用いてオープンリストを実装したダイクストラ法は$O(|E| + |V|log|V|)$時間でであることが知られている\cite{fredman1987fibonacci}。%任意の非負コスト有向グラフにおける最短経路問題を解くアルゴリズムとして知られている中で最も
 %Bellman-Fordアルゴリズムも重要である。
 そのため、後述するヒューリスティック関数が得られない問題においてはとりあえずダイクストラ法を試してみることは有効である。
 
@@ -807,13 +830,12 @@ $g$値をそのノードに到達できる既知の最小コストにするた�
 \section{関連文献}
 
 ダイクストラ法はコストが負のエッジを持つ場合にうまくいかない。
-負のエッジを含む問題を解くための手法としてはベルマン-フォード法が有名である \cite{bellman-ford}。
+負のエッジを含む問題を解くための手法としてはベルマン-フォード法が有名である \cite{bellman1958routing,ford1956network}。
 
 状態遷移が確率的である場合(マルコフ過程問題)や敵対二人ゲームの場合は、AND/OR木による探索アルゴリズムが使われる。
-\define{動的計画法}{dynamic programming}やモンテカルロ木探索などの手法が用いられる。
+\define{動的計画法}{dynamic programming}やモンテカルロ木探索などの手法が用いられる \cite{bellman2013dynamic}。
 
-ダイクストラ法などの情報なし探索は人工知能の文脈よりも\define{組み合わせ最適化}{combinatorial optimization}のための手法として使われることが多い。
-最短経路探索に興味がある方は\cite{Tarjan1983,Mehlhorn1984}を読むと良いだろう。
+ダイクストラ法などの情報なし探索は人工知能の文脈よりも\define{組み合わせ最適化}{combinatorial optimization}のための手法として使われることが多い\cite{tarjan1983data}。
 
 
 \chapter{ヒューリスティック探索 (Heuristic Search)}
@@ -829,16 +851,16 @@ $g$値をそのノードに到達できる既知の最小コストにするた�
 図\ref{fig:grid}の初期状態からゴールへの最短経路の長さはXである。このとき、幅優先探索は図\ref{fig:grid-brfs}の領域を探索する。
 しかし人間が経路探索を行うときにこんなに広い領域を探索しないだろう。なぜか。
 それは人間が問題の特徴を利用して、このノードを探索したほうがよいだろう、という推論を働かせているからである。
-問題の特徴を利用してノードの{\bf 有望さ}をヒューリスティック関数として定量化し、ヒューリスティック関数を利用した探索アルゴリズムをヒューリスティック探索と呼ぶ。
+問題の特徴を利用してノードの{\bf 有望さ}を\define{ヒューリスティック関数}{heuristic function}として定量化し、ヒューリスティック関数を利用した探索アルゴリズムをヒューリスティック探索と呼ぶ。
 ヒューリスティック関数は人間が自分の知識を利用してコーディングする場合もあるが、自動行動計画問題などでは自動的にヒューリスティックを生成する手法も広く使われている。
 
 
 %\captionlistentry[todo]{ヒューリスティックとは: grid, grid-brfsの図を挿入}
-{\TODO ヒューリスティックとは: grid, grid-brfsの図を挿入}
+%{\TODO ヒューリスティックとは: grid, grid-brfsの図を挿入}
 
-\section{ヒューリスティック関数}
+\section{ヒューリスティック関数 (Heuristic Function)}
 \label{sec:heuristic-function}
-ヒューリスティック関数はある状態からゴールまでの最短距離の見積もりである。
+ヒューリスティック関数はある状態からゴールまでの最短距離の見積もりである \cite{hart68formal}。
 
 \begin{definition}[ヒューリスティック関数]
 ヒューリスティック関数$h$はノードの評価関数である。$h: V \rightarrow \mathbb{R}_{\geq 0}$
@@ -853,8 +875,7 @@ $g$値をそのノードに到達できる既知の最小コストにするた�
 ヒューリスティック関数$h$が任意の$n$に対して$h(n) = h^*(n)$である場合、\define{完璧なヒューリスティック}{Perfect Heuristic}と呼ぶ。%完璧なヒューリスティック関数がある場合、A*探索は
 反対に役に立たないヒューリスティック関数は$h(n) = 0$などの定数関数である。これはどのノードに対してもゴールまでの距離が同じだと推測しているということであり、つまり何も主張をしていない。このようなヒューリスティックをブラインドヒューリスティックと呼ばれる。ブラインドヒューリスティックを使った探索は、\ref{ch:blind-search}章で扱った情報なし探索の一種といえる。
 
-現実には完璧なヒューリスティックはなかなか得られないが、多くの場合これに近いほど必要な展開ノード数が小さいことが知られている\cite{how good is almost perfect}。
-
+現実には完璧なヒューリスティックはなかなか得られないが、多くの場合これに近いほど必要な展開ノード数が小さいことが知られている\cite{helmert:08}。
 
 もう一つ望ましい性質は$h$値が最適解コストの下界である場合である。
 \ref{sec:astar-search}章で解説するが、$h$値が最短距離の下界である場合、それを用いた効率的な探索アルゴリズム(A*探索、重み付きA*探索)において解コストに理論的保証が得られることが広く知られている。
@@ -902,11 +923,11 @@ $h$値が常に最適解コストの下界であるヒューリスティック�
 %例えばグリッド経路探索問題におけるマンハッタン距離ヒューリスティックは無矛盾なヒューリスティックである。マンハッタン距離ヒューリスティックは現在位置とゴール位置のマンハッタン距離を$h$値とする。
 
 
-\section{A*探索}
+\section{A*探索 (A* Search)}
 \label{sec:astar-search}
 
 %\captionlistentry[todo]{ダイクストラ法の問題点を図示}
-{\TODO ダイクストラ法の問題点を図示}
+%{\TODO ダイクストラ法の問題点を図示}
 ダイクストラ法は初期状態からそのノードまでのコストである$g$値が最小のノードを展開していく。これは間違った方針ではないだろうが、理想的にはゴール状態に向かっていくノードを展開していきたい。図\ref{fig:dijkstra-grid}はダイクストラ法による状態空間の探索を図示したものである。ダイクストラ法はゴールがどこにあるかということを無視して探索を進めているため、図のように探索空間が広がっていく。
 %人間の目で見れば一目で右に探索していけばよいというのは分かる。そのような人間の持っている知識を利用して探索を効率化出来ないだろうか？
 
@@ -995,12 +1016,12 @@ A*探索はノードの\define{再展開}{reexpansion}が生じる可能性が�
 \label{tbl:heuristic-comparison}
 \end{table}
 
-\subsection{重み付きA*探索}
+\subsection{重み付きA*探索 (Weighted A*)}
 \label{sec:weighted-astar-search}
 
 許容的なヒューリスティックを用いたA*探索は最適解が得られるが、必ずしも最適解がほしいわけではない場合もある。解のクオリティよりもとにかく解が何か欲しい、という場合もある。
 最適解ではない解を\define{非最適解}{suboptimal solution}と呼び、最適解に限らず解を発見するアルゴリズムを\define{非最適探索}{suboptimal search}、あるいは\define{局所探索}{local search}と呼ぶ。
-\define{重み付きA*探索}{weighted A*} (wA*)は解のクオリティが落ちる代わりにより素早く買いにたどり着くための手法である。
+\define{重み付きA*探索}{weighted A*} (wA*)は解のクオリティが落ちる代わりにより素早く買いにたどり着くための手法である \cite{wilt2010comparison}。
 wA*は重み付き$f$値、$f_w$が最小のノードを優先して探索する。
 
 \begin{equation}
@@ -1029,7 +1050,7 @@ wA*の利点はA*よりもはるかに高速であることである。
 wA*などの非最適探索を使う場合は最適解が得られないので、許容的でないヒューリスティックと組み合わせて使われることが多い。許容的でないアルゴリズムはその代わりに高速であることがある。% TODO lama?
 
 wA*の解は最適解のコストの上界になるので、A*探索の枝刈りに用いることが出来る。
-A*探索を実行する前にwA*を走らせ、解の上界$c^*$を得、A*探索実行時にノード$n$に対して$f$値が$f(n) \geq c^*$である場合、そのノードを枝刈りする。このテクニックは多重配列アライメントなどに使われる\cite{MSA this technique}。
+A*探索を実行する前にwA*を走らせ、解の上界$c^*$を得、A*探索実行時にノード$n$に対して$f$値が$f(n) \geq c^*$である場合、そのノードを枝刈りする。このテクニックは多重配列アライメントなどに使われる\cite{ikeda1999enhanced}。
 
 図\ref{fig:grid-wastar}はA*とwA*の比較である (ここではエージェントは４方向に動けるとする)。
 wA*の重み$w$は５としている。
@@ -1049,7 +1070,7 @@ wA*の展開・生成ノード数がA*よりも少ないことがわかるだろ
 
 wA*の例で見たように、$g$値に対して$h$値に重きを置くことによって解のクオリティを犠牲により高速に解を得ることができる。
 問題によっては解のクオリティはあまり重要でなかったり、そもそもクオリティという概念がないことがある。
-このようにとにかく解があればよいという場合は\define{貪欲最良優先探索}{Greedy Best-First Search}が使われることが多い。
+このようにとにかく解があればよいという場合は\define{貪欲最良優先探索}{Greedy Best-First Search}が使われることが多い \cite{wilt2010comparison}。
 
 \begin{algorithm}
 \caption{Greedy Best-First Search: $Open.pop()$}
@@ -1101,21 +1122,26 @@ TSPの解の下界としては{\it 最小全域木} (minimum spanning tree)の�
 \cite{todo}は最良優先探索をA*を含むアルゴリズムの集合を定義した\cite{todo}。
 一方\cite{todo}はゴールに最も近い、つまり$h$値が一番小さいノードを常に最優先して展開するアルゴリズムを最良優先探索と呼んだ\cite{todo}。本書ではこの方法は貪欲最良優先探索と呼んでいる。
 
+
+同じ問題に対して重み付きA*を繰り返し$w$値をだんだんと小さくしていくことでだんだんと解のクオリティを向上させることができる。
+この方法をAnytime A*と呼ぶ \cite{}。
+
+
 \chapter{自動行動計画問題 (Automated Planning Problem)}
 %\chapter{古典的プランニング問題 (Classical Planning Problem)}
 \label{ch:classical-planning}
 
 本書の冒頭でグラフ探索アルゴリズムが人工知能のための技術として研究されていると説明した。
 人工知能とはさまざまな定義で使われる言葉であるが、グラフ探索は自動推論や自動行動計画のために使うことができるために研究されている。
-この章では人工知能の一分野である\define{自動行動計画問題}{automated planning problem}について説明する。
+この章では人工知能の一分野である\define{自動行動計画問題}{automated planning problem}について説明する \cite{ghallab:04}。
 自動行動計画は初期状態から命題集合で表される目的を達成するための{\bf プラン}を発見する問題である。
 自動行動計画のためのモデルは様々提案されている。
 最も基本となるモデルは古典的プランニング問題である \cite{fikes:71}。
-古典的プランニングは完全情報\footnote{}、決定的状態遷移を仮定とするモデルであり、状態空間問題に含まれる \cite{fikes:71}。
+古典的プランニングは完全情報\footnote{正確には完全情報ではなく、アクションの決定のために必要な情報がすべて得られるという風に定義される。例えば問題に全く関係ない冗長な変数が含まれる場合、その情報がエージェントに与えられない場合を考えることができる。このような問題も冗長な変数を無視し古典的プランニング問題で扱うことができる。}、決定的状態遷移を仮定とするモデルであり、状態空間問題に含まれる \cite{fikes:71}。
 古典的プランニングによって様々な実問題を表すことができる。例えばロジスティック\cite{helmert2010scanalyzer,sousa2013toward}、セルアセンブリ\cite{asai2014fully}、遺伝子距離計算\cite{erdem2005genome}、ビデオゲーム\cite{lipovetzky2015a}など、様々な応用問題を含むモデルである。
 
 完全情報、決定的状態遷移の仮定を緩和した問題（確率的モデルや不完全情報モデル）もグラフ探索によって解かれることが多いが、本文の範囲外とする。詳細は詳しい教科書を参照されたい\cite{russelln03}。
-なお、プランニング問題はA*などの状態空間探索アルゴリズム以外にも、SATやCSPなどの制約充足問題に変換して解く方法もある。古典的プランニングのための解法としてはグラフ探索アルゴリズムがstate-of-the-artであるが、例えばマルチエージェント経路探索問題などではSATに変換する手法が効率的であることが知られている。
+なお、プランニング問題はA*などの状態空間探索アルゴリズム以外にも、SATやCSPなどの制約充足問題に変換して解く方法もある \cite{ernst1997automatic,do2001planning}。古典的プランニングのための解法としてはグラフ探索アルゴリズムがstate-of-the-artであるが、例えばマルチエージェント経路探索問題などではSATに変換する手法が効率的であることが知られている \cite{sharon2015conflict}。
 %本書は
 %これらの面白い議論があるが、本書の範囲外とする\cite{kautz:92}。
 
@@ -1189,6 +1215,9 @@ PDDLのミソは一階述語論理によってプランニング問題を記述�
 状態空間に含まれる命題を一つ一つ記述するのではなく、述語とオブジェクトの組み合わせによって複数の命題をコンパクトに記述することができる。
 また、インスタンス記述を変えることで同じドメインの異なるインスタンスをモデルすることができる。
 例えばブロックスワールドのドメイン記述はそのままに、インスタンス記述のオブジェクトや\texttt{init}などを変えることで違う問いにすることができる。
+
+PDDLは状態空間問題だけでなくより広く様々な問題を扱うことができる \cite{aeronautiques1998pddl,fox2003pddl2}。
+fast downwardはPDDLの文法の多くをサポートしているので試してみるには便利である。
 
 \begin{figure}
 \includegraphics[width=0.8\linewidth]{./figures/blocks-image.png}
@@ -1326,14 +1355,14 @@ messages to the ground stations are imposed
 
 PDDLにはヒューリスティック関数は何を使えばよいかなどの情報は書かれていない。
 よって、PDDLを入力とする状態空間問題を解く場合、エージェントはヒューリスティック関数を自動生成しなければならない。
-PDDLからヒューリスティック関数を自動生成する手法はプランニング研究の最も重要とされている分野である。
+PDDLからヒューリスティック関数を自動生成する手法はプランニング研究の最も重要とされている分野の一つである。
 
 ヒューリスティックの生成方法の一つの指針としては\ref{sec:heuristic-example}節で言及した緩和問題によるヒューリスティックが分かりやすい。
 すなわち、元の問題$P$よりも簡単な問題$P'$を生成し、$P$の状態$s$から$P'$の状態$s'$へのふさわしい関数を定義する。そして$h(s)$の値を$P'$における$s'$を初期状態とするゴールへの最適解にする。
 このようにしてヒューリスティック関数は自動生成することができる。
 以下、具体的にどのような手法があるかを説明する。
 
-\subsection{ゴールカウントヒューリスティック}
+\subsection{ゴールカウントヒューリスティック (Goal Count Heuristic)}
 
 多くの問題ではゴールはいくつかの条件を満たした状態の集合として与えられる。
 ゴールカウントヒューリスティックは満たしていないゴール条件の数をヒューリスティック値とする関数である。
@@ -1342,24 +1371,25 @@ PDDLからヒューリスティック関数を自動生成する手法はプラ�
 
 ゴールカウントヒューリスティックは許容的であるとは限らない。コスト１のアクションが２つのゴールを同時に満たすかもしれないからだ。１つのアクションで同時に満たせるゴールが１つ以下である場合、そしてその時のみ、許容的である。
 
-\subsection{パターンデータベースヒューリスティック}
+\subsection{パターンデータベースヒューリスティック (Pattern Database Heuristic)}
 \define{パターンデータベースヒューリスティック}{Pattern database heuristic}は非常に強力なstate-of-the-artのヒューリスティック関数である。
 問題の命題集合$AP$に対して$AP' \subset AP$を置き、$AP'$を命題集合とする緩和問題$P'$を考えるというのが大筋の考え方である。
 シンプルだが、$AP'$の選び方によっては非常に正確であり、かつ高速なヒューリスティック関数になることが知られている。
 加えてパターンデータベース
 
 \subsubsection{15パズル}
-
+パターンデータベースは15パズルのヒューリスティック関数としてよく使われる。
+% TODO: 図
 
 \section{関連文献}
 
-複数のパターンデータベースを使ってヒューリスティック値をより正確にすることができる (multiple pattern databases)。
+複数のパターンデータベースを使ってヒューリスティック値をより正確にすることができる (multiple pattern databases) \cite{holte2004multiple}。
 任意の許容的なヒューリスティックの組$h_1, h_2$に対して、$h(s) = max(h_1(s), h_2(s))$は許容的である。このことから、複数のパターンデータベースを使って
-また、複数のデータベースの$h$値の和$h(s) = h_1(s) + h_2(s)$が許容的なヒューリスティックになる手法もある (disjoint pattern databases) \cite{korf}。
+また、複数のデータベースの$h$値の和$h(s) = h_1(s) + h_2(s)$が許容的なヒューリスティックになる手法もある (disjoint pattern databases) \cite{korf2002}。
 
 パターンデータベースはアブストラクト問題の解を陽に列挙する。
 アブストラクト問題の状態空間の大きさに比例したメモリ量を消費することになる。
-それに対して\define{マージアンドシュリンク}{merge and shrink}は複数のアブストラクト問題のグラフをマージして、出来上がったグラフのノードを縮約してグラフを小さくする(シュリンク)手法である \cite{merge-and-shrink}。
+それに対して\define{マージアンドシュリンク}{merge and shrink}は複数のアブストラクト問題のグラフをマージして、出来上がったグラフのノードを縮約してグラフを小さくする(シュリンク)手法である \cite{helmert2014merge}。
 この方法はパターンデータベースよりもアブストラクト問題を少ないメモリ量で表すことができる。
 どのアブストラクト問題をマージするか、どのノードを縮約するかの戦略によってアルゴリズムの性能は大きく変わる。
 
@@ -1386,13 +1416,15 @@ Declarative heuristic
 これらを実装するための効率的なデータ構造はアルゴリズムと問題ドメインに依存する。
 この章ではどのようなシチュエーションでどのようなデータ構造を使われるかを説明する。
 この章は実践的に非常に重要な章である。
+残念ながらヒューリスティック探索の研究論文のほとんどはこの章で扱われる内容について自明のものとして扱わない。あるいはこれらの内容を「コードの最適化」として論文中には明示しない。が、その実自明ではないので初学者の多くはここで苦労することになる。
+データ構造について議論を行っている論文としては\cite{burns2012implementing}がある。
 
 %まず、$f$値の定義域が連続値か離散値かは重要である。
 %また、$f$値が単調増加するかどうか。これはヒューリスティックが無矛盾かどうかにも依存する。
 
 
 
-\section{オープンリスト}
+\section{オープンリスト (Open List)}
 \label{sec:open-list}
 %\captionlistentry[todo]{openlist}
 オープンリストのPriority queueの実装方法は様々ある。
@@ -1427,7 +1459,7 @@ support farmer decisions. Such maps are costly to obtain since they require
 %\end{adjustbox}
 \end{table}
 
-\subsection{タイブレーキング}
+\subsection{タイブレーキング (Tiebreaking)}
 \label{sec:tiebreaking}
 
 \ref{ch:blind-search}章、\ref{ch:heuristic-search}章ではオープンリストでどのノードを最初に展開するかによってアルゴリズムの性能が大きく変わることを示してきた。
@@ -1456,11 +1488,11 @@ LIFOを使うメリットはオープンリストをバケット実装してい�
 
 タイブレーキングは長い間ヒューリスティック探索研究の中であまり重要視されていなかった。
 よいヒューリスティック関数をデザインすることと比較してタイブレーキングはアルゴリズムの効率に対してあまり影響を及ぼさないと考えられてきた。
-しかし特にゼロコストアクションのあるドメインでは
+しかし特にゼロコストアクションのあるドメインではタイブレーキングこそがアルゴリズムの実行効率に影響を与えることが実験的に示された\cite{asai2016tiebreaking}。
 
-タイブレーキングに関する詳細な議論と実験は\cite{asai}にある。
+タイブレーキングに関する詳細な議論と実験は\cite{asai2016tiebreaking}にある。
 
-\section{クローズドリスト}
+\section{クローズドリスト (Closed List)}
 \label{sec:closed-list}
 %\captionlistentry[todo]{closedlist}
 {\TODO closed list}
@@ -1472,7 +1504,7 @@ LIFOを使うメリットはオープンリストをバケット実装してい�
 これらの命令を効率的に実行できる実装をしたい。
 
 
-\subsection{ハッシュテーブル}
+\subsection{ハッシュテーブル (Hash Table)}
 \label{sec:hash-table}
 ハッシュテーブルの効率的な実装は
 
@@ -1481,7 +1513,7 @@ LIFOを使うメリットはオープンリストをバケット実装してい�
 
 \subsection{遅延重複検出 (Delayed Duplicate Detection)}
 \label{sec:graph-search-algorithm}節ではノードを生成したタイミングで重複検出を行うアルゴリズムを説明した。この方法だとノードが生成されたその瞬間に検出を行うという意味で\define{即時重複検出}{immediate duplicate detection}と呼ぶことがある。
-それに対して、ノードを展開するタイミングで検出を行う遅延重複検出という方法もある。
+それに対して、ノードを展開するタイミングで検出を行う\define{遅延重複検出}{delayed duplicate detection}という方法もある \cite{korf2003delayed}。
 ノードが生成された瞬間に重複検出を行わない場合、オープンリスト内に同じ状態を持ったノードが重複して存在する場合がある。
 しかしノードを展開するときに重複検出を行うので、クローズドリストにノードの重複はない。
 
@@ -1519,7 +1551,8 @@ LIFOを使うメリットはオープンリストをバケット実装してい�
 遅延重複検出のメリットは
 
 
-\subsection{ハッシュ関数}
+\subsection{ハッシュ関数 (Hash Function)}
+\label{sec:hash-function}
 
 ハッシュ関数のキーは状態である。
 ハッシュ関数に求められる要件は主に２つである。
@@ -1563,7 +1596,7 @@ Fibonacci heap
 
 % TODO: 基礎の説明が出来たら
 \chapter{ヒューリスティック探索の派生}
-\label{ch:heuristic-serach-variants}
+\label{ch:heuristic-search-variants}
 %\captionlistentry[todo]{heuristic search variants: 表で手法を比較する}
 %\captionlistentry[todo]{heuristic search variants: タイトルをかっこ良くする}
 
@@ -1592,49 +1625,50 @@ A*探索などのヒューリスティック探索は時間と空間の両方が
 この章では時間・空間制約がある場合のA*の代わりとなるヒューリスティック探索の発展を紹介する。
 これらのアルゴリズムはメリット・デメリットがあり、問題・計算機環境によって有効な手法が異なる。よって、A*を完全に取って代わるものは一つもないと言える。
 
+反復深化A*は線形メモリアルゴリズムであり、メモリが足りない問題で使われる。
+山登り法は解が得られる保証はないが、非常に高速に解を発見することがある局所探索手法である。また、消費メモリも非常に少ない。
+Symbolic SearchはBinary Decision Diagramを用いて状態集合を表すことによってノードの集合に対して一度に演算を行う手法である。
+新奇性に基づく枝刈りは目新しくない状態は枝刈りする。
+外部メモリ探索は状態空間がRAMに収まりきらない問題に対して外部記憶を使うことで解決する手法である。
+並列探索は複数のコアや計算機を使うことでメモリと計算時間の両方の問題を解決する。
+
 \section{Branch-and-Bound}
 \label{sec:branch-and-bound}
 admissible pruning
  Branch and Bound
  wA* pruning (MSA)
 
-
-
-\section{反復深化A* (Iterative Deepening A*)}
-\label{sec:iterative-deepening-astar}
-
+\section{反復深化深さ優先探索 (Depth First Iterative Deepening)}
+\label{sec:depth-first-iterative-deepening}
 A*探索は時間・空間の両方がボトルネックになるが、現代の計算機環境では多くの場合空間制約がよりネックになる。
 これはA*が重複検出のために展開済みノードをすべてクローズドリストに保存していることに起因する。
 
 \ref{sec:graph-search-algorithm}節で述べたように、重複検出は正しい解を返すためには必須ではない。グラフに対して木探索を行うことも出来る。
 しかしながら、単純な幅優先木探索・深さ優先木探索はパフォーマンスの問題がある。
 
-反復深化A* (IDA*)は木探索に対してヒューリスティックを用いた、非常にメモリ効率の良いアルゴリズムである\cite{korf:85a}。
-アルゴリズム\ref{alg:iterative-deepening-astar}は反復深化A*の概要を示している。アイディアとしては、閾値$cost$を１ずつ大きくしながら、繰り返しコスト制限付き深さ優先木探索 (CLDFS)を実行する。コスト制限付き深さ優先探索が解を見つければその解を返して停止し、見つけられなければ$cost$を１つ大きくしてもう一度コスト制限付き深さ優先探索を実行する。
+\define{反復深化深さ優先}{depth first iterative deepening} (DFID)
+アルゴリズム\ref{alg:depth-first-iterative-deepening}はDFIDの概要を示している。アイディアとしては、閾値$cost$を１ずつ大きくしながら、繰り返しコスト制限付き深さ優先木探索 (CLDFS)を実行する。CLDFSが解を見つければその解を返して停止し、見つけられなければ$cost$を１つ大きくしてもう一度CLDFSを実行する。
 
-反復深化A*は閾値を大きくする度に一つ前のイテレーションで展開・生成したノードをすべて展開・生成しなおさなければならない。各イテレーション内でもクローズドリストを保持していないために重複検出が出来ない。なので、アルゴリズム全体を通して大量の重複ノードが出る可能性がある。
+DFIDは閾値を大きくする度に一つ前のイテレーションで展開・生成したノードをすべて展開・生成しなおさなければならない。各イテレーション内でもクローズドリストを保持していないために重複検出が出来ない。なので、アルゴリズム全体を通して大量の重複ノードが出る可能性がある。
 これは非常に効率が悪いように思えるかもしれないが、様々な状況においてA*よりも有用な手法である。
 
-反復深化A*のメリットはいくつかある。
+DFIDのメリットはいくつかある。
 まず、コスト$w$が0となるアクションが存在しない場合、必要なメモリ量が最適解のコストに対して線形である。深さ優先木探索は可能な最長経路だけのノードを保持する必要がある。木探索はクローズドリストは保持しない。コスト制限付きの場合、最長経路は$cost$以下である。$0<w<1$となる実数コストがある場合、最小の$w$が$1$となるようにリスケールすることが出来る。 反復深化は$cost$が最適解のコストになった時に停止するので、必要なメモリ量は最適解のコストに対して線形である。
-そのため、A*ではメモリが足りなくなって解けないような難しい問題でも反復深化A*なら解ける可能性がある。
+そのため、幅優先ではメモリが足りなくなって解けないような難しい問題でもDFIDなら解ける可能性がある。
 
-メモリ量と関連してもう一つの重要なメリットはキャッシュ効率である。上述のように反復深化A*は必要なメモリ量が非常にすくない。また、メモリアクセスパターンもかなりリニアである。そのため、ほぼキャッシュミスなく探索を行えるドメインも多い。例えば、15-puzzleなどの状態が少ないビット数で表せられるドメインでは特にキャッシュ効率が良く、1ノードの展開速度の差は{\TODO}倍という実験結果もある\cite{korf:85a}。実際、15-puzzleではIDA*のほうがA*よりも速く解を見つけることが出来る\cite{korf:85a}。何度も何度も重複して同じノードを展開しているのにも関わらずである。
+メモリ量と関連してもう一つの重要なメリットはキャッシュ効率である。上述のようにDFIDは必要なメモリ量が非常にすくない。また、メモリアクセスパターンもかなりリニアである。そのため、ほぼキャッシュミスなく探索を行えるドメインも多い。例えば、15-puzzleなどの状態が少ないビット数で表せられるドメインでは特にキャッシュ効率が良く、1ノードの展開速度の差は圧倒的に速い\cite{korf:85a}。
 
-
-反復深化A*は解を返す場合、得られた解が最適解であることを保証する。
-反復深化A*をはじめとする重複検出のないアルゴリズムを用いる際の問題は、停止性を満たさないことである。すなわち、問題に解がなく、グラフにループがある場合、単純な木探索は停止しない。よって、この手法は解が間違いなく存在することが分かっている問題に対して適用される。あるいは、解が存在することを判定してから用いる。
+DFIDは解を返す場合、得られた解が最適解であることを保証する。
+DFIDをはじめとする重複検出のないアルゴリズムを用いる際の問題は、解がない場合に停止性を満たさないことである。問題に解がなく、グラフにループがある場合、単純な木探索は停止しない。よって、この手法は解が間違いなく存在することが分かっている問題に対して適用される。あるいは、解が存在することを判定してから用いる。
 例えば15-puzzleは解が存在するか非常に高速に判定することが出来る。
 
-
-
 \begin{algorithm}
-\caption{Iterative Deepening A*}
-\label{alg:iterative-deepening-astar}
+\caption{Depth First Iterative Deepening}
+\label{alg:depth-first-iterative-deepening}
 	\Input{Initial node $s$, weight function $w$, successor generation function $Expand$, goal function $Goal$}
 	\Output{Path from $s$ to a goal node $t \in T$, or $\emptyset$ if no such path exists}
-	\For {$cost$ from $0$ to $\infty$} {
-		$found \leftarrow CLA*(s, cost)$\;
+	\For {$c$ from $0$ to $\infty$} {
+		$found \leftarrow CLDFS*(s, c)$\;
 		\If {$found \neq \emptyset$} {
 			\Return $found$;
 		}
@@ -1642,17 +1676,60 @@ A*探索は時間・空間の両方がボトルネックになるが、現代の
 \end{algorithm}
 
 \begin{algorithm}
-\caption{CLDFS: Cost Limited Depth First Search}
+\caption{CLDFS: Cost Limited Depth First Search for DFID}
 \label{alg:cldfs}
 	\Input{Initial node $s$, cost $c$}
-	\Output{Path from $s$ to a goal node $t \in T$, or $\emptyset$ if no such path with cost $\leq cost$}
+	\Output{Path from $s$ to a goal node $t \in T$, or $\emptyset$ if no such path with cost $\leq c$}
 	\If {$Goal(s)$} {
 		\Return $s$\;
 	}
 	\For {each $child \in Expand(s)$} {
-		$found \leftarrow CLDFS(child, cost - 1)$\;
-		\If {$found \neq \emptyset$} {
-			\Return sequence $(s, found)$\;
+		\If {$g(child) \leq c$} {
+			$s' \leftarrow CLDFS(child, c)$
+			\If {$s' \neq \emptyset$} {
+				\Return $s'$
+			}
+		}
+	}
+	\Return $\emptyset$\;
+\end{algorithm}
+
+
+\subsection{反復深化A* (Iterative Deepening A*)}
+\label{sec:iterative-deepening-astar}
+
+
+反復深化A* (IDA*)は木探索に対してヒューリスティックを用いた、非常にメモリ効率の良いアルゴリズムである\cite{korf:85a}。
+DFIDと同様、コストを大きくしながら繰り返しCLDFSを呼ぶ。
+ただし、DFIDでは$g$値によってコストを制限していたのに対して、IDA*では$f$値によってコストを制限する。
+$f$値によって制限することによってヒューリスティック関数を用いることができる。
+アルゴリズム\ref{alg:cldfs-ida}はIDA*でのCLDFSである。
+コストが$f$値で制限されていること以外アルゴリズム\ref{alg:cldfs}と同一である。
+%最適解のコストを$c^*$とする。反復深化深さ優先の最後のステップ、つまりCLDFSの制限コスト$c$が$c^*$であるときに展開する
+%最適解のコストを$c^*$とすると
+
+IDA*は深さ優先探索を繰り返すので消費メモリが非常に少ない。
+なのでA*ではメモリが足りなくなって解けないような難しい問題でもIDA*なら解ける可能性がある。
+DFIDと同様にキャッシュ効率も非常に良い場合がある。例えば15-puzzleではIDA*のほうがA*よりも速く解を見つけることができることが知られている\cite{korf:85a}。何度も何度も重複して同じノードを展開しているのにも関わらずである。
+
+DFID同様、IDA*は解を返す場合、得られた解が最適解であることを保証する。
+IDA*も解がない場合に停止性を満たさない。
+
+
+\begin{algorithm}
+\caption{CLDFS: Cost Limited Depth First Search for IDA*}
+\label{alg:cldfs-ida}
+	\Input{Initial node $s$, cost $c$}
+	\Output{Path from $s$ to a goal node $t \in T$, or $\emptyset$ if no such path with cost $\leq c$}
+	\If {$Goal(s)$} {
+		\Return $s$\;
+	}
+	\For {each $child \in Expand(s)$} {
+		\If {$f(child) \leq c$} {
+			$s' \leftarrow CLDFS(child, c)$
+			\If {$s' \neq \emptyset$} {
+				\Return $s'$
+			}
 		}
 	}
 	\Return $\emptyset$\;
@@ -1662,11 +1739,10 @@ A*探索は時間・空間の両方がボトルネックになるが、現代の
 % TODO
 %\captionlistentry[todo]{Transposition table: なんか説明}
 
-反復深化A*で必要な空間は最適解のコストに対して線形である。
+IDA*で必要な空間は最適解のコストに対して線形である。
 そうすると、むしろかなりの量のメモリが余ることになる。
 そこで、メモリの余った分だけを使って重複検出をするというTransposition Tableという手法がある。
 A*で用いられるClosedと異なり、このテーブルはすべての生成済みノードを保持しない。
-
 
 
 \section{両方向探索 (Bidirectional Search)}
@@ -1680,93 +1756,78 @@ A*で用いられるClosedと異なり、このテーブルはすべての生成
 
 図\ref{fig:brfs}は幅優先探索
 
+\define{両方向探索}{bidirectional search}は初期状態とゴール状態の両方から探索をする手法である。
 
-\section{外部メモリ探索 (External Search)}
-\label{sec:external-search}
+両方向探索の一番のボトルネックは重複検出である。すなわち、正方向探索で生成されたノードの集合と逆方向探索で生成されたノードの集合に共通部分があるかどうかを確認しなければならない。このため生成ノード数としては両方向探索は少なくても、find命令の実行回数が片方向探索よりもかなり多くなる。
+両方向探索はヒューリスティック関数が不正確な時には片方向探索よりも効率的であることが知られている。
+Meet-in-the-Middle (MM)は
 
 
-グラフ探索は重複検出のために今までに展開したノードをすべて保持しなければならない。
-よって、保持できるノードの量によって解ける問題が決まってくる。
-探索空間があまりに大きすぎると、ノードが多すぎてメモリに乗り切らないということが起きる。
+\section{山登り法 (Hill Climbing)}
+\label{sec:hill-climbing}
+\define{山登り法}{hill climbing}は局所探索アルゴリズムであり、特に組み合わせ最適化問題のためのアルゴリズムとして使われる。
+山登り法のアルゴリズムは非常に単純である。子ノードのうち最も$h$値が小さいノードを選ぶことを繰り返す。
 
-\define{外部メモリ探索}{External Search}は外部記憶、HDDやSDDを用いることでこの問題を解決する。
-すなわち、Open、Closedの一部を外部記憶に保持し、必要に応じて参照しRAMに持ってくる、ということをする。
-外部メモリ探索のミソは、外部記憶へのアクセス回数をどのように減らすかにある。
-表\ref{tbl:latency}は一般的なコンピュータのキャッシュ・メモリ・ハードディスクへのアクセスレイテンシーを比較した表である。メモリから1MB{\it 逐次に}読みだすオペレーションは250,000 nanosecかかるが、ハードディスクからの読出しは20,000,000 nanosecもかかる。更にハードディスクにランダムアクセスする場合(Disk seek)は8,000,000 nanosecもかかる。
-よって、HDDは工夫して使わなければ実行時間が非常に遅くなってしまう。%\footnote{似たような理由で、HDDを用いないRAMベースの探索を効率化するためにはキャッシュ効率を工夫しなければならない。詳しくは\cite{burns2012implementing}を参照されたい。}。
-
-\begin{table}
-\centering
-\caption{一般的なハードウェアのアクセス速度。メモリへのアクセス速度に対して外部記憶のアクセスは遅い。加えて、ランダムアクセスはseekの時間がかかるためさらに遅くなる。 (https://gist.github.com/jboner/2841832)}
-\label{tbl:latency}
-%\begin{adjustbox}{width=\textwidth}
-\begin{tabular}{|l|r|}
-		   & nano sec \\ \hline
-	命令実行 & 1 \\
-	fetch from L1 cache memory & 0.5 \\
-	branch misprediction 		& 5 \\
-	fetch from L2 cache memory & 7 \\
-	mutex lock/unlock  			& 25 \\
-	fetch from main memory  	& 100 \\
-	Read 4K randomly from SSD         & 150,000 \\
-	read 1MB sequentially from memory & 250,000 \\
-	fetch from new disk location (seek) & 8,000,000 \\
-	Read 1 MB sequentially from SSD		& 1,000,000 \\
-	read 1MB sequentially from disk 	& 20,000,000 \\
-	
-\end{tabular}
-%\end{adjustbox}
-\end{table}
-
-\subsection{外部メモリ 幅優先探索}
-\label{sec:external-brfs}
-
-%\captionlistentry[todo]{External BrFS}
 
 \begin{algorithm}
-\caption{External Breadth-first search}
-\label{alg:external-brfs}
-	\Input{Initial node $s$}
-	\Output{Path from $s$ to a goal node $t \in T$, or $\emptyset$ if no such path with cost $\leq cost$}
-	$Open(-1) \leftarrow \emptyset$\;
-	$Open(0) \leftarrow \{s\}$\;
-	$i \leftarrow 1$\;
-	\While {$Open(i-1) \neq \emptyset$}{
-		$A(i) \leftarrow Succ(Open(i-1))$\;
-		\If {$Goal(Open(i))$} {
-			\Return $Construct(Open(i))$\;
-		}
-		$A'(i) \leftarrow RemoveDuplicates(A(i))$\;
-		$Open(i) \leftarrow A'(i) \setminus (Open(i-1)\cup Open(i-2))$\;
-		$i \leftarrow i + 1$\;
+\caption{Hill Climbing}
+	\Input{Initial node $s_0$}
+	\Output{Path from $s_0$ to a goal node $t \in T$}
+	$s \leftarrow \{s_0\}$\;
+	\While {$s \notin Goal$} {
+		$s \leftarrow \arg \min_{s' \in Expand(s)} h(s)$
 	}
-	\Return No solution found
+	\Return $s$
+\label{alg:hill-climbing}
 \end{algorithm}
 
-
-\subsection{外部メモリ A*}
-\label{sec:external-astar}
-%\captionlistentry[todo]{external A*: ALL}
+この手法は組み合わせ最適化・連続最適化のためによく使われる。
+しかしグラフ探索アルゴリズムでこのまま使おうとすると$h$の極小ではまってしまったり、デッドエンドに落ちてしまう可能性がある。
 
 
+\subsection{強制山登り法 (Enforced Hill Climbing)}
+
+ヒューリスティック探索でよく使われる局所探索は\define{強制山登り法}{enforced hill-climbing} (EHC)である \cite{}。
+EHCは幅優先探索を繰り返し、現在のノードよりも$h$値が小さいノードを発見する。発見できればそのノードから再び幅優先を行い、ゴールを発見するまで続ける。もし$h$値が小さいノードが見つからなければ極小に陥ってしまったということであるので、探索を打ち切り、失敗 (Fail)を返す。
 
 \begin{algorithm}
-\caption{External A* search}
-\label{alg:external-astar}
-	\Input{Initial node $s$}
-	\Output{Path from $s$ to a goal node $t \in T$, or $\emptyset$ if no such path with cost $\leq cost$}
-	
-	XXX
-	\Return No solution found
+\caption{Enforced Hill Climbing}
+	\Input{Initial node $s_0$}
+	\Output{Path from $s_0$ to a goal node $t \in T$}
+	$s \leftarrow \{s_0\}$\;
+	\While {$s \notin Goal$} {
+		Let $T = \{v \in S | h(v) < h(s) \}$
+		$s' \leftarrow BreadthFirstSearch(s, T)$
+	}
+	\Return $s$
+\label{alg:hill-climbing}
 \end{algorithm}
+
+
+局所探索アルゴリズムは完全性を満たさない。
+なので解が発見できなければ(失敗を返す場合)続けてA*探索などを走らせないと解が発見できない場合がある。
+山登り法などの局所探索の利点はなんといってもアルゴリズムはシンプルであり、実装が簡単であることである。
+加えて消費メモリ量が非常に少ない。
+
+山登り法が記憶しなければならないノードは現在のノードとその子ノードらだけである。
+毎回次のノードを選択したら、そのノード以外のノードは捨ててしまう。
+貪欲最良優先探索(\ref{sec:greedy-best-first-search}節)も同様に$h$値のみしか見ていないが、すべての生成済みノードをオープンリストに入れることと比較すると、山登り法がいかにアグレッシブな手法であるかがうかがえるだろう。
+
+
+\subsection{ビームサーチ (Beam Search)}
+
+
+
+遺伝的アルゴリズム。８クイーン問題。
 
 
 \section{Symbolic Search}
 \label{sec:symbolic-search}
-Binary Decision Diagram (BDD)は二分木によってブーリアンvectorからブーリアンへの関数$(x_0,x_1,...,x_n) \rightarrow \{0, 1\}$を効率良く表すグラフ構造である。
-Symbolic SearchではBDDを使って状態の集合、アクションの集合を表し、BDD同士の演算によって状態の集合を一気に同時に展開していく。
+Binary Decision Diagram (BDD)は二分木によってブーリアンvectorからブーリアンへの関数$(x_0,x_1,...,x_n) \rightarrow \{0, 1\}$を効率良く表すグラフ構造である \cite{}。
+Symbolic SearchはBDDを使って状態の集合、アクションの集合を表し、BDD同士の演算によって状態の集合を一気に同時に展開していく手法である \cite{}。
 A*探索がノードを一つずつ展開していき、一つずつ生成していく手間と比較して非常に効率的に演算が出来るポテンシャルを秘めている。
-International Planning Competition (2014)のSequential Optimal部門(最適解を見つけるパフォーマンスを競う部門)の一位から三位までをSymbolic Searchが総なめした。現在(2017年)のstate-of-the-artの手法であるといえるだろう。
+また、オープン・クローズドリストをBDDで表せられるため、メモリ消費量が少なくなる場合がある。
+International Planning Competition (2014)のSequential Optimal部門(最適解を見つけるパフォーマンスを競う部門)の一位から三位までをSymbolic Searchが総なめした \cite{}。現在(2017年)のstate-of-the-artの手法であるといえるだろう。
 
 
 \subsection{特徴表現 (Symbolic Representation)}
@@ -1804,6 +1865,7 @@ Sliding-token puzzleで可能なアクションは$(00) \rightarrow (01), (01) \
 
 
 \begin{figure}
+\centering
 \includegraphics[width=0.8\linewidth]{./snaps/sliding-token.png}
 \caption{Sliding-token puzzleとそのバイナリ表現}
 \label{fig:sliding-token}
@@ -1928,25 +1990,233 @@ BDD-幅優先木探索は幅優先探索と同様、解の経路長が最短で�
 %\subsection{Symbolic Blind Search}
 %\subsection{Symbolic Heuristic Search}
 
+\subsection{関連文献}
+
+
+
+\section{新奇性に基づく枝刈り (Novelty-based Pruning)}
+\label{sec:novelty-based-pruning}
+
+状態空間を広く探索することは局所最適やデッドエンドに陥らないためには必要である。
+より\define{新奇性}{novelty}のある状態を優先して探索することによって広く状態空間が探索できると考えられる。
+状態空間が非常に大きい場合は、よりアグレッシブに、すでに生成された状態と似たような状態を枝刈りしていく方法がある。
+
+
+%新奇性は似たような状態というのが定義しやすいドメインにおいて有効である。
+
+
+\subsection{状態の新奇性 (Novelty)}
+\label{sec:novelty}
+
+状態に対して新奇性を定義する試みは人工知能研究において様々な場面で現れる\cite{TODO}。
+なので新奇性の定義も様々であるが、本書では\cite{geffner2015}の定義に従い、新奇性を以下のように定義する。
+
+
+\begin{definition}{Novelty}
+$m$個の特徴関数の集合$h_1,h_2,....,h_m$に対して新たに生成された状態$s$の新奇性$w(s)$は$n$であるとは、
+$n$個の特徴関数によるタプル$\{h_{i_1},h_{i_2},..,h_{i_n}\}$が存在し、
+$h_{i_1}(s) = h_{i_1}(s')$, $h_{i_2}(s) = h_{i_2}(s')$,...,$h_{i_n}(s) = h_{i_n}(s')$を満たす生成済みの状態$s'$が存在せず、
+かつ、この条件を満たすそれよりも小さいタプルが存在しない。
+\end{definition}
+
+特徴関数は単純に状態変数を返すものが使われることが多い \cite{geffner, geffner, alex, jinnai}。
+つまり状態$s = \{v_1, v_2,...,v_m\}$に対して特徴関数は$h_i = v_i$とする。
+この場合、$w(s) = m$であれば状態変数がすべて同じノードがすでに生成済みであるということなので、$s$は重複したノードである。
+このため枝刈りのために新奇性を定義する場合はこれが便利である。
+
+% TODO: もっとわかりやすい例？
+例えばマルバツゲームの新奇性を考える。
+特徴関数$h_i$は$i$の位置にあるマーク(空、マル、バツ)を返す。
+初期状態$s_0$の新奇性は生成済み状態が存在しないので1である。
+
+
+\begin{figure}
+% TODO: マルバツゲームの図
+\caption{マルバツゲームにおける新奇性の例}
+\end{figure}
+
+\subsection{Width-Based Search (幅制限探索)}
+\label{sec:width-based-search}
+
+\define{幅制限探索}{width-based search}は状態の新奇性に基づいてノードを枝刈りする手法である \cite{lipovetzkyg12}。
+新奇性によってノードを枝刈りするので、解が存在しても発見される保証はない。
+
+\begin{definition}{幅制限探索}
+IW(i)は新奇性が$i$よりも大きい状態を枝刈りする幅優先探索である。
+\end{definition}
+
+$i$が特徴関数の数と同じである場合、幅制限探索はただの(重複検知を行う)幅優先探索になる。
+
+幅を制限することのメリットは２つある。
+一つは状態空間が著しく小さくなる。
+もう一つは幅を制限することで生成済みノードをクローズドリストにすべて保存する必要がなくなる。
+その代わり保存しなければならない情報は、生成済みの特徴のタプルのうち大きさが$i$以下のものの集合である。
+これがないと新奇性を計算することができない。
+
+生成済みタプルの集合は真偽値のテーブルによって実装することができる。
+状態$s$のある変数$X$の値が$x$であることを$s$は\define{アトム}{atom}$(X = x)$を持つと言う。
+例えばIW($1$)であれば保存しなければならない情報は可能なアトムの数の真偽値のみである。
+%マルバツゲームの例だと９個の特徴関数$h_i$の定義域の大きさはそれぞれ３でなので、27個の真偽値を保存する必要がある。
+%生成済みノードをすべて保存する幅優先探索の場合、クローズドリストの大きさは状態の数
+
+例えばIW($1$)であれば真偽値の各値は$h_i$
+
+すべての大きさ$i$以下のタプルに対して
+
+$i = m$の場合この真偽値テーブルはクローズドリストそのものになる。
+
+%すべての生成済みのタプルのうち大きさが$i$以下のものである。
+ここで
+よりも小さい
+
+幅制限探索のパフォーマンスは特徴関数の選択によって大きく左右される。
+
+\cite{geffner2015}は新奇性の定義域を有理数に定義しなおした幅制限探索を提案した\cite{geffner2015}。
+
+\subsection{Iterative Width Search (反復幅制限探索)}
+\label{sec:iterative-width-search}
+
+\define{反復幅制限探索}{iterative width search}は幅制限探索を幅を大きくしながら解を発見するまで繰り返すアルゴリズムである \cite{lipovetzkyg12}。
+IW($i$)は幅$i$が大きくなるほど大きな状態空間を探索することになる。
+幅を大きくしていくことでだんだんと探索する状態空間を大きくしていき、解を探すという手法である。
+
+
+\begin{algorithm}
+\caption{Iterative Width Search}
+	$n \leftarrow 1$
+	\While {$sol is null$} {
+		$sol \leftarrow IW(n)$\;
+		$n \leftarrow n + 1$\;
+	}
+	\Return $sol$
+\end{algorithm}
+
+
+\subsection{Best-First Width Search (最良優先幅制限探索)}
+\label{sec:width-based-heuristic-search}
+
+\cite{geffner2015}
+
+
+\subsection{Novelty Heuristics (新奇性に基づくヒューリスティック)}
+\label{sec:novelty-heuristics}
+
+ここまでの議論では新奇性を枝刈りのために使った。
+しかしノードを捨ててしまう枝刈りは解が存在する問題でも解を発見できなくなってしまうという問題がある。
+新奇性を使ってノードを完全に捨ててしまうのではなく、新奇性に基づいてノードを展開する優先度を決めるというアプローチをとることができる \cite{geffner2015}。つまり新奇性をヒューリスティックに使うということである。
+この方法ではノードは完全に捨てられることはないので解を捨ててしまう可能性はなくなる。
+
+ここで注意しなければならないのは新奇性は生成済みノード集合に依存する値である。
+つまり新奇性に基づくヒューリスティック関数は状態$s$の関数ではなく、状態とクローズドリストの関数となる。つまり、同じ状態のノードでもヒューリスティック値が異なる場合がある。
+
+% TODO: read the paper
+
+\subsection{関連文献}
+
+
+\section{外部メモリ探索 (External Search)}
+\label{sec:external-search}
+
+
+グラフ探索は重複検出のために今までに展開したノードをすべて保持しなければならない。
+よって、保持できるノードの量によって解ける問題が決まってくる。
+探索空間があまりに大きすぎると、ノードが多すぎてメモリに乗り切らないということが起きる。
+
+\define{外部メモリ探索}{External Search}は外部記憶、HDDやSDDを用いることでこの問題を解決する \cite{chiang1995external}。
+すなわち、Open、Closedの一部を外部記憶に保持し、必要に応じて参照しRAMに持ってくる、ということをする。
+外部メモリ探索のミソは、外部記憶へのアクセス回数をどのように減らすかにある。
+表\ref{tbl:latency}は一般的なコンピュータのキャッシュ・メモリ・ハードディスクへのアクセスレイテンシーを比較した表である。メモリから1MB{\it 逐次に}読みだすオペレーションは250,000 nanosecかかるが、ハードディスクからの読出しは20,000,000 nanosecもかかる。更にハードディスクにランダムアクセスする場合(Disk seek)は8,000,000 nanosecもかかる。
+よって、HDDは工夫して使わなければ実行時間が非常に遅くなってしまう。%\footnote{似たような理由で、HDDを用いないRAMベースの探索を効率化するためにはキャッシュ効率を工夫しなければならない。詳しくは\cite{burns2012implementing}を参照されたい。}。
+
+\begin{table}
+\centering
+\caption{一般的なハードウェアのアクセス速度。メモリへのアクセス速度に対して外部記憶のアクセスは遅い。加えて、ランダムアクセスはseekの時間がかかるためさらに遅くなる。 (https://gist.github.com/jboner/2841832)}
+\label{tbl:latency}
+%\begin{adjustbox}{width=\textwidth}
+\begin{tabular}{|l|r|}
+		   & nano sec \\ \hline
+	命令実行 & 1 \\
+	fetch from L1 cache memory & 0.5 \\
+	branch misprediction 		& 5 \\
+	fetch from L2 cache memory & 7 \\
+	mutex lock/unlock  			& 25 \\
+	fetch from main memory  	& 100 \\
+	Read 4K randomly from SSD         & 150,000 \\
+	read 1MB sequentially from memory & 250,000 \\
+	fetch from new disk location (seek) & 8,000,000 \\
+	Read 1 MB sequentially from SSD		& 1,000,000 \\
+	read 1MB sequentially from disk 	& 20,000,000 \\
+	
+\end{tabular}
+%\end{adjustbox}
+\end{table}
+
+\subsection{外部メモリ 幅優先探索 (External BrFS)}
+\label{sec:external-brfs}
+
+%\captionlistentry[todo]{External BrFS}
+
+\cite{mehlhorn2002external}
+
+\begin{algorithm}
+\caption{External Breadth-first search}
+\label{alg:external-brfs}
+	\Input{Initial node $s$}
+	\Output{Path from $s$ to a goal node $t \in T$, or $\emptyset$ if no such path with cost $\leq cost$}
+	$Open(-1) \leftarrow \emptyset$\;
+	$Open(0) \leftarrow \{s\}$\;
+	$i \leftarrow 1$\;
+	\While {$Open(i-1) \neq \emptyset$}{
+		$A(i) \leftarrow Succ(Open(i-1))$\;
+		\If {$Goal(Open(i))$} {
+			\Return $Construct(Open(i))$\;
+		}
+		$A'(i) \leftarrow RemoveDuplicates(A(i))$\;
+		$Open(i) \leftarrow A'(i) \setminus (Open(i-1)\cup Open(i-2))$\;
+		$i \leftarrow i + 1$\;
+	}
+	\Return No solution found
+\end{algorithm}
+
+
+\subsection{外部メモリ A* (External A*)}
+\label{sec:external-astar}
+%\captionlistentry[todo]{external A*: ALL}
+\cite{edelkamp2004external}
+
+
+\begin{algorithm}
+\caption{External A* search}
+\label{alg:external-astar}
+	\Input{Initial node $s$}
+	\Output{Path from $s$ to a goal node $t \in T$, or $\emptyset$ if no such path with cost $\leq cost$}
+	
+	XXX
+	\Return No solution found
+\end{algorithm}
+
+\subsection{関連文献}
+Structured duplicate detection \cite{}
+Multiple Sequence Alignment
+PA* hash-based parallel external
+
+
 \section{並列探索 (Parallel Search)}
 \label{sec:parallel-search}
 
 近年コンピュータ一台当たりのコア数は増加を続けており、コンピュータクラスタにも比較的容易にアクセスが出来るようになった。Amazon Web Serviceのようなクラウドの計算資源も普及し、将来的には並列化が当然になると考えられる。
 並列化の成功例は枚挙にいとまないが、近年のディープラーニングはまさに効率的な並列計算アーキテクチャによって得られたブレイクスルーであるといえる。
-もしCPU/GPUを利用した効率的なグラフ探索アルゴリズムが開発出来れば、非常に大きなインパクトになるかもしれない。
 %残念ながら、探索アルゴリズムの並列化は比較的難しいと考えられる。
 %一般に並列アルゴリズムの効率は逐次実行部分と並列実行可能部分に分割される
 %グラフ探索アルゴリズムを並列化するメリットの一つはもちろん実行速度の高速化である。
 グラフ探索アルゴリズムの並列化に考えなければならないオーバーヘッドは様々であり、それらの重要性は問題、インスタンス、マシン、さまざまな状況に依存する。加えてハードウェアは刻々と変化を続けており、数年後にどのような環境がメジャーとなるのかはなかなか想像をすることが出来ないだろう。
 本書ではCPUを用いた分散メモリ並列アルゴリズムとGPU一台を用いた並列アルゴリズムについて説明する。
 CPU並列ではハッシュによってノードを各プロセスにアサインし、各プロセスはアサインされたノードのみを担当して探索を行うというフレームワークが現在のstate-of-the-artである。
-一方、執筆時現在、GPUを用いたアルゴリズムはあまり研究が進んでいない。原因としては、既存のCPUを用いた探索アルゴリズムにはない様々な難しさがあるだろう。
-たとえば、GPUはスレッド当りのメモリ量が非常に少ない。A*探索はメモリが大きなボトルネックであり、メモリ量が少ないとそのまま解ける問題の大きさが制限されてしまう。この問題を解決する方法は提示されていない。
-もうひとつの難しさは、GPUは複数のスレッドが同じ命令を実行するSingle instruction multiple thread (SIMT)という計算モデルであることである。そのため、既知の有力なヒューリスティック関数をGPU環境において効率的に実装する方法が自明ではない。
-パターンデータベースなどのシンプルな命令によるヒューリスティックも考えることが出来るが、このようなヒューリスティックは今度はメモリを沢山消費するという問題点がある。
-効率的なGPU並列化アルゴリズムの開発は大きな成果が期待されるブルーオーシャンであるといえる\footnote{個人の感想である}。
 
-\subsection{並列化オーバーヘッド}
+
+より詳細な議論は\ref{fukunaga2017survey}を参照されたい。
+
+\subsection{並列化オーバーヘッド (Parallel Overheads)}
 \label{sec:parallel-overheads}
 
 理想的には$n$プロセスで並列化したら$n$倍速くなってほしい。
@@ -2003,7 +2273,13 @@ LB := \frac{\text{Maximum number of nodes assigned to a thread}}{\text{Average n
 多くの場合、通信・同期オーバーヘッドと探索オーバーヘッドがトレードオフの関係にあたる。
 
 
-\subsection{Hash Distributed A*}
+\subsection{並列深さ優先探索 (Parallel Depth First Search)}
+\label{sec:parallel-dfs}
+Stack-based Depth First Search
+pattern mining
+grid-connection with lifeline
+
+\subsection{ハッシュ分配A* (Hash Distributed A*)}
 \label{sec:hash-distributed-astar}
 
 ハッシュ分配A* (Hash Distributed A*, HDA*) \cite{kishimotofb13}はCPUを用いたstate-of-the-artの並列A*探索アルゴリズムである。
@@ -2085,126 +2361,36 @@ Domain transition graph
 
 Abstract featureの生成方法としてstate-of-the-artの手法はGraph partitioning-based \cite{jinnai2017work}であり、各DTGを与えられた最適化指標下で分割することでabstract featureを生成する。
 
-
-\section{新奇性に基づく枝刈り (Novelty-based Pruning)}
-\label{sec:novelty-based-pruning}
-
-状態空間を広く探索することは局所最適やデッドエンドに陥らないためには必要である。
-より\define{新奇性}{novelty}のある状態を優先して探索することによって広く状態空間が探索できると考えられる。
-状態空間が非常に大きい場合は、よりアグレッシブに、すでに生成された状態と似たような状態を枝刈りしていく方法がある。
+\subsection{関連文献}
+Transposition Table Driven Work Distribution (TDS) \cite{}.
+Parallel Structured Duplicated Detection (PSDD) \cite{}.
+Parallel Best-NBlock First (PBNF) \cite{}.
 
 
-%新奇性は似たような状態というのが定義しやすいドメインにおいて有効である。
+一方、執筆時現在、GPUを用いたアルゴリズムはあまり研究が進んでいない。原因としては、既存のCPUを用いた探索アルゴリズムにはない様々な難しさがあるだろう。
+たとえば、GPUはスレッド当りのメモリ量が非常に少ない。A*探索はメモリが大きなボトルネックであり、メモリ量が少ないとそのまま解ける問題の大きさが制限されてしまう。この問題を解決する方法は提示されていない。
+もうひとつの難しさは、GPUは複数のスレッドが同じ命令を実行するSingle instruction multiple thread (SIMT)という計算モデルであることである。そのため、既知の有力なヒューリスティック関数をGPU環境において効率的に実装する方法が自明ではない。
+パターンデータベースなどのシンプルな命令によるヒューリスティックも考えることが出来るが、このようなヒューリスティックは今度はメモリを沢山消費するという問題点がある。
+効率的なGPU並列化アルゴリズムの開発は大きな成果が期待されるブルーオーシャンであるといえる\footnote{個人の感想である}。
+もしCPU/GPUを利用した効率的なグラフ探索アルゴリズムが開発出来れば、非常に大きなインパクトになるかもしれない。
 
+\section{その他の派生アルゴリズム}
+ここで紹介した以外にもヒューリスティック探索の派生アルゴリズムはたくさんある。
 
-\subsection{状態の新奇性 (Novelty)}
-\label{sec:novelty}
+\define{再帰的最良優先探索}{Recursive best-first search} (RBFS)はIDA*の拡張である \cite{RBFS}。
+RBFSはノードを最良優先の順で展開し、ヒューリスティック値をバックアップする。
+余ったメモリを使ってノードの展開数を抑える拡張が提案されている (Memory-aware RBFS) \cite{MRBFS}。
 
-状態に対して新奇性を定義する試みは人工知能研究において様々な場面で現れる\cite{TODO}。
-なので新奇性の定義も様々であるが、本書では新奇性を以下のように定義する。
+%Depth-first iterative deepening
+Partial Expansion A* \cite{}。多重整列問題。
 
+K-Best First Search
 
-\begin{definition}{Novelty}
-$m$個の特徴関数の集合$h_1,h_2,....,h_m$に対して新たに生成された状態$s$の新奇性$w(s)$は$n$であるとは、
-$n$個の特徴関数によるタプル$\{h_{i_1},h_{i_2},..,h_{i_n}\}$が存在し、
-$h_{i_1}(s) = h_{i_1}(s')$, $h_{i_2}(s) = h_{i_2}(s')$,...,$h_{i_n}(s) = h_{i_n}(s')$を満たす生成済みの状態$s'$が存在せず、
-かつ、この条件を満たすそれよりも小さいタプルが存在しない。
-\end{definition}
-
-特徴関数は単純に状態変数を返すものが使われることが多い。
-つまり状態$s = \{v_1, v_2,...,v_m\}$に対して特徴関数は$h_i = v_i$とする。
-この場合、$w(s) = m$であれば状態変数がすべて同じノードがすでに生成済みであるということなので、$s$は重複したノードである。
-このため枝刈りのために新奇性を定義する場合はこれが便利である。
-
-% TODO: もっとわかりやすい例？
-例えばマルバツゲームの新奇性を考える。
-特徴関数$h_i$は$i$の位置にあるマーク(空、マル、バツ)を返す。
-初期状態$s_0$の新奇性は生成済み状態が存在しないので1である。
-
-
-\begin{figure}
-% TODO: マルバツゲームの図
-\caption{マルバツゲームにおける新奇性の例}
-\end{figure}
-
-\subsection{Width-Based Search (幅制限探索)}
-\label{sec:width-based-search}
-
-\define{幅制限探索}{width-based search}は状態の新奇性に基づいてノードを枝刈りする手法である \cite{lipovetzkyg12}。
-新奇性によってノードを枝刈りするので、解が存在しても発見される保証はない。
-
-\begin{definition}{幅制限探索}
-IW(i)は新奇性が$i$よりも大きい状態を枝刈りする幅優先探索である。
-\end{definition}
-
-$i$が特徴関数の数と同じである場合、幅制限探索はただの(重複検知を行う)幅優先探索になる。
-
-幅を制限することのメリットは２つある。
-一つは状態空間が著しく小さくなる。
-もう一つは幅を制限することで生成済みノードをクローズドリストにすべて保存する必要がなくなる。
-その代わり保存しなければならない情報は、生成済みの特徴のタプルのうち大きさが$i$以下のものの集合である。
-これがないと新奇性を計算することができない。
-
-生成済みタプルの集合は真偽値のテーブルによって実装することができる。
-状態$s$のある変数$X$の値が$x$であることを$s$は\define{アトム}{atom}$(X = x)$を持つと言う。
-例えばIW($1$)であれば保存しなければならない情報は可能なアトムの数の真偽値のみである。
-%マルバツゲームの例だと９個の特徴関数$h_i$の定義域の大きさはそれぞれ３でなので、27個の真偽値を保存する必要がある。
-%生成済みノードをすべて保存する幅優先探索の場合、クローズドリストの大きさは状態の数
-
-例えばIW($1$)であれば真偽値の各値は$h_i$
-
-すべての大きさ$i$以下のタプルに対して
-
-$i = m$の場合この真偽値テーブルはクローズドリストそのものになる。
-
-%すべての生成済みのタプルのうち大きさが$i$以下のものである。
-ここで
-よりも小さい
-
-幅制限探索のパフォーマンスは特徴関数の選択によって大きく左右される。
-
-\cite{geffner2015}は新奇性の定義域を有理数に定義しなおした幅制限探索を提案した\cite{geffner2015}。
-
-\subsection{Iterative Width Search (反復幅制限探索)}
-\label{sec:iterative-width-search}
-
-\define{反復幅制限探索}{iterative width search}は幅制限探索を幅を大きくしながら解を発見するまで繰り返すアルゴリズムである。
-IW($i$)は幅$i$が大きくなるほど大きな状態空間を探索することになる。
-幅を大きくしていくことでだんだんと探索する状態空間を大きくしていき、解を探すという手法である。
-
-
-\begin{algorithm}
-\caption{Iterative Width Search}
-	$n \leftarrow 1$
-	\While {$sol is null$} {
-		$sol \leftarrow IW(n)$\;
-		$n \leftarrow n + 1$\;
-	}
-	\Return $sol$
-\end{algorithm}
-
-
-\subsection{Best-First Width Search (最良優先幅制限探索)}
-\label{sec:width-based-heuristic-search}
-
-
-
-\subsection{Novelty Heuristics (新奇性に基づくヒューリスティック)}
-\label{sec:novelty-heuristics}
-
-ここまでの議論では新奇性を枝刈りのために使った。
-しかしノードを捨ててしまう枝刈りは解が存在する問題でも解を発見できなくなってしまうという問題がある。
-新奇性を使ってノードを完全に捨ててしまうのではなく、新奇性に基づいてノードを展開する優先度を決めるというアプローチをとることができる。つまり新奇性をヒューリスティックに使うということである。
-この方法ではノードは完全に捨てられることはないので解を捨ててしまう可能性はなくなる。
-
-ここで注意しなければならないのは新奇性は生成済みノード集合に依存する値である。
-つまり新奇性に基づくヒューリスティック関数は状態$s$の関数ではなく、状態とクローズドリストの関数となる。つまり、同じ状態のノードでもヒューリスティック値が異なる場合がある。
-
-% TODO: read the paper
-
-\section{関連文献}
-ヒューリスティック探索の派生アルゴリズムは数知れない。
-
+K-ビームサーチ
+Partial A*
+Partial IDA*
+MA*
+Frontier Search
 
 \begin{comment}
 
@@ -2241,6 +2427,9 @@ inadmissible pruning
 
 \subsection{ビデオゲームAI: Atari 2600} 
 \label{sec:video-game}
+
+\section{パターンマイニング}
+
 
 \section{二人プレイヤーゲーム}
 \label{sec:two-player-game}
@@ -2301,14 +2490,18 @@ DL for Reward design in MCTS
 Juhn, Satinder, et al.
 \end{comment}
 
-
+\begin{comment}
 \begin{appendices}
 \chapter{関連和書}
 残念ながらヒューリスティック探索を扱う和書は少ないが、関連分野には和書も存在する。
 まず、人工知能の教科書は和訳が存在する\cite{norvig}。人工知能研究について興味がある読者はこれをお勧めする。
 
+Qiitaにヒューリスティック探索アルゴリズムの記事\url{http://qiita.com/advent-calendar/2015/graphsearch}がまとまっているのでそちらも参照されたい。
+
+Donald KnuthによるThe Art of Computer Programming Volume 4A Combinatorial Algorithmsは組み合わせ問題としてグラフ探索を扱っている。
 
 \end{appendices}
+\end{comment}
 
 \printindex
 
