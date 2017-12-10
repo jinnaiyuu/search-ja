@@ -171,6 +171,73 @@ Brown University (yuu\_jinnai@brown.edu)}
 
 %Think RationallyとAct Rationallyの間には大きなギャップが存在する。
 
+\section{アルゴリズムの概略図}
+\label{sec:cheatsheet}
+
+ここでは大まかに問題の特徴に対してどのようなアルゴリズムを最初に試すべきかの概略を示す。
+ここで紹介する手法が常に優れているわけではない。が、最初に考慮する価値はあるだろう。
+つまり、ここではその問題に当てはまらないとされた手法だからといって有用ではないということはない。
+各章を読んでみて、適用可能かを読んでみたい。
+
+同じ状態に至る経路がたくさんある
+YES: グラフ探索アルゴリズム
+NO: 木探索アルゴリズム (e.g. IDA*)
+SOSO: IDA* with transposition table
+
+問題の特徴がある程度分かっておりヒューリスティックが作れる
+YES: ヒューリスティック探索
+NO: ブラインド探索
+
+最適解ではなくある程度良い解なら十分である
+YES: 局所探索、wA*
+NO: A*
+
+最適解と比べてどのくらい良い解かの保証が必要である
+YES: wA*
+
+実行時間が足りない
+YES: 局所探索、IDA*、wA*、並列探索
+
+メモリが足りない
+YES: 深さ優先探索、IDA*、並列探索、外部メモリ探索、
+
+状態空間に似たような状態がたくさんある
+YES: Novelty-based Pruning
+
+最適解のコストの上界が求められる
+YES: branch-and-bound
+
+コスト(ノード間距離)は連続値である
+YES: 二分木によるプライオリティキュー
+NO: nested bucketによるプライオリティキュー
+
+分枝数が大きい
+YES: 遅延重複検出、モンテカルロ木探索
+
+いろいろな種類の問題があり、それら全てのソルバーを作らなければならない
+YES: PDDL、自動行動計画問題
+
+状態遷移が非決定論的である
+YES: ダイナミックプログラミング
+
+状態が完全には観測できない（POMDP）
+YES: Belief space planning (cite kaelbling)
+
+解を一つではなく全列挙したい
+YES: Symbolic Search?
+
+%あるアクションの後に実行すると有益なアクションが分かっている
+%YES: マクロアクション
+
+この問題を解くためのアルゴリズムが紹介されていない・分からない
+YES: \url{ddyuudd@gmail.com}にメールする
+
+
+コード
+Fast-Downward
+YuuJinnai/solver
+Shunji/solver
+
 
 \section{本書の射程}
 \label{sec:coverage}
@@ -721,6 +788,33 @@ TSPはヒューリスティック探索に限らず、様々なアプローチ�
 \label{alg:dfs-open}
 	\Output{Node $n$}
 	\Return $\arg \max_n g(n)$
+\end{algorithm}
+
+
+\subsection{再帰による深さ優先探索}
+\label{sec:recursive-depth-first-search}
+
+上述の実装はオープンリストを利用した深さ優先探索である。
+一般的にアルゴリズム \ref{alg:implicit-tree-search}、\ref{alg:dfs-open}に従った方法の実装は効率的ではない \footnote{深さ優先探索を並列化する場合はオープンリストを用いる場合がある}。
+深さ優先探索は再帰によって効率的に実装することができる (アルゴリズム \ref{alg:recursive-dfs})。
+ここでこのアルゴリズムにはオープンリストがないことに注目したい。
+これは実装が簡単というだけではなく、消費メモリが少なく、実行時間が少ないというメリットがある。
+
+\begin{algorithm}
+\caption{Depth-First Search}
+\label{alg:recursive-dfs}
+	\Input{Node $s$, weight function $w$, successor generation function $Expand$, goal function $Goal$}
+	\Output{Path from $s$ to a goal node $t \in T$, or $\emptyset$ if no such path exists}
+	\If {$Goal(s)$} {
+		\Return $s$\;
+	}
+	$Succ(u) \leftarrow Expand(u)$\;
+	\For {each $v \in Succ(u)$} {
+		\If {$DFS(v) \neq \emptyset$} {
+			\Return $(s, DFS(v))$
+		}
+	}
+	\Return $\emptyset$\;
 \end{algorithm}
 
 %\section{ダイクストラ法}
@@ -1574,15 +1668,19 @@ LIFOを使うメリットはオープンリストをバケット実装してい�
 
 $k_i$と$d$はハッシュの変数
 
+\subsubsection{ハッシュの性質}
 incremental hashing
 perfect hashing
 universal hashing
 
-\subsubsection{ラビン-カープハッシュ法 (Rabin and Karp hashing)}
+%\subsubsection{ラビン-カープハッシュ法 (Rabin and Karp hashing)}
 
 %\subsection{ハッシュテーブルの圧縮}
 
 %\section{サブセット検索}
+
+
+% \subsection{外部ストレージを用いた探索 (External Search)}
 
 
 \section{関連文献}
@@ -1593,10 +1691,79 @@ Fibonacci heap
 
 クローズドリスト
 
+外部ストレージ
+
+
+
+\chaper{局所探索 (Local Search)}
+\label{ch:local-search}
+
+
+\section{山登り法 (Hill Climbing)}
+\label{sec:hill-climbing}
+\define{山登り法}{hill climbing}は局所探索アルゴリズムであり、特に組み合わせ最適化問題のためのアルゴリズムとして使われる。
+山登り法のアルゴリズムは非常に単純である。子ノードのうち最も$h$値が小さいノードを選ぶことを繰り返す。
+
+
+\begin{algorithm}
+\caption{Hill Climbing}
+	\Input{Initial node $s_0$}
+	\Output{Path from $s_0$ to a goal node $t \in T$}
+	$s \leftarrow \{s_0\}$\;
+	\While {$s \notin Goal$} {
+		$s \leftarrow \arg \min_{s' \in Expand(s)} h(s)$
+	}
+	\Return $s$
+\label{alg:hill-climbing}
+\end{algorithm}
+
+この手法は組み合わせ最適化・連続最適化のためによく使われる。
+しかしグラフ探索アルゴリズムでこのまま使おうとすると$h$の極小ではまってしまったり、デッドエンドに落ちてしまう可能性がある。
+
+
+\subsection{強制山登り法 (Enforced Hill Climbing)}
+
+ヒューリスティック探索でよく使われる局所探索は\define{強制山登り法}{enforced hill-climbing} (EHC)である \cite{}。
+EHCは幅優先探索を繰り返し、現在のノードよりも$h$値が小さいノードを発見する。発見できればそのノードから再び幅優先を行い、ゴールを発見するまで続ける。もし$h$値が小さいノードが見つからなければ極小に陥ってしまったということであるので、探索を打ち切り、失敗 (Fail)を返す。
+
+\begin{algorithm}
+\caption{Enforced Hill Climbing}
+	\Input{Initial node $s_0$}
+	\Output{Path from $s_0$ to a goal node $t \in T$}
+	$s \leftarrow \{s_0\}$\;
+	\While {$s \notin Goal$} {
+		Let $T = \{v \in S | h(v) < h(s) \}$
+		$s' \leftarrow BreadthFirstSearch(s, T)$
+	}
+	\Return $s$
+\label{alg:hill-climbing}
+\end{algorithm}
+
+
+局所探索アルゴリズムは完全性を満たさない。
+なので解が発見できなければ(失敗を返す場合)続けてA*探索などを走らせないと解が発見できない場合がある。
+山登り法などの局所探索の利点はなんといってもアルゴリズムはシンプルであり、実装が簡単であることである。
+加えて消費メモリ量が非常に少ない。
+
+山登り法が記憶しなければならないノードは現在のノードとその子ノードらだけである。
+毎回次のノードを選択したら、そのノード以外のノードは捨ててしまう。
+貪欲最良優先探索(\ref{sec:greedy-best-first-search}節)も同様に$h$値のみしか見ていないが、すべての生成済みノードをオープンリストに入れることと比較すると、山登り法がいかにアグレッシブな手法であるかがうかがえるだろう。
+
+
+%\subsection{ビームサーチ (Beam Search)}
+
+
+\section{関連文献}
+ビームサーチ。
+遺伝的アルゴリズム。８クイーン問題。
+ポピュレーション
+
+
 
 % TODO: 基礎の説明が出来たら
 \chapter{ヒューリスティック探索の派生}
 \label{ch:heuristic-search-variants}
+% TODO: 局所探索を分ける？
 %\captionlistentry[todo]{heuristic search variants: 表で手法を比較する}
 %\captionlistentry[todo]{heuristic search variants: タイトルをかっこ良くする}
 
@@ -1632,11 +1799,66 @@ Symbolic SearchはBinary Decision Diagramを用いて状態集合を表すこと
 外部メモリ探索は状態空間がRAMに収まりきらない問題に対して外部記憶を使うことで解決する手法である。
 並列探索は複数のコアや計算機を使うことでメモリと計算時間の両方の問題を解決する。
 
-\section{Branch-and-Bound}
+\section{分枝限定法 (Branch-and-Bound)}
 \label{sec:branch-and-bound}
+TODO: 分枝限定法は上界？下界？
+
+A*探索はすべてのノードから解の下界が求められる場合にそれをヒューリスティック関数として使うことで解の最適性を満たすことができる。
+すべてのノードから解の上界が求められるような問題に対しては分枝限定法 (Branch-and-Bound)が使われることがある。
+特に深さ優先分枝限定法 (Depth-First Branch-and-Bound)が木探索ではよく使われる。
+分枝限定法の処理は一般的な木探索に加えて枝刈りが行う。
+アルゴリズム \ref{alg:branch-and-bound}
+
+疑似コードはオープンリストを用いて説明したが、再帰による実装の方が主流である。
+
+% TODO
+\begin{algorithm}
+\caption{Branch-and-Bound}
+\label{alg:branch-and-bound}
+	\Input{node $s$, current bound $B$, weight function $w$, successor generation function $Expand$, goal function $Goal$, upper bound function $U$}
+	\Output{Path from $s$ to a goal node $t \in T$, or $\emptyset$ if no such path exists}
+	$B \leftarrow \infty$
+	$path \leftarrow \emptyset$
+	$B\&B(s, B, path)$
+	\Return $path$\;
+\end{algorithm}
+
+\begin{algorithm}
+\caption{B\&B(s, B, path): Branch-and-Bound-Recursion}
+\label{alg:branch-and-bound-rec}
+	\If {$U(s) > B$} {
+		\Return $\emptyset$
+	}
+	\If {$Goal(s)$} {
+		$B = U(s)$\;
+		$path = Path(s)$\;
+	}
+	$Succ(s) \leftarrow Expand(s)$\;
+	\For {each $v \in Succ(s)$} {
+		$B\&B(v, B)$
+	}
+\end{algorithm}
+
+一般に、アルゴリズムの実行に従って最適解とは限らない解を次々と発見する手法において分枝限定法の考え方が採用できる。すなわち現在発見された中でもっとも良い解
+
 admissible pruning
  Branch and Bound
  wA* pruning (MSA)
+ 
+% TODO: 巡回セールスマン問題
+
+ 
+\section{モンテカルロ木探索 (Monte Carlo Tree Search)}
+\label{sec:mcts}
+
+モンテカルロ木探索 (Monte Carlo Tree Search, MCTS)は非常に多様な問題で応用されている手法である。
+その長所はたくさんある。
+まず、MCTSは状態空間が非決定論的でも扱える。不完全情報でも扱える。
+
+
+\subsection{UCT (UCB1 Applied to Tree)}
+\label{sec:uct}
+
 
 \section{反復深化深さ優先探索 (Depth First Iterative Deepening)}
 \label{sec:depth-first-iterative-deepening}
@@ -1763,63 +1985,6 @@ A*で用いられるClosedと異なり、このテーブルはすべての生成
 Meet-in-the-Middle (MM)は
 
 
-\section{山登り法 (Hill Climbing)}
-\label{sec:hill-climbing}
-\define{山登り法}{hill climbing}は局所探索アルゴリズムであり、特に組み合わせ最適化問題のためのアルゴリズムとして使われる。
-山登り法のアルゴリズムは非常に単純である。子ノードのうち最も$h$値が小さいノードを選ぶことを繰り返す。
-
-
-\begin{algorithm}
-\caption{Hill Climbing}
-	\Input{Initial node $s_0$}
-	\Output{Path from $s_0$ to a goal node $t \in T$}
-	$s \leftarrow \{s_0\}$\;
-	\While {$s \notin Goal$} {
-		$s \leftarrow \arg \min_{s' \in Expand(s)} h(s)$
-	}
-	\Return $s$
-\label{alg:hill-climbing}
-\end{algorithm}
-
-この手法は組み合わせ最適化・連続最適化のためによく使われる。
-しかしグラフ探索アルゴリズムでこのまま使おうとすると$h$の極小ではまってしまったり、デッドエンドに落ちてしまう可能性がある。
-
-
-\subsection{強制山登り法 (Enforced Hill Climbing)}
-
-ヒューリスティック探索でよく使われる局所探索は\define{強制山登り法}{enforced hill-climbing} (EHC)である \cite{}。
-EHCは幅優先探索を繰り返し、現在のノードよりも$h$値が小さいノードを発見する。発見できればそのノードから再び幅優先を行い、ゴールを発見するまで続ける。もし$h$値が小さいノードが見つからなければ極小に陥ってしまったということであるので、探索を打ち切り、失敗 (Fail)を返す。
-
-\begin{algorithm}
-\caption{Enforced Hill Climbing}
-	\Input{Initial node $s_0$}
-	\Output{Path from $s_0$ to a goal node $t \in T$}
-	$s \leftarrow \{s_0\}$\;
-	\While {$s \notin Goal$} {
-		Let $T = \{v \in S | h(v) < h(s) \}$
-		$s' \leftarrow BreadthFirstSearch(s, T)$
-	}
-	\Return $s$
-\label{alg:hill-climbing}
-\end{algorithm}
-
-
-局所探索アルゴリズムは完全性を満たさない。
-なので解が発見できなければ(失敗を返す場合)続けてA*探索などを走らせないと解が発見できない場合がある。
-山登り法などの局所探索の利点はなんといってもアルゴリズムはシンプルであり、実装が簡単であることである。
-加えて消費メモリ量が非常に少ない。
-
-山登り法が記憶しなければならないノードは現在のノードとその子ノードらだけである。
-毎回次のノードを選択したら、そのノード以外のノードは捨ててしまう。
-貪欲最良優先探索(\ref{sec:greedy-best-first-search}節)も同様に$h$値のみしか見ていないが、すべての生成済みノードをオープンリストに入れることと比較すると、山登り法がいかにアグレッシブな手法であるかがうかがえるだろう。
-
-
-\subsection{ビームサーチ (Beam Search)}
-
-
-
-遺伝的アルゴリズム。８クイーン問題。
-
 
 \section{Symbolic Search}
 \label{sec:symbolic-search}
@@ -1920,7 +2085,65 @@ $S$のimageは以下の特徴関数によって表すことが出来る。
 \subsubsection{BDD-幅優先木探索}
 
 imageを繰り返し求めていくことで幅優先木探索は簡単に実装することが出来る。
-まず、初期状態$s_0$だけによる集合$S_0 = \{s_0\}$を考える。これに対して$\phi_{S_{i}}$は集合$S_i$を表す特徴関数だとする。これを用いることで次状態集合を次々と求めることが出来る：
+まず、初期状態$s_0$だけによる集合$S_0 = \{s_0\}$を考える。これに対して$\phi_{S_{i}}$は集合$S_i$を表す特徴関数だとする。これを用いることで次状態集合を次々と求めるこ
+\section{山登り法 (Hill Climbing)}
+\label{sec:hill-climbing}
+\define{山登り法}{hill climbing}は局所探索アルゴリズムであり、特に組み合わせ最適化問題のためのアルゴリズムとして使われる。
+山登り法のアルゴリズムは非常に単純である。子ノードのうち最も$h$値が小さいノードを選ぶことを繰り返す。
+
+
+\begin{algorithm}
+\caption{Hill Climbing}
+	\Input{Initial node $s_0$}
+	\Output{Path from $s_0$ to a goal node $t \in T$}
+	$s \leftarrow \{s_0\}$\;
+	\While {$s \notin Goal$} {
+		$s \leftarrow \arg \min_{s' \in Expand(s)} h(s)$
+	}
+	\Return $s$
+\label{alg:hill-climbing}
+\end{algorithm}
+
+この手法は組み合わせ最適化・連続最適化のためによく使われる。
+しかしグラフ探索アルゴリズムでこのまま使おうとすると$h$の極小ではまってしまったり、デッドエンドに落ちてしまう可能性がある。
+
+
+\subsection{強制山登り法 (Enforced Hill Climbing)}
+
+ヒューリスティック探索でよく使われる局所探索は\define{強制山登り法}{enforced hill-climbing} (EHC)である \cite{}。
+EHCは幅優先探索を繰り返し、現在のノードよりも$h$値が小さいノードを発見する。発見できればそのノードから再び幅優先を行い、ゴールを発見するまで続ける。もし$h$値が小さいノードが見つからなければ極小に陥ってしまったということであるので、探索を打ち切り、失敗 (Fail)を返す。
+
+\begin{algorithm}
+\caption{Enforced Hill Climbing}
+	\Input{Initial node $s_0$}
+	\Output{Path from $s_0$ to a goal node $t \in T$}
+	$s \leftarrow \{s_0\}$\;
+	\While {$s \notin Goal$} {
+		Let $T = \{v \in S | h(v) < h(s) \}$
+		$s' \leftarrow BreadthFirstSearch(s, T)$
+	}
+	\Return $s$
+\label{alg:hill-climbing}
+\end{algorithm}
+
+
+局所探索アルゴリズムは完全性を満たさない。
+なので解が発見できなければ(失敗を返す場合)続けてA*探索などを走らせないと解が発見できない場合がある。
+山登り法などの局所探索の利点はなんといってもアルゴリズムはシンプルであり、実装が簡単であることである。
+加えて消費メモリ量が非常に少ない。
+
+山登り法が記憶しなければならないノードは現在のノードとその子ノードらだけである。
+毎回次のノードを選択したら、そのノード以外のノードは捨ててしまう。
+貪欲最良優先探索(\ref{sec:greedy-best-first-search}節)も同様に$h$値のみしか見ていないが、すべての生成済みノードをオープンリストに入れることと比較すると、山登り法がいかにアグレッシブな手法であるかがうかがえるだろう。
+
+
+\subsection{ビームサーチ (Beam Search)}
+
+
+
+遺伝的アルゴリズム。８クイーン問題。
+
+とが出来る：
 
 \begin{equation}
 	\phi_{S_i}(x') = \exists x (\phi_{S_{i-1}}(x) \land Trans(x,x'))
@@ -1991,6 +2214,7 @@ BDD-幅優先木探索は幅優先探索と同様、解の経路長が最短で�
 %\subsection{Symbolic Heuristic Search}
 
 \subsection{関連文献}
+
 
 
 
@@ -2091,6 +2315,7 @@ IW($i$)は幅$i$が大きくなるほど大きな状態空間を探索するこ�
 	\Return $sol$
 \end{algorithm}
 
+\begin{comment}
 
 \subsection{Best-First Width Search (最良優先幅制限探索)}
 \label{sec:width-based-heuristic-search}
@@ -2110,8 +2335,11 @@ IW($i$)は幅$i$が大きくなるほど大きな状態空間を探索するこ�
 つまり新奇性に基づくヒューリスティック関数は状態$s$の関数ではなく、状態とクローズドリストの関数となる。つまり、同じ状態のノードでもヒューリスティック値が異なる場合がある。
 
 % TODO: read the paper
+\end{comment}
 
 \subsection{関連文献}
+Best-First Width Search (最良優先幅制限探索) \cite{geffner2015}
+Novelty Heuristics (新奇性に基づくヒューリスティック) \cite{geffner2015}
 
 
 \section{外部メモリ探索 (External Search)}
@@ -2151,6 +2379,8 @@ IW($i$)は幅$i$が大きくなるほど大きな状態空間を探索するこ�
 %\end{adjustbox}
 \end{table}
 
+\begin{comment}
+
 \subsection{外部メモリ 幅優先探索 (External BrFS)}
 \label{sec:external-brfs}
 
@@ -2178,7 +2408,6 @@ IW($i$)は幅$i$が大きくなるほど大きな状態空間を探索するこ�
 	\Return No solution found
 \end{algorithm}
 
-
 \subsection{外部メモリ A* (External A*)}
 \label{sec:external-astar}
 %\captionlistentry[todo]{external A*: ALL}
@@ -2194,6 +2423,7 @@ IW($i$)は幅$i$が大きくなるほど大きな状態空間を探索するこ�
 	XXX
 	\Return No solution found
 \end{algorithm}
+\end{comment}
 
 \subsection{関連文献}
 Structured duplicate detection \cite{}
@@ -2272,12 +2502,13 @@ LB := \frac{\text{Maximum number of nodes assigned to a thread}}{\text{Average n
 これらのオーバーヘッドは独立ではなく、むしろ相互に関係しており、トレードオフの関係にある。
 多くの場合、通信・同期オーバーヘッドと探索オーバーヘッドがトレードオフの関係にあたる。
 
-
+\begin{comment}
 \subsection{並列深さ優先探索 (Parallel Depth First Search)}
 \label{sec:parallel-dfs}
 Stack-based Depth First Search
 pattern mining
 grid-connection with lifeline
+\end{comment}
 
 \subsection{ハッシュ分配A* (Hash Distributed A*)}
 \label{sec:hash-distributed-astar}
@@ -2362,6 +2593,7 @@ Domain transition graph
 Abstract featureの生成方法としてstate-of-the-artの手法はGraph partitioning-based \cite{jinnai2017work}であり、各DTGを与えられた最適化指標下で分割することでabstract featureを生成する。
 
 \subsection{関連文献}
+並列深さ優先探索 \cite{kumar1988parallel}.
 Transposition Table Driven Work Distribution (TDS) \cite{}.
 Parallel Structured Duplicated Detection (PSDD) \cite{}.
 Parallel Best-NBlock First (PBNF) \cite{}.
@@ -2391,6 +2623,11 @@ Partial A*
 Partial IDA*
 MA*
 Frontier Search
+
+
+ポートフォリオ戦略
+どれか一つのアルゴリズムに絞らなくてもよい
+いろいろ試してみるのが有効なことが多い
 
 \begin{comment}
 
