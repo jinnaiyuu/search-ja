@@ -15,7 +15,6 @@
 \usepackage{tikz} % Drawing sliding-tile
 \usepackage{xcolor}
 
-
 %%%%%%%%%%%%%%%%%%%%%
 % Math
 \usepackage{amsmath}
@@ -28,14 +27,15 @@
 %%%%%%%%%%%%%%%%%%%%%
 % Format
 \usepackage{appendix}
-
 \usepackage{hyperref}
+\setcounter{secnumdepth}{3}
+\renewcommand{\baselinestretch}{1.15}
+\usepackage[Bjornstrup]{fncychap}
+\usepackage{titlesec}
+\usepackage[framemethod=TikZ]{mdframed}
+
 \usepackage{makeidx}
 \makeindex
-
-\setcounter{secnumdepth}{3}
-
-\renewcommand{\baselinestretch}{1.15}
 
 
 %%%%%%%%%%%%%%%%%%%%
@@ -47,7 +47,10 @@
 \SetKwComment{Comment}{$\triangleright$}{}
 
 
-\usepackage[framemethod=TikZ]{mdframed}
+% \titleformat{\section}{}{}{}{}{}
+\titleformat{\section}
+  {\bfseries\Large}{\thesection}{1em}{}[\vspace{-1em}\rule{\textwidth}{0.5pt}]
+
 \newcounter{DefCounter}
 \setcounter{DefCounter}{1}
 \newcommand{\ddef}[2]
@@ -100,7 +103,7 @@ linecolor=blue!6]
 
 %%%%%%%%%%%%%%%%%%%
 % Macros
-\newcommand{\define}[2]{{\bf #1} (#2) \index{#1}\index{#2}}
+\newcommand{\define}[3]{{\bf #1} (#2) \index{#2} \index{#3@#1}}
 \newcommand{\TODO}{{\bf TODO}}
 
 
@@ -124,8 +127,11 @@ linecolor=blue!6]
 %%%%%%%%%%%%%%%%
 \renewcommand{\contentsname}{目次}
 \renewcommand{\chaptername}{チャプター}
-
-
+\renewcommand{\figurename}{図}
+\renewcommand{\tablename}{表}
+\renewcommand{\algorithmcfname}{アルゴリズム}
+\renewcommand{\bibname}{参考文献}
+\renewcommand{\indexname}{索引}
 
 \title{ヒューリスティック探索}
 \author{TODO}
@@ -155,10 +161,11 @@ linecolor=blue!6]
 
 \input working.tex
 
-\printindex
-
 \bibliographystyle{spmpsci}
 
 \bibliography{ref-jf17}
+
+\printindex
+
 \end{document}
 

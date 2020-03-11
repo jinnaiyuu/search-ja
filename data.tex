@@ -113,7 +113,9 @@ LIFOを使うメリットはオープンリストをバケット実装してい�
 
 
 \subsection{遅延重複検出 (Delayed Duplicate Detection)}
-\label{sec:graph-search-algorithm}節ではノードを生成したタイミングで重複検出を行うアルゴリズムを説明した。この方法だとノードが生成されたその瞬間に検出を行うという意味で\define{即時重複検出}{immediate duplicate detection}と呼ぶことがある。
+\label{sec:delayed-duplicate-detection}
+
+\ref{sec:graph-search-algorithm}節ではノードを生成したタイミングで重複検出を行うアルゴリズムを説明した。この方法だとノードが生成されたその瞬間に検出を行うという意味で\define{即時重複検出}{immediate duplicate detection}と呼ぶことがある。
 それに対して、ノードを展開するタイミングで検出を行う\define{遅延重複検出}{delayed duplicate detection}という方法もある \cite{korf2003delayed}。
 ノードが生成された瞬間に重複検出を行わない場合、オープンリスト内に同じ状態を持ったノードが重複して存在する場合がある。
 しかしノードを展開するときに重複検出を行うので、クローズドリストにノードの重複はない。
@@ -212,23 +214,21 @@ universal hashing
 \centering
 \caption{一般的なハードウェアのアクセス速度。メモリへのアクセス速度に対して外部記憶のアクセスは遅い。加えて、ランダムアクセスはseekの時間がかかるためさらに遅くなる。 }
 \label{tbl:latency}
-%\begin{adjustbox}{width=\textwidth}
 \begin{tabular}{|l|r|}
 		   & nano sec \\ \hline
 	命令実行 & 1 \\
-	fetch from L1 cache memory & 0.5 \\
-	branch misprediction 		& 5 \\
-	fetch from L2 cache memory & 7 \\
-	mutex lock/unlock  			& 25 \\
-	fetch from main memory  	& 100 \\
-	Read 4K randomly from SSD         & 150,000 \\
-	read 1MB sequentially from memory & 250,000 \\
-	fetch from new disk location (seek) & 8,000,000 \\
-	Read 1 MB sequentially from SSD		& 1,000,000 \\
-	read 1MB sequentially from disk 	& 20,000,000 \\
+	L1キャッシュからFetch & 0.5 \\
+	分枝予測ミス 		& 5 \\
+	L2キャッシュからFetch & 7 \\
+	mutexロック・アンロック			& 25 \\
+	メインメモリからFetch  	& 100 \\
+	SSDから4KBをランダムにRead         & 150,000 \\
+	メモリから1MBの連続した領域をRead & 250,000 \\
+	ディスクから新しい領域をFetch & 8,000,000 \\
+	SSDから1MBの連続した領域をRead		& 1,000,000 \\
+	ディスクから1MBの連続した領域をRead 	& 20,000,000 \\
 	
 \end{tabular}
-%\end{adjustbox}
 \end{table}
 
 \begin{comment}
