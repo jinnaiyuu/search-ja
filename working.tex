@@ -1,0 +1,116 @@
+% -*- coding: utf-8 -*-
+
+\begin{comment}
+
+\chapter{探索問題の派生}
+\label{ch:search-problem-variants}
+
+この章では\ref{ch:state-space-problem}章で定式化した状態空間問題と少し定式化の異なる問題を扱う。
+ブラックボックスプランニングは状態空間問題の一つであるが、今まで扱った問題と異なり、ドメインモデルがブラックボックスで与えられるという違いがある(\ref{sec:black-box-planning}章)。よってヒューリスティック関数を生成することが出来ず、情報なし探索が必要となる。
+
+
+
+\section{ブラックボックスプランニング (Blackbox Planning)}
+\label{sec:black-box-planning}
+
+プランナーはPDDLを用いることでドメインの知識を吸い出し、それを利用して探索を効率化する。しかしながら、完全なモデルを得るのが難しい問題の場合、PDDLのような記述を得ることが出来ない。
+例えばビデオゲームのような環境では、ゲームをクラックしない限り、完全なモデルを得ることは出来ない。
+このような中身を見ることの出来ない環境でのプランニング問題をブラックボックスプランニング問題と呼ぶ。
+
+ブラックボックスプランニングはAtari 2600や\cite{lipovetzky2015a}や、General Video Game Playing \cite{geffner2015}などのビデオゲームなどの環境に応用されている。
+
+ブラックボックスプランニング問題は状態空間問題である。状態$s$は有限長の配列$V$で表せられ、$v \in V$の値域は$D(v)$とする。ただし、$V$の各変数がどのような意味を持つのかは未知である。
+Expand関数、Goal関数はブラックボックスとして与えられる。また、ある状態に対して$A$のうち実行可能なアクションの集合が既知とは限らない\footnote{厳密にブラックボックスである場合は既知とするべきではないが、多くの研究ではオラクルによって実行可能なアクションが知らされるというモデルを用いている。}。
+
+このようなドメインではドメインの知識を得ることが出来ないので、\ref{ch:heuristic-search}章で解説したようなヒューリスティック関数を用いることは出来ない。
+
+幅優先探索などによってBrute-forceに探索しつくす方法を取ることも出来るが問題のサイズが大きい場合に解くことが出来ない\cite{Bellemare2013}。
+Iterative Width探索 (IW search)\cite{lipovetzky2015a}は幅優先探索に新奇性による枝刈りを加えた手法である\footnote{Iterative Width探索はドメインモデルのある場合でも有用であることが知られている\cite{lipovetzkyg12}。}。IW(1)は新しく生成された状態は新しいatomを真にしない場合、枝刈りされる。
+
+\subsection{新奇性に基づく枝刈り}
+\label{sec:novelty-based-pruning}
+inadmissible pruning
+ Novelty-based pruning
+ Iterative Width search
+
+\subsection{ビデオゲームAI: Atari 2600} 
+\label{sec:video-game}
+
+\section{パターンマイニング}
+
+
+\section{二人プレイヤーゲーム}
+\label{sec:two-player-game}
+and or tree
+Alpha beta pruning
+
+\subsection{αβ木}
+\label{sec:alpha-beta-tree}
+
+\subsection{Monte Carlo Tree Search}
+\label{sec:monte-carlo-tree-search}
+
+
+\section{オンラインプランニング}
+\label{sec:online-planning}
+
+
+
+% TODO: こういうチャプターがあるとキャッチーだね
+\chapter{機械学習と探索・プランニング (Machine Learning, Search, and Planning)}
+\label{ch:machine-learning}
+A review of ML for AP \cite{jimenez2012review}
+
+
+\section{機械学習による探索の効率化}
+\label{sec:ml-for-search}
+YJ DASP
+
+\section{ドメインモデルの生成}
+\label{sec:domain-acquisition}
+
+本書を通して扱ってきた状態空間問題の大きな問題点は、問題モデルをどのように獲得するか、である。
+\ref{sec:coverage}章で述べたように、本書はこれまで正しいモデルが与えられていることが前提として話を進めてきた。
+
+%では、正しいモデルはどのようにして得るのか？
+多くのアプリケーションではドメインモデル(e.g. PDDL)は人間のエキスパートが手でコーディングする。
+しかしながら、この方法だと人間のエキスパートがあらかじめ想定した環境にしか適用できない。ダイナミックな環境で活躍できるようなエージェントを実装するためには、エージェントが何らかの方法でドメインモデルを生成する方法が必要である。
+
+LOCMはプランからアクションスキームを生成する。
+LOCM staticなconstraintも見つける。
+
+階層的プランニング
+オプション
+Kaelbling
+Konidaris et al.
+
+\section{探索と機械学習}
+\label{sec:search-and-ml}
+R. Sutton
+David Silver RL and simulation-based search
+
+\subsection{Alpha Go}
+\label{sec:alpha-go}
+
+\section{参考文献}
+Predictron
+DL for Reward design in MCTS
+Juhn, Satinder, et al.
+\end{comment}
+
+\begin{comment}
+\begin{appendices}
+\chapter{関連和書}
+
+本書で扱った内容に関連する和書はいくつかある。
+
+まず、ヒューリスティック探索は人工知能の一分野であり、人工知能の一部を実装する手法として研究されている。人工知能の金字塔であるRussel\& Norvigによる教科書は和訳も存在する\cite{russell2016artificial}。人工知能研究について興味がある読者はこれをお勧めする。
+
+グラフ探索アルゴリズムの数学的背景は組合せ問題である。
+組合せ問題についてはDonald KnuthによるThe Art of Computer Programming Volume 4A Combinatorial Algorithmsが網羅的である\cite{knuth2011art}。
+
+
+
+\end{appendices}
+\end{comment}
+

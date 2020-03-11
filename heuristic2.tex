@@ -1,0 +1,734 @@
+% -*- coding: utf-8 -*-
+\chapter{ヒューリスティック探索の派生}
+\label{ch:heuristic-search-variants}
+% TODO: 局所探索を分ける？
+%\captionlistentry[todo]{heuristic search variants: 表で手法を比較する}
+%\captionlistentry[todo]{heuristic search variants: タイトルをかっこ良くする}
+
+% \begin{table}
+% \caption{派生アルゴリズムの比較。}
+% \label{tbl:search-variants}
+% %\begin{adjustbox}{width=\textwidth}
+% \begin{tabular}{cccc}
+% 					& 空間計算量	& 時間計算量 & 有効な場面 \\
+% 	反復深化A*		& $O(n)$  	& 展開ノード数が大きくなる。キャッシュ効率が良くなる場合がある & キャッシュ効率が良いとA*よりも高速な場合がある \\
+% 	両方向探索 		& A*よりも小さい	& 重複検出の効率による & ヒューリスティック関数の性能が低い場合に有効 \\
+% 	External Search & 外部記憶を用いる & I/Oを必要とするため遅い & 探索空間がメモリに乗り切らない場合 \\
+% 	Symbolic Search & BDDによって効率的になる & 複数のノードを同時に展開できる & \TODO \\
+% 	並列探索 			& 使用する計算ノードのメモリの総計が使える & 線形スピードアップならコアの数だけ高速化 & 問題が難しい \\
+% \end{tabular}
+% %\end{adjustbox}
+% \end{table}
+
+A*探索などのヒューリスティック探索は時間と空間の両方がボトルネックとなりうる。
+すなわち、A*はノードを一つずつ展開していかなければならないので、その数だけExpandを実行しなければならない。また、A*は重複検出のために展開済みノードをすべてクローズドリストに保存する。なので、必要な空間も展開ノード数に応じて増えていく。
+
+残念ながら、ほぼ正しいコストを返すヒューリスティック関数を使っても、A*が展開するノードの数は指数的に増加することが知られている\cite{helmert:08}。
+
+そのため、ヒューリスティックの改善のみならず、アルゴリズム自体の工夫をしなければならない。
+この章では時間・空間制約がある場合のA*の代わりとなるヒューリスティック探索の発展を紹介する。
+これらのアルゴリズムはメリット・デメリットがあり、問題・計算機環境によって有効な手法が異なる。よって、A*を完全に取って代わるものは一つもないと言える。
+
+反復深化A*は線形メモリアルゴリズムであり、メモリが足りない問題で使われる。
+山登り法は解が得られる保証はないが、非常に高速に解を発見することがある局所探索手法である。また、消費メモリも非常に少ない。
+Symbolic SearchはBinary Decision Diagramを用いて状態集合を表すことによってノードの集合に対して一度に演算を行う手法である。
+新奇性に基づく枝刈りは目新しくない状態は枝刈りする。
+外部メモリ探索は状態空間がRAMに収まりきらない問題に対して外部記憶を使うことで解決する手法である。
+並列探索は複数のコアや計算機を使うことでメモリと計算時間の両方の問題を解決する。
+
+
+\section{分枝限定法 (Branch-and-Bound)}
+\label{sec:branch-and-bound}
+
+分枝限定法は非最適解が簡単に見つけられるが最適解を発見するのは難しい問題、例えば巡回セールスパーソン問題などに使われることが多い。
+分枝限定法は広くコンピュータサイエンスで使われる汎用的な考え方である。
+アイディアとしては問題を複数のサブ問題に分割(branch)し、これまでに得られた解よりも悪い解しか得られないサブ問題を枝刈りする(bound)、というアイディアである。
+特にメモリ効率の良い深さ優先分枝限定法 (Depth-First Branch-and-Bound)が探索分野ではよく使われる。
+分枝限定法の処理は一般的な木探索に加えて枝刈りが行う (アルゴリズム \ref{alg:branch-and-bound})。
+
+% TODO
+\begin{algorithm}
+\caption{Branch-and-Bound}
+\label{alg:branch-and-bound}
+	\Input{node $s$, weight function $w$, successor generation function $Expand$, goal function $Goal$, upper bound function $U$}
+	\Output{Path from $s$ to a goal node $t \in T$, or $\emptyset$ if no such path exists}
+	$C \leftarrow \infty$
+	$path \leftarrow \emptyset$
+	$(C, path) = DFB\&B(s, 0, C, path)$
+	\Return $path$\;
+\end{algorithm}
+
+\begin{algorithm}
+\caption{DFB\&B(s, g, C, path): Depth-First Branch-and-Bound-Recursion}
+\label{alg:branch-and-bound-rec}
+	\If {$Goal(s)$} {
+		\If {$g < C$} {
+			$C = g$\;
+			$path = Path(s)$\;
+		}
+	}
+	$Succ(s) \leftarrow Expand(s)$\;
+	\For {each $s' \in Succ(s)$} {
+		\If {$g + h(s') < C$} {
+			$(C, path) = DFB\&B(v, g + w(s, s'), C, path)$
+		}
+	}
+\end{algorithm}
+
+一般に、アルゴリズムの実行に従って最適解とは限らない解を次々と発見する手法において分枝限定法の考え方が採用できる。すなわち現在発見された中でもっとも良い解(incumbent solution)を用いて探索範囲を限定していくアイディアである。
+A*探索と比較して分枝限定法の利点は、Anytimeアルゴリズムであることである。
+Anytimeアルゴリズムとはプログラムを適当なタイミングで停止しても解を返すアルゴリズムを指す。
+A*探索は最適解を発見するまで他の非最適解を発見することはない。一方、分枝限定法はすぐに何かしらの解を見つけることができる。そして探索の過程で現在の解よりも良い解を発見し、だんだんと解のクオリティを上げていき、最終的に最適解を発見する。
+そのため、どのくらい長い間探索に時間をかけてよいかが分からない場合、Anytimeアルゴリズムは理想的である。
+関連して、A*のそのような問題を解決したAnytime A*というアルゴリズムもある \cite{}。
+A*やAnytime A*と比較した分枝限定法のもう一つの利点はオープンリストなどのデータ構造を必要としない深さ優先探索であることである。そのためメモリ・キャッシュ効率が良い。一方、重複検出を行わない木探索であるため、ノードの重複が多いドメインでは性能が悪いことが多い。
+
+
+\section{反復深化深さ優先探索 (Depth First Iterative Deepening)}
+\label{sec:depth-first-iterative-deepening}
+A*探索は時間・空間の両方がボトルネックになるが、現代の計算機環境では多くの場合空間制約がよりネックになる。
+これはA*が重複検出のために展開済みノードをすべてクローズドリストに保存していることに起因する。
+
+\ref{sec:graph-search-algorithm}節で述べたように、重複検出は正しい解を返すためには必須ではない。グラフに対して木探索を行うことも出来る。
+しかしながら、単純な幅優先木探索・深さ優先木探索はパフォーマンスの問題がある。
+
+\define{反復深化深さ優先}{depth first iterative deepening} (DFID)
+アルゴリズム\ref{alg:depth-first-iterative-deepening}はDFIDの概要を示している。アイディアとしては、閾値$cost$を１ずつ大きくしながら、繰り返しコスト制限付き深さ優先木探索 (CLDFS)を実行する。CLDFSが解を見つければその解を返して停止し、見つけられなければ$cost$を１つ大きくしてもう一度CLDFSを実行する。
+
+DFIDは閾値を大きくする度に一つ前のイテレーションで展開・生成したノードをすべて展開・生成しなおさなければならない。各イテレーション内でもクローズドリストを保持していないために重複検出が出来ない。なので、アルゴリズム全体を通して大量の重複ノードが出る可能性がある。
+これは非常に効率が悪いように思えるかもしれないが、様々な状況においてA*よりも有用な手法である。
+
+DFIDのメリットはいくつかある。
+まず、コスト$w$が0となるアクションが存在しない場合、必要なメモリ量が最適解のコストに対して線形である。深さ優先木探索は可能な最長経路だけのノードを保持する必要がある。木探索はクローズドリストは保持しない。コスト制限付きの場合、最長経路は$cost$以下である。$0<w<1$となる実数コストがある場合、最小の$w$が$1$となるようにリスケールすることが出来る。 反復深化は$cost$が最適解のコストになった時に停止するので、必要なメモリ量は最適解のコストに対して線形である。
+そのため、幅優先ではメモリが足りなくなって解けないような難しい問題でもDFIDなら解ける可能性がある。
+
+メモリ量と関連してもう一つの重要なメリットはキャッシュ効率である。上述のようにDFIDは必要なメモリ量が非常にすくない。また、メモリアクセスパターンもかなりリニアである。そのため、ほぼキャッシュミスなく探索を行えるドメインも多い。例えば、15-puzzleなどの状態が少ないビット数で表せられるドメインでは特にキャッシュ効率が良く、1ノードの展開速度の差は圧倒的に速い\cite{korf:85a}。
+
+DFIDは解を返す場合、得られた解が最適解であることを保証する。
+DFIDをはじめとする重複検出のないアルゴリズムを用いる際の問題は、解がない場合に停止性を満たさないことである。問題に解がなく、グラフにループがある場合、単純な木探索は停止しない。よって、この手法は解が間違いなく存在することが分かっている問題に対して適用される。あるいは、解が存在することを判定してから用いる。
+例えば15-puzzleは解が存在するか非常に高速に判定することが出来る。
+
+\begin{algorithm}
+\caption{Depth First Iterative Deepening}
+\label{alg:depth-first-iterative-deepening}
+	\Input{Initial node $s$, weight function $w$, successor generation function $Expand$, goal function $Goal$}
+	\Output{Path from $s$ to a goal node $t \in T$, or $\emptyset$ if no such path exists}
+	\For {$c$ from $0$ to $\infty$} {
+		$found \leftarrow CLDFS*(s, c)$\;
+		\If {$found \neq \emptyset$} {
+			\Return $found$;
+		}
+	}
+\end{algorithm}
+
+\begin{algorithm}
+\caption{CLDFS: Cost Limited Depth First Search for DFID}
+\label{alg:cldfs}
+	\Input{Initial node $s$, cost $c$}
+	\Output{Path from $s$ to a goal node $t \in T$, or $\emptyset$ if no such path with cost $\leq c$}
+	\If {$Goal(s)$} {
+		\Return $s$\;
+	}
+	\For {each $child \in Expand(s)$} {
+		\If {$g(child) \leq c$} {
+			$s' \leftarrow CLDFS(child, c)$
+			\If {$s' \neq \emptyset$} {
+				\Return $s'$
+			}
+		}
+	}
+	\Return $\emptyset$\;
+\end{algorithm}
+
+
+\subsection{反復深化A* (Iterative Deepening A*)}
+\label{sec:iterative-deepening-astar}
+
+
+反復深化A* (IDA*)は木探索に対してヒューリスティックを用いた、非常にメモリ効率の良いアルゴリズムである\cite{korf:85a}。
+DFIDと同様、コストを大きくしながら繰り返しCLDFSを呼ぶ。
+ただし、DFIDでは$g$値によってコストを制限していたのに対して、IDA*では$f$値によってコストを制限する。
+$f$値によって制限することによってヒューリスティック関数を用いることができる。
+アルゴリズム\ref{alg:cldfs-ida}はIDA*でのCLDFSである。
+コストが$f$値で制限されていること以外アルゴリズム\ref{alg:cldfs}と同一である。
+%最適解のコストを$c^*$とする。反復深化深さ優先の最後のステップ、つまりCLDFSの制限コスト$c$が$c^*$であるときに展開する
+%最適解のコストを$c^*$とすると
+
+IDA*は深さ優先探索を繰り返すので消費メモリが非常に少ない。
+なのでA*ではメモリが足りなくなって解けないような難しい問題でもIDA*なら解ける可能性がある。
+DFIDと同様にキャッシュ効率も非常に良い場合がある。例えば15-puzzleではIDA*のほうがA*よりも速く解を見つけることができることが知られている\cite{korf:85a}。何度も何度も重複して同じノードを展開しているのにも関わらずである。
+
+DFID同様、IDA*は解を返す場合、得られた解が最適解であることを保証する。
+IDA*も解がない場合に停止性を満たさない。
+
+
+\begin{algorithm}
+\caption{CLDFS: Cost Limited Depth First Search for IDA*}
+\label{alg:cldfs-ida}
+	\Input{Initial node $s$, cost $c$}
+	\Output{Path from $s$ to a goal node $t \in T$, or $\emptyset$ if no such path with cost $\leq c$}
+	\If {$Goal(s)$} {
+		\Return $s$\;
+	}
+	\For {each $child \in Expand(s)$} {
+		\If {$f(child) \leq c$} {
+			$s' \leftarrow CLDFS(child, c)$
+			\If {$s' \neq \emptyset$} {
+				\Return $s'$
+			}
+		}
+	}
+	\Return $\emptyset$\;
+\end{algorithm}
+
+\subsection{Transposition Table}
+% TODO
+%\captionlistentry[todo]{Transposition table: なんか説明}
+
+IDA*で必要な空間は最適解のコストに対して線形である。
+そうすると、むしろかなりの量のメモリが余ることになる。
+そこで、メモリの余った分だけを使って重複検出をするというTransposition Tableという手法がある。
+A*で用いられるClosedと異なり、このテーブルはすべての生成済みノードを保持しない。
+
+
+\section{両方向探索 (Bidirectional Search)}
+\label{sec:bidirectional-search}
+%\captionlistentry[todo]{両方向探索: 図、説明}
+
+状態空間グラフの特徴を理解するための重要な指標として枝分数(Branching factor)がある。枝分数はExpand関数によって得られる子ノードの数の平均である。
+すなわち、重複検出をしないとすると、枝分数が$b$であるグラフにおいて深さ$d$のノードの数はおおよそ$b^{d-1}$である。
+例えば15-puzzleはXであり、２次元４方向グリッド経路探索問題は４である。
+幅優先探索において最も浅い解の深さが$C^*$であると仮定すると、少なくとも$b^{C^*-2}$個のノードをExpandしなければならない。
+
+\define{両方向探索}{bidirectional search}は初期状態とゴール状態の両方から探索をする手法である。
+両方向探索の一番のボトルネックは重複検出である。すなわち、正方向探索で生成されたノードの集合と逆方向探索で生成されたノードの集合に共通部分があるかどうかを確認しなければならない。このため生成ノード数としては両方向探索は少なくても、find命令の実行回数が片方向探索よりもかなり多くなる。
+両方向探索はヒューリスティック関数が不正確な時には片方向探索よりも効率的であることが経験的に知られている\cite{barker2015limitations}。
+正方向探索と逆方向探索がちょうど真ん中で重なる(meet-in-the-middle)ことを保証する方法がある\cite{holte2016bidirectional}
+% Meet-in-the-Middle (MM)は
+
+
+
+\section{Symbolic Search}
+\label{sec:symbolic-search}
+Binary Decision Diagram (BDD)は二分木によってブーリアンvectorからブーリアンへの関数$(x_0,x_1,...,x_n) \rightarrow \{0, 1\}$を効率良く表すグラフ構造である \cite{}。
+Symbolic SearchはBDDを使って状態の集合、アクションの集合を表し、BDD同士の演算によって状態の集合を一気に同時に展開していく手法である \cite{}。
+A*探索がノードを一つずつ展開していき、一つずつ生成していく手間と比較して非常に効率的に演算が出来るポテンシャルを秘めている。
+また、オープン・クローズドリストをBDDで表せられるため、メモリ消費量が少なくなる場合がある。
+International Planning Competition (2014)のSequential Optimal部門(最適解を見つけるパフォーマンスを競う部門)の一位から三位までをSymbolic Searchが総なめした \cite{}。現在(2017年)のstate-of-the-artの手法であるといえるだろう。
+
+
+\subsection{特徴表現 (Symbolic Representation)}
+\label{sec:symbolic-representation}
+
+説明のためにシンプルなSliding-token puzzleを用いる(図\ref{fig:sliding-token})。
+初期状態でタイルは位置０にある。タイルは右か左に動かすことが出来る。ゴール状態はタイルを位置３に置いた状態である。
+タイルの位置$x (dom(x) = \{0,1,2,3\})$はバイナリ$(x_0,x_1)$に変換されている。
+状態および状態の集合は特徴関数$\phi: S \rightarrow \{0, 1\}$によって記述される。
+
+
+
+例えば$S = \{0, 1\}$とすると、$\phi_{S}(x)$は$x \in S$の場合に(かつその場合のみに)真を返す特徴関数は$\lnot x_0$である。面白いことに、1つの状態のみを含む状態集合$S' = \{0\}$を表す特徴関数よりも要素２つの$S$を表す特徴関数の方が表現がコンパクトになる。
+このように、特徴表現は明示的に列挙するよりも状態の集合をコンパクトに表現出来る場合がある。
+
+アクションによる状態遷移も特徴関数$Trans: S \times S \rightarrow \{0, 1\}$によって定義される。アクション$a \in A$によって状態$x$から$x'$に遷移するならば、$Trans_a(x,x')$は真を返す(かつその時のみ)。
+アクション集合$A$による遷移は$Trans(x,x')$によって表現され、$Trans(x,x')$は$Trans_a(x,x')$が真となる$a \in A$が存在する場合に真を返す(かつその時のみ)。
+
+Sliding-token puzzleで可能なアクションは$(00) \rightarrow (01), (01) \rightarrow (00), (01) \rightarrow (10), (10) \rightarrow (01), (10) \rightarrow (11), (11) \rightarrow (10)$の６つである。これらを表す遷移関数は
+
+\begin{equation}
+\begin{split}
+	Trans(x,x') &= (\lnot x_0 \lnot x_1 \lnot x'_0 x'_1) \\
+		&\lor (\lnot x_0 x_1 \lnot x'_0 \lnot x'_1) \\
+		&\lor (\lnot x_0 x_1 x'_0 \lnot x'_1) \\
+		&\lor (x_0 \lnot x_1 \lnot x'_0 x'_1) \\
+		&\lor (x_0 \lnot x_1 x'_0 x'_1) \\
+		&\lor (x_0 x_1 x'_0 \lnot x'_1)
+\end{split}
+\end{equation}
+
+となる。
+アクションのコストがある場合は$Trans(w, x, x')$として表現され、$Trans(x,x')$は$Trans_a(x,x')$が真となる$a \in A$が存在し、かつそのアクションのコストが$w$である場合に真を返す(かつその時のみ)。
+
+
+
+\begin{figure}
+\centering
+\includegraphics[width=0.8\linewidth]{./snaps/sliding-token.png}
+\caption{Sliding-token puzzleとそのバイナリ表現}
+\label{fig:sliding-token}
+\end{figure}
+
+\begin{table}
+\centering
+\caption{Sliding-token puzzleのエンコーディング}
+\label{tbl:sliding-token}
+\begin{tabular}{c|c|c|c}
+	State ID & State Role & Binary Code & Boolean Formula \\ \hline
+	0		& 初期状態	& 00				& $\lnot x_0 \lnot x_1$ \\	
+	1		& -			& 01				& $\lnot x_0  x_1$ \\	
+	2		& -			& 10				& $x_0 \lnot x_1$ \\	
+	3		& ゴール状態	& 11				& $x_0 x_1$ \\	
+\end{tabular}
+\end{table}
+
+
+\subsection{Binary Decision Diagram}
+\label{sec:binary-decision-diagram}
+
+%Binary Decision Diagram (BDD)は関数$(x_0,x_1,...,x_n) \rightarrow \{0, 1\}$を表す二分木である。
+状態集合およびアクション集合は\define{Binary Decision Diagram}{BDD}でコンパクトに表現することが出来る。
+
+\ddef{Binary Decision Diagram, BDD}{
+BDDはループのない有向グラフであり、ノードとエッジはラベルが付いている。単一の根ノードと２つのシンクがあり、シンクのラベルは1と0である。sink以外のノードのラベルは変数$x_i (i \in \{1,...,n\})$であり、エッジのラベルは1か0である。
+}
+
+BDDは決定木と同様な処理によって入力$x$に対して$\{1, 0\}$を返す。
+すなわち、根ノードから始まり、ノードのラベル$x_i$に対して、入力$x$の$x_i$が1であればラベル1が付いたエッジをたどり、0であればラベル0をたどる。これを繰り返し、シンクにたどり着いたらシンクのラベルの値を返す。
+決定木と異なりBDDは木ではなく、途中で合流などがあるため、決定木よりも空間効率が良い場合が多い。
+BDDを用いて集合演算を行うことが出来る。
+
+%\captionlistentry[todo]{BDDの詳しい説明:集合演算}
+
+
+BDDを使って状態やアクションの特徴関数を表現することが出来る。
+
+\subsection{特徴関数による状態空間の探索}
+
+状態空間の探索は特徴関数の演算によって表現することが出来、その演算はBDDの演算によって実装することが出来る。
+
+ある状態集合$S$に対して、$s \in S$となる$s$の次状態の集合を$S$の{\it image}と呼ぶ。
+$S$のimageは以下の特徴関数によって表すことが出来る。
+
+\begin{equation}
+	Image_S(x') = \exists x (Trans(x,x') \land \phi_S(x))
+\end{equation}
+
+
+\subsubsection{BDD-幅優先木探索}
+
+imageを繰り返し求めていくことで幅優先木探索は簡単に実装することが出来る。
+まず、初期状態$s_0$だけによる集合$S_0 = \{s_0\}$を考える。これに対して$\phi_{S_{i}}$は集合$S_i$を表す特徴関数だとする。これを用いることで次状態集合を次々と求めることが出来る：
+
+\begin{equation}
+	\phi_{S_i}(x') = \exists x (\phi_{S_{i-1}}(x) \land Trans(x,x'))
+\end{equation}
+
+簡単に言えば、状態$x'$は、もし親状態$x$が$S_{i-1}$に含まれていれば、$S_i$に含まれる。
+探索を停止するためには探索した状態にゴール状態が含まれているかをテストしなければならない。
+ゴールテストも特徴関数を用いて表すことが出来る。
+ゴール状態集合$T$を表す特徴関数を$\phi_T$とすると、$\phi_{S_i}(x') \land \phi_T \neq false$であれば$S_i$はゴール状態を含む。
+
+アルゴリズム\ref{alg:symbolic-brfs-tree}はBDD-幅優先木探索である。
+imageの計算とゴールテストによって実装することが出来る。
+
+
+\begin{algorithm}
+\caption{BDD Breadth-first Tree Search}
+\label{alg:bdd-brfs-tree}
+	\Input{Initial node $s_0$}
+	\Output{Path from $s_0$ to a goal node $t \in T$}
+	$S_0 \leftarrow \{s_0\}$\;
+	\For {$i \leftarrow 1...$} {
+		$\phi_{S_i}(x) \leftarrow \exists x (\phi_{S_{i-1}}(x) \land Trans(x,x'))[x'/x]$\;
+		\If {$\phi_{S_i}(x) \land \phi_T \neq false$} {
+			\Return $Construct(\phi_{S_i} \land \phi_T(x), i)$\;
+		}
+	}
+%	\Return No solution found
+\end{algorithm}
+
+
+$Construct$関数はゴールに至るための経路を計算する関数である。
+$\phi_{S_i} \land \phi_T(x)$によってゴール状態、解経路における$i$ステップ目の状態($s_i$)が得られる。次に$Trans(\phi_{S_{i-1}}, s_i)$によって$i-1$ステップ目の状態$s_{i-1}$が得られ、$Trans_a$を見ていくことで$i-1$ステップ目のアクションが得られる。これを繰り返すことによって元の解経路を復元することが出来る。ゴール状態は一つ取り出せば十分であるため、$Construct$の計算時間は大きくはない。
+
+BDD-幅優先木探索は幅優先探索と同様、解の経路長が最短であることを保証する。
+
+
+\subsubsection{BDD-幅優先探索}
+
+重複検出を行う場合はクローズドリストに展開済みノードを保存する必要がある。
+この展開済みノードも特徴関数及びBDDで表すことが出来る。
+アルゴリズム\ref{alg:bdd-brfs}はBDD-幅優先探索のコードである。
+アルゴリズム\ref{alg:bdd-brfs-tree}と異なり特徴関数$Closed$を用いて重複検出を行っている。
+
+\begin{algorithm}
+\caption{BDD Breadth-first search}
+\label{alg:bdd-brfs}
+	\Input{Initial node $s_0$}
+	\Output{Path from $s_0$ to a goal node $t \in T$}
+	$S_0 \leftarrow \{s_0\}$\;
+	$Closed \leftarrow \{s_0\}$\;
+	\For {$i \leftarrow 1...$} {
+		$Succ(x) \leftarrow \exists x (\phi_{S_{i-1}}(x) \land Trans(x,x'))[x'/x]$\;
+		$\phi_{S_i}(x) \leftarrow Succ(x) \land \lnot Closed(x)$\;
+		$Closed(x) \leftarrow Closed(x) \lor Succ(x)$\;
+		\If {$\phi_{S_i}(x') \land \phi_T \neq false$} {
+			\Return $Construct(\phi_{S_i} \land \phi_T(x), i)$\;
+		}
+	}
+%	\Return No solution found
+\end{algorithm}
+
+% TODO: BDD-最適コスト探索
+% \subsubsection{BDD-最適コスト探索}
+
+% Not for now
+%\subsection{Symbolic Tree Search}
+%\subsection{Symbolic Blind Search}
+%\subsection{Symbolic Heuristic Search}
+
+% \subsection{関連文献}
+
+
+
+
+\section{新奇性に基づく枝刈り (Novelty-based Pruning)}
+\label{sec:novelty-based-pruning}
+
+状態空間を広く探索することは局所最適やデッドエンドに陥らないためには必要である。
+より\define{新奇性}{novelty}のある状態を優先して探索することによって広く状態空間が探索できると考えられる。
+状態空間が非常に大きい場合は、よりアグレッシブに、すでに生成された状態と似たような状態を枝刈りしていく方法がある。
+
+
+%新奇性は似たような状態というのが定義しやすいドメインにおいて有効である。
+
+
+\subsection{状態の新奇性 (Novelty)}
+\label{sec:novelty}
+
+状態に対して新奇性を定義する試みは古くから人工知能研究にある\cite{lehman2008exploiting}。
+なので新奇性の定義も様々であるが、本書では\cite{geffner2015}の定義に従い、新奇性を以下のように定義する。
+
+\ddef{新規性、Novelty}{
+$m$個の特徴関数の集合$h_1,h_2,....,h_m$に対して新たに生成された状態$s$の新奇性$w(s)$は$n$であるとは、
+$n$個の特徴関数によるタプル$\{h_{i_1},h_{i_2},..,h_{i_n}\}$が存在し、
+$h_{i_1}(s) = h_{i_1}(s')$, $h_{i_2}(s) = h_{i_2}(s')$,...,$h_{i_n}(s) = h_{i_n}(s')$を満たす生成済みの状態$s'$が存在せず、
+かつ、この条件を満たすそれよりも小さいタプルが存在しない。
+}
+
+特徴関数は単純に状態変数の値を返す関数を使うことができる \cite{geffner2015, lipovetzky2015a}。
+つまり状態$s = \{v_1, v_2,...,v_m\}$に対して特徴関数は$h_i = v_i$とする。
+この場合、$w(s) = m$であれば状態変数がすべて同じノードがすでに生成済みであるということなので、$s$は重複したノードである。
+このため枝刈りのために新奇性を定義する場合はこれが便利である。
+
+% TODO: もっとわかりやすい例？
+% 例えばマルバツゲームの新奇性を考える。
+% 特徴関数$h_i$は$i$の位置にあるマーク(空、マル、バツ)を返す。
+% 初期状態$s_0$の新奇性は生成済み状態が存在しないので1である。
+
+% \begin{figure}
+% TODO: マルバツゲームの図
+% \caption{マルバツゲームにおける新奇性の例}
+% \end{figure}
+
+\subsection{Width-Based Search (幅制限探索)}
+\label{sec:width-based-search}
+
+\define{幅制限探索}{width-based search}は状態の新奇性に基づいてノードを枝刈りする手法である \cite{lipovetzkyg12}。
+新奇性によってノードを枝刈りするので、解が存在しても発見される保証はない。
+
+% \begin{definition}{幅制限探索}
+% \end{definition}
+
+% $i$が特徴関数の数と同じである場合、幅制限探索はただの(重複検知を行う)幅優先探索になる。
+IW($i$)は新奇性が$i$よりも大きい状態を枝刈りする幅優先探索とする。
+$i$を小さくすることのメリットは２つある。
+一つは状態空間が著しく小さくなる。
+もう一つは幅を制限することで生成済みノードをクローズドリストにすべて保存する必要がなくなる。
+その代わり保存しなければならない情報は、生成済みの特徴のタプルのうち大きさが$i$以下のものの集合である。
+これがないと新奇性を計算することができない。
+生成済みタプルの集合は真偽値のテーブルによって実装することができる。
+状態$s$のある変数$X$の値が$x$であることを$s$は\define{アトム}{atom}$(X = x)$を持つと言う。
+例えばIW($1$)であれば保存しなければならない情報は可能なアトムの数の真偽値のみである。
+
+幅が一つ大きくなるたびに探索空間は指数的に大きくなっていく。もっと粒度を小さく探索空間の大きさを変えていくために新奇性の定義域を有理数に拡張した幅制限探索も提案されている\cite{geffner2015}。
+
+
+\subsection{Iterative Width Search (反復幅制限探索)}
+\label{sec:iterative-width-search}
+
+\define{反復幅制限探索}{iterative width search}は幅制限探索を幅を大きくしながら解を発見するまで繰り返すアルゴリズムである \cite{lipovetzkyg12}。
+IW($i$)は幅$i$が大きくなるほど大きな状態空間を探索することになる。
+幅を大きくしていくことでだんだんと探索する状態空間を大きくしていき、解を探すという手法である。
+いずれ幅の大きさが特徴の数と同じまでになるので、反復幅制限探索は解があればいずれ必ず発見する。
+
+\begin{algorithm}
+\caption{Iterative Width Search}
+	$n \leftarrow 1$
+	\While {$sol is null$} {
+		$sol \leftarrow IW(n)$\;
+		$n \leftarrow n + 1$\;
+	}
+	\Return $sol$
+\end{algorithm}
+
+\begin{comment}
+
+\subsection{Best-First Width Search (最良優先幅制限探索)}
+\label{sec:width-based-heuristic-search}
+
+\cite{geffner2015}
+
+
+\subsection{Novelty Heuristics (新奇性に基づくヒューリスティック)}
+\label{sec:novelty-heuristics}
+
+ここまでの議論では新奇性を枝刈りのために使った。
+しかしノードを捨ててしまう枝刈りは解が存在する問題でも解を発見できなくなってしまうという問題がある。
+新奇性を使ってノードを完全に捨ててしまうのではなく、新奇性に基づいてノードを展開する優先度を決めるというアプローチをとることができる \cite{geffner2015}。つまり新奇性をヒューリスティックに使うということである。
+この方法ではノードは完全に捨てられることはないので解を捨ててしまう可能性はなくなる。
+
+ここで注意しなければならないのは新奇性は生成済みノード集合に依存する値である。
+つまり新奇性に基づくヒューリスティック関数は状態$s$の関数ではなく、状態とクローズドリストの関数となる。つまり、同じ状態のノードでもヒューリスティック値が異なる場合がある。
+
+% TODO: read the paper
+\end{comment}
+
+% \subsection{関連文献}
+% Best-First Width Search (最良優先幅制限探索) \cite{geffner2015}
+% Novelty Heuristics (新奇性に基づくヒューリスティック) \cite{geffner2015}
+
+
+\section{並列探索 (Parallel Search)}
+\label{sec:parallel-search}
+
+近年コンピュータ一台当たりのコア数は増加を続けており、コンピュータクラスタにも比較的容易にアクセスが出来るようになった。Amazon Web Serviceのようなクラウドの計算資源も普及し、将来的には並列化が当然になると考えられる。
+並列化の成功例は枚挙にいとまないが、近年のディープラーニングはまさに効率的な並列計算アーキテクチャによって得られたブレイクスルーであるといえる。
+%残念ながら、探索アルゴリズムの並列化は比較的難しいと考えられる。
+%一般に並列アルゴリズムの効率は逐次実行部分と並列実行可能部分に分割される
+%グラフ探索アルゴリズムを並列化するメリットの一つはもちろん実行速度の高速化である。
+グラフ探索アルゴリズムの並列化に考えなければならないオーバーヘッドは様々であり、それらの重要性は問題、インスタンス、マシン、さまざまな状況に依存する。加えてハードウェアは刻々と変化を続けており、数年後にどのような環境がメジャーとなるのかはなかなか想像をすることが出来ないだろう。
+本書ではCPUを用いた分散メモリ並列アルゴリズムとGPU一台を用いた並列アルゴリズムについて説明する。
+CPU並列ではハッシュによってノードを各プロセスにアサインし、各プロセスはアサインされたノードのみを担当して探索を行うというフレームワークが現在のstate-of-the-artである。
+より詳細な議論は\ref{fukunaga2017survey}を参照されたい。
+
+\subsection{並列化オーバーヘッド (Parallel Overheads)}
+\label{sec:parallel-overheads}
+
+理想的には$n$プロセスで並列化したら$n$倍速くなってほしい。
+逐次アルゴリズムと比較して、プロセス数倍の高速化が得られることを{\it perfect linear speedup}と呼ぶ。
+しかしながら、殆どの場合perfect linear speedupは得られない。
+それは並列化にさいして様々なオーバーヘッドがかかるからである。
+\cite{jinnai2017work}の記法に従うと、並列化オーバーヘッドは主に以下の３つに分けられる。
+
+\noindent {\bf 通信オーべーヘッド (Communication overhead, CO)}:
+通信オーバーヘッドはプロセス間で情報交換を行うことにかかるオーバーヘッドである。
+通信する情報は様々なものが考えられるが、オーバーヘッドとなるものはノードの生成回数に比例した回数通信を必要とするものである。
+すなわち、ノードの生成回数$n$に対して$log(n)$回しか通信を行わない場合、その通信によるオーバーヘッドは無視出来るだろう。
+ここではノードの生成回数に対するメッセージ送信の割合をCOと定義する：
+\begin{equation}
+	CO := \frac{\text{\# messages sent to other threads}}{\text{\# nodes generated}}.
+\end{equation}
+
+例えば、ハッシュなどによってプロセス間でノードの送受信を行いロードバランスを行う手法の場合、通信するメッセージは主にノードである。この場合：
+
+\begin{equation}
+	CO := \frac{\text{\# nodes sent to other threads}}{\text{\# nodes generated}}.
+\end{equation}
+となる。
+COは通信にかかるディレイだけでなく、メッセージキューなどのデータ構造の操作も行わなければならないので、特にノードの展開速度が速いドメインにおいて重要なオーバーヘッドになる。一般に、プロセス数が多いほどCOは大きくなる。
+%If nodes are assigned randomly to the threads, CO will be proportional to $1-\frac{1}{\#thread}$. 
+
+
+\noindent {\bf 探索オーバーヘッド (Search Overhead, SO):}
+一般に並列探索は逐次探索より多くのノードを展開することになる。
+このとき、余分に展開したノードは逐次と比較して増えた仕事量だと言える。
+本書では以下のように探索オーバーヘッドを定義する：
+
+\begin{equation}
+SO := \frac{\text{\# nodes expanded in parallel}}{\text{\#nodes expanded in sequential search}} - 1.
+\end{equation}
+
+SOはロードバランス (load balance, LB)が悪い場合に生じることが多い。
+
+\begin{equation}
+LB := \frac{\text{Maximum number of nodes assigned to a thread}}{\text{Average number of nodes assigned to a thread}}.
+\end{equation}
+
+ロードバランスが悪いと、ノードが集中しているスレッドがボトルネックとなり、他のスレッドはノードがなくなるか、あるいはよりf値の大きい(有望でない)ノードを展開することになり、探索オーバーヘッドになる。
+
+探索オーバーヘッドは実行時間だけでなく、空間オーバーヘッドでもある。ムダに探索をした分だけ、消費するメモリ量も多くなる。分散メモリ環境においてもコア当りのRAM量は大きくなるわけではないので、探索オーバーヘッドによるメモリ消費は問題となる。
+
+
+\noindent {\bf 同期オーバーヘッド (Coordination Overhead)}
+同期オーバーヘッドは他のスレッドの処理を待つためにアイドル状態にならなければならない時に生じるオーバーヘッドを指す。
+アルゴリズム自体が同期を必要としないものだとしても、メモリバスのコンテンションによって同期オーバーヘッドが生じることがある\cite{burnslrz10,kishimotofb13}.
+
+
+これらのオーバーヘッドは独立ではなく、むしろ相互に関係しており、トレードオフの関係にある。
+多くの場合、通信・同期オーバーヘッドと探索オーバーヘッドがトレードオフの関係にあたる。
+
+\subsection{ハッシュ分配A* (Hash Distributed A*)}
+\label{sec:hash-distributed-astar}
+
+ハッシュ分配A* (Hash Distributed A*, HDA*) \cite{kishimotofb13}はCPUを用いたstate-of-the-artの並列A*探索アルゴリズムである。
+HDA*の各プロセスはそれぞれローカルなオープンリスト、クローズドリストを保持する。ローカルとは、データ構造を保持するプロセスが独占してアクセスを行い、他のプロセスからはアクセスが不可能であるという意味である。
+グローバルなハッシュ関数によって全ての状態は一意に定まる担当のプロセスが定められる。
+各プロセス$T$の動作は以下を繰り返す：
+
+\begin{enumerate}
+	\item 
+		プロセス$T$はメッセージキューを確認し、ノードが届いているかを確認する。届いているノードのうち重複でないものをオープンリストに加える(A*同様、クローズドリストに同じ状態が存在しないか、クローズドリストにある同じ状態のノードよりも$f$値が小さい場合に重複でない)。
+	\item 
+		オープンリストにあるノードのうち最もプライオリティ($f$値)の高いノードを展開する。生成されたそれぞれのノード$n$についてハッシュ値$H(n)$を計算し、ハッシュ値$H(n)$を担当するプロセスに非同期的に送信される。
+\end{enumerate}
+
+HDA*の重要な特徴は２つある。
+まず、HDA*は非同期通信を行うため、同期オーバーヘッドが非常に小さい。
+各プロセスがそれぞれローカルにオープン・クローズドリストを保持するため、これらのデータ構造へのアクセスにロックを必要としない。
+次に、HDA*は手法が非常にシンプルであり、ハッシュ関数$Hash: S \rightarrow {1..P}$を必要とするだけである ($P$はプロセス数)。
+%並列アルゴリズムにおいて手法がシンプルであることは非常に有用である。
+しかしながらハッシュ関数は通信オーバーヘッドとロードバランスの両方を決定する為、その選択はパフォーマンスに非常に大きな影響を与える。
+
+HDA*が提案された論文\cite{kishimotofb13}ではZobrist hashing \cite{zobrist:70}がハッシュ関数として用いられていた。
+状態$s = (x_1,x_2,...,x_n)$に対してZobrist hashingのハッシュ値$Z(s)$は以下のように計算される：
+
+\begin{equation}
+\label{eq:zobrist}
+ 	Z(s) := R_{0}[x_{0}]\; xor\; R_{1}[x_{1}]\; xor\; \cdots\; xor\; R_{n}[x_{n}]%
+\end{equation}
+
+Zobrist hashingは初めにランダムテーブル$R$を初期化する\ref{alg:init-zobrist-hashing}。
+これを用いてハッシュ値を計算する。
+
+\begin{algorithm}
+	\Input{$s = (x_0, x_1,...,x_n)$}
+	$hash \leftarrow 0$\;
+	\For {each $x_i \in s$} {
+		$hash \leftarrow hash \; xor \; R[x_i]$\;
+	}
+	{\bf Return} $hash$\;
+	\caption{\ZHDA{}}
+	\label{alg:zobrist-hashing}
+\end{algorithm}
+
+\begin{algorithm}
+	\Input{$V = (dom(x_0),dom(x_1),...)$}
+	\For {each $x_i$} {
+		\For {each $t \in dom(x_i)$ } {
+			$R_i[t] \leftarrow random()$\;
+		}
+	}
+	{\bf Return} $R = (R_1, R_2,...,R_n)$
+	\caption{Initialize \ZHDA{}}
+	\label{alg:init-zobrist-hashing}
+\end{algorithm}
+
+Zobrist hashingを使うメリットは２つある。
+一つは計算が非常に速いことである、XOR命令はCPUの演算で最も速いものの一つである。かつ、状態の差分を参照することでハッシュ値を計算することが出来るので、アクション適用によって値が変化した変数の$R[x]$のみ参照すれば良い。
+もうひとつは、状態が非常にバランスよく分配され、ロードバランスが良いことである。
+一方、この手法の問題点は通信オーバーヘッドが大きくなってしまうことにある。
+この問題を解決するためにState abstractionという手法が提案された\cite{burnslrz10}。
+State abstractionは状態$s = (x_1,x_2,...,x_n)$に対して簡約化状態 (abstract state) $s' = (x_1',x_2',...,x_m'), where m < n, x_i' = x_j (1 \leq j \leq n)$. % TODO: clean up this.
+State abstractionは簡約化状態からハッシュ値への関数の定義はされておらず、単純なlinear congrugent hashingが用いられていた。そのため、ロードバランスが悪かった。
+
+Abstract Zobrist hashing (AZH)はZobrist hashingとAbstractionの良い点を組み合わせた手法である\cite{jinnai2016structured}。AZHはfeatureからabstract featureへのマッピングを行い、abstract featureをZobrist hashingへの入力とするという手法である：
+
+\begin{equation}
+\label{eq:abstract-zobrist}
+ 	Z(s) := R_{0}[A_0(x_{0})]\; xor\; R_{1}[A_1(x_{1})]\; xor\; \cdots\; xor\; R_{n}[A_n(x_{n})]%
+\end{equation}
+
+ここで関数$A$はfeatureからabstract featureへのマッピングであり、$R$はabstract featureに対して定義されている。
+% Abstract featureを自動的に生成する手法は複数提案されており、最もシンプルなものはGreedy abstract feature generation \cite{jinnai2016automated}である。
+
+HDA*のための分解関数の自動生成方法は\cite{jinnai2017work}にまとめられている。
+
+% \subsection{関連文献}
+% 並列深さ優先探索 \cite{kumar1988parallel}.
+% Transposition Table Driven Work Distribution (TDS) \cite{}.
+% Parallel Structured Duplicated Detection (PSDD) \cite{}.
+% Parallel Best-NBlock First (PBNF) \cite{}.
+% 
+% 
+% 一方、執筆時現在、GPUを用いたアルゴリズムはあまり研究が進んでいない。原因としては、既存のCPUを用いた探索アルゴリズムにはない様々な難しさがあるだろう。
+% たとえば、GPUはスレッド当りのメモリ量が非常に少ない。A*探索はメモリが大きなボトルネックであり、メモリ量が少ないとそのまま解ける問題の大きさが制限されてしまう。この問題を解決する方法は提示されていない。
+% もうひとつの難しさは、GPUは複数のスレッドが同じ命令を実行するSingle instruction multiple thread (SIMT)という計算モデルであることである。そのため、既知の有力なヒューリスティック関数をGPU環境において効率的に実装する方法が自明ではない。
+% パターンデータベースなどのシンプルな命令によるヒューリスティックも考えることが出来るが、このようなヒューリスティックは今度はメモリを沢山消費するという問題点がある。
+% 効率的なGPU並列化アルゴリズムの開発は大きな成果が期待されるブルーオーシャンであるといえる\footnote{個人の感想である}。
+% もしCPU/GPUを利用した効率的なグラフ探索アルゴリズムが開発出来れば、非常に大きなインパクトになるかもしれない。
+
+
+%  
+% \section{モンテカルロ木探索 (Monte Carlo Tree Search)}
+% \label{sec:mcts}
+% 
+% モンテカルロ木探索 (Monte Carlo Tree Search, MCTS)は非常に多様な問題で応用されている手法である。
+% その長所はたくさんある。
+% まず、MCTSは状態空間が非決定論的でも扱える。不完全情報でも扱える。
+% ２人プレイヤーゲームなどにも使える。特に碁で使われている。Alpha Goでも使われた。
+% 
+% MCTSのエージェントは木データ構造を保持する。
+% 木の根は初期状態（２人プレイヤーゲームなどでは現在の盤面を初期状態とする）である。
+% MCTSは初期状態から木を辿り、木に新しいノードを追加する、というイテレーションを繰り返す。
+% 一つのイテレーションは４つの処理のループからなる。
+% 
+% \begin{enumerate}
+% \item Select a next node following a tree policy
+% \item Add a new node to the tree
+% \item Simulate following a default policy
+% \item Back propagate
+% \end{enumerate}
+% 
+% 
+% 
+% \begin{algorithm}
+% \caption{Monte Carlo Planning(state)}
+% \label{alg:mcts}
+% 	\While {True} {
+%     	search(state, 0)
+%     }
+%     \Return bestAction(state, 0)
+% \end{algorithm}
+% 
+% \begin{algorithm}
+% \caption{search(state, depth)}
+% \label{alg:mcts-iter}
+% 	\If {Terminal(state)} {
+%     	\Return 0
+%     }
+%     \If {Leaf(state, d)} {
+%     	\Return Evaluate(state)
+%     }
+%     action $\leftarrow$ selectAction(state, depth)\;
+%     (nextstate, reward) $\leftarrow$ simulateAction(state, action)\;
+%     q $\leftarrow$ reward + $\gamma$ search(nextstate, depth + 1)\;
+%     UpdateValue(state, action, q, depth)
+% \end{algorithm}
+% 
+% \subsection{UCT (UCB1 Applied to Tree)}
+% \label{sec:uct}
+% 
+% MCTSのtree policyの選択は状態空間をどのように探索するかに大きな影響を与える。
+% 最も広く使われているtree policyはUCB1による \cite{UCT 2006,survey論文}。
+% 
+% \begin{equation}
+% 	UCB1(s, s') = \bar{X_{s'}} + 2 C_p \sqrt{\frac{2 \ln n(s)}{\ln n(s')}}
+% \end{equation}
+% 
+% where $\bar{X_{s'}}$ is the average reward from visiting $s'$, $n(s), n(s')$ is a number of visits to state $s$, $s'$, respectively.
+% UCB1を使うMCTSはUpper bound applied to tree (UCT)と呼ばれる。
+% 
+% \section{その他の派生アルゴリズム}
+% ここで紹介した以外にもヒューリスティック探索の派生アルゴリズムはたくさんある。
+% 
+% \define{再帰的最良優先探索}{Recursive best-first search} (RBFS)はIDA*の拡張である \cite{RBFS}。
+% RBFSはノードを最良優先の順で展開し、ヒューリスティック値をバックアップする。
+% 余ったメモリを使ってノードの展開数を抑える拡張が提案されている (Memory-aware RBFS) \cite{MRBFS}。
+% 
+% %Depth-first iterative deepening
+% Partial Expansion A* \cite{}。多重整列問題。
+% 
+% K-Best First Search
+% 
+% K-ビームサーチ
+% Partial A*
+% Partial IDA*
+% MA*
+% Frontier Search
+% 
+% 
+% ポートフォリオ戦略
+% どれか一つのアルゴリズムに絞らなくてもよい
+% いろいろ試してみるのが有効なことが多い
+

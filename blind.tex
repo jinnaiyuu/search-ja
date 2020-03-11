@@ -1,0 +1,372 @@
+% -*- coding: utf-8 -*-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% CHAPTER: Blind Search
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{情報なし探索 (Blind Search)}
+\label{ch:blind-search}
+
+\ref{ch:introduction}章では様々な状態空間問題を紹介したが、それぞれの問題の解法はどれも沢山研究されている。
+一つの指針としては、ある問題に特化した解法を研究することでその問題をより高速に解くというモチベーションがある。
+これは例えばMSAのように重要なアプリケーションがある問題の場合に特に熱心に研究されることが多い。
+一方、なるべく広い範囲の問題に対して適用可能な手法を研究するというモチベーションもある。
+{\bf この章で紹介する手法は問題特化のアルゴリズムよりもパフォーマンスに劣るが、問題の知識をあまり必要とせず、さまざまな問題に適用できる}。
+%ただしこのような手法はドメインに特化したプログラムと比べてパフォーマンスに劣ることが多い。
+
+\ref{ch:introduction}章で紹介した状態空間問題を広く扱うことの出来る手法としてグラフ探索アルゴリズムがある。
+本章では最もシンプルな問題（ドメイン）の知識を利用しない探索を紹介する。
+情報なし探索 (Blind Search)は状態空間グラフのみに注目し、背景にある問題に関する知識を一切使わないアルゴリズムである。
+このような探索では{\bf 1. 重複検知を行うか 2. ノードの展開順序}が重要になる。
+重複検出は訪問済みの状態を保存しておくことで同じ状態を繰り返し探索することを防ぐ手法である。対価としては、メモリの消費量が非常に大きくなることにある。
+ノードの展開順序とは、例えば幅優先探索・深さ優先探索などのバリエーションを指す。
+効率的な展開順序は問題によって大きく異なり、問題を選べばこれらの手法によって十分に効率的な探索を行うことが出来る。
+これらの探索手法は競技プログラミングでもよく解法として使われる\cite{skiena2006programming}。また、いわゆるコーディング面接でもグラフ探索アルゴリズムは頻出である\cite{mcdowell2011cracking}。
+%\ref{ch:search-performance}章はグラフ探索の高速化の紹介をするので、特に競技プログラミングに興味がある場合はそちらも参照されたい。% TODO
+情報なし探索は\cite{cormen01}の22章Elementary Graph Algorithmsにも詳しく説明されている。
+
+\begin{comment}
+\begin{table}
+\caption{木探索とグラフ探索}
+\label{tbl:tree-vs-graph-search}
+%\begin{adjustbox}{width=\textwidth}
+\caption{木探索とグラフ探索の違い。状態の重複検出を行わない手法を木探索と呼ぶ。探索する状態空間が木であるか否かは関係しない。グラフ探索は重複検出を行うことで同じ状態を複数回無駄に探索することを防ぐ。重複検出のためには生成済みノードをすべて保存するデータ構造クローズドリストが必要になる。}
+\begin{tabular}{c|ccc}
+				& 重複検出  	  & 保存するノード & 完全性 \\
+	木探索  		& 重複検出しない & オープンリストのみ & ループを含むグラフである場合停止性を満たさない \\
+	グラフ探索 		& 重複検出する  & オープンリストとクローズドリスト & (状態空間が有限ならば)完全 \\ 
+\end{tabular}
+%\end{adjustbox}
+\end{table}
+
+
+\begin{table}
+\label{tbl:basic-priority}
+%\begin{adjustbox}{width=\textwidth}
+\caption{ノードの展開順序。}
+\begin{tabular}{c|cc}
+	展開順序  	& プライオリティ 	& 性質 \\  
+	幅優先	& $\arg \min_n d(n)$ & ユニットコストドメインだと最初に発見した解が最適解である \\
+	深さ優先 	& $\arg \max_n d(n)$ & メモリ消費が少ない場合がある \\
+	最良優先	& $\arg \min_n g(n)$ & 非負コストドメインで最適解が得られる \\
+\end{tabular}
+%\end{adjustbox}
+\end{table}
+\end{comment}
+
+
+\section{木探索アルゴリズム (Tree Search Algorithm)}
+\label{sec:tree-search-algorithm}
+木探索アルゴリズムはグラフ探索アルゴリズムの基礎となるフレームワークであり、本文で紹介する手法のほとんどがこのフレームワークを基礎としているといえる。
+アルゴリズム\ref{alg:implicit-tree-search}は木探索の疑似コードである。
+
+\begin{algorithm}[tbh]
+\caption{木探索 (Implicit Tree Search)}
+\label{alg:implicit-tree-search}
+	\Input{initial node $s$, weight function $w$, successor generation function $Expand$, goal function $Goal$}
+	\Output{Path from $s$ to a goal node $t \in T$, or $\emptyset$ if no such path exists}
+	$Open \leftarrow \{s\}$\;
+	\While{$Open \neq \emptyset$} {
+		$u \leftarrow Open.pop()$\;
+		\If {$Goal(u)$} {
+			\Return $Path(u)$\;
+		}
+		$Succ(u) \leftarrow Expand(u)$\;
+		\For {each $v \in Succ(u)$} {
+			$Open.insert(v)$\;
+			$parent(v) \leftarrow u$\;
+		}
+ 	}
+	\Return $\emptyset$\;
+\end{algorithm}
+
+% \noindent\colorbox[gray]{0.95}{%
+\begin{algorithm}[H]%
+\caption{Expand}%
+\label{alg:expand}
+	\Input{Parent node $s$, a set of actions applicable to the state $A(s)$}
+	\Output{A set of child nodes $S$}
+	\For {$a \in A(s)$} {
+		$s' \leftarrow a(s)$\;
+		$d(s') \leftarrow d(s) + 1$\;
+		$g(s') \leftarrow g(s) + w(s, s')$\;
+		$S \leftarrow S \cup {s'}$\;
+	}
+	\Return $S$\;
+\end{algorithm}
+% }
+    
+
+以下、(k)と書いて疑似コードのk行目を指すことにする。
+木探索はオープンリスト\footnote{歴史的な経緯でリストと呼ばれているが、データ構造がリストで実装されるという意味ではない。効率的なデータ構造は\ref{ch:search-performance}章で紹介する。}と呼ばれるノードの集合をPriority queueに保持する。探索の開始時には、初期状態のみがオープンリストに入っている(1)。
+木探索は、このオープンリストから一つノード$u$を選び(3)、ゴール条件を満たしているかを確認する(4)。満たしていれば初期状態から$u$への経路を返す。満たしていなければ、そのノードを展開する(6-)。展開とは、そのノードの子ノードを列挙し、オープンリストに入れる(8)ことを指す。
+
+アルゴリズム\ref{alg:expand}は展開関数の動作を表している。
+初期状態からノード$n$への最小ステップ数を深さ$d$と呼び、最小経路コストを$g$値と呼ぶ。すべてのアクションのコストが１のドメインであれば任意の$n$に対して$d(n) = g(n)$が成り立つ。
+状態を更新すると同時に$g$値を更新する。これによって解を発見した時に解ノードの$g$値が解のコストとなる。
+なお、状態$s$に対して適用可能なアクションの集合$A(s)$は与えられていると仮定する。
+
+探索の進行によってエージェントが保持する情報は変化していく。ここでは探索がどのように進行するかを記述するため、以下の３つの言葉を定義する：
+
+\begin{enumerate}
+\item 展開済みノード: $Expand$によって子ノードが参照されたノードを指す。$Open$からは取り除かれたノードである。
+\item 生成済みノード: $Open.insert$によって$Open$に一度でも入れられたノードを指す。
+\item 未生成ノード: 状態空間内のまだ生成されていないノード。よって、非明示的グラフに保持されていない。
+\end{enumerate}
+
+非明示的グラフ木探索の強みは、生成済みノードのうち展開済みではないもののみを$Open$に保持すればよいことにある。未生成ノード、展開済みノードはメモリ上に保持する必要がない。
+一方、これの問題は、一度展開したノードが再び現れた場合、{\bf 再展開 (reexpansion)}をすることになる。よって、グラフがより木から遠いほど(複数の経路で到達可能なノードがあるほど)同じノードを何度も再展開することになり、効率が悪くなってしまう。もっと言えば、木探索アルゴリズムは状態数が有限であっても停止しない場合がある。
+これらが問題になるような問題ドメインである場合は後述する重複検出を使うグラフ探索 (\ref{sec:graph-search-algorithm}節)を使うと良いだろう。
+
+{\bf 紛らわしいが、木探索アルゴリズムはグラフを探索するアルゴリズムである。}
+グラフ探索アルゴリズムのうち、重複検出を行わない手法を木探索アルゴリズムと呼ぶ。
+疑似コードでは明示されていないが、オープンリストはプライオリティキューであり、どの順番でノードを取り出すかを決めなければならない ($Open.pop$の実装にあたる)。
+探索アルゴリズムの性能はこのプライオリティの設定方法に強く依存する。
+本章の\ref{sec:breadth-first-search}節以降、及び\ref{ch:heuristic-search}章はこのプライオリティをどうデザインするかについて議論をする。
+
+%同じ状態を複数回展開すると計算資源を無駄にすることになるのでなるべく重複を避けたい。
+
+
+%木探索ベースのアルゴリズムの問題は、解が存在しない場合に停止性を満たさないことである。よって、この手法は解が間違いなく存在することが分かっている問題に対して適用される。あるいは、解が存在することを判定してから用いる。
+
+
+\section{グラフ探索アルゴリズム (Graph Search Algorithm)}
+\label{sec:graph-search-algorithm}
+
+
+明示的グラフのあるノードが初期状態から複数の経路でたどり着ける場合、同じ状態を表すノードが木探索による非明示的グラフに複数現れるということが生じる。このようなノードを\define{重複}{duplicate}と呼ぶ。ノードの重複は計算資源を消費してしまうので、効率的な\define{重複検出}{duplicate detection}の方法は重要な研究分野である。
+{\bf 本書ではノードの重複検出を行う探索アルゴリズムを狭義にグラフ探索アルゴリズムと呼び、重複検出を行わない探索を狭義に木探索と呼ぶ。}
+
+%ノードの重複の確認にはいくつかメリットがある。一つは、停止性を満たすことである。すなわち、最悪グラフのノードをすべて展開して停止する。もう一つは、
+
+\begin{algorithm}[tbh]
+\caption{グラフ探索 (Implicit Graph Search)}
+\label{alg:implicit-graph-search}
+	\Input{Implicit problem graph with initial node $s$, weight function $w$, successor generation function $Expand$, goal function $Goal$}
+	\Output{Path from $s$ to a goal node $t \in T$, or $\emptyset$ if no such path exists}
+	$Closed \leftarrow \emptyset$\;
+	$Open \leftarrow \{s\}$\;
+	\While{$Open \neq \emptyset$} {
+		$u \leftarrow Open.pop()$\;
+		\If {$Goal(u)$} {
+			\Return $Path(u)$\;
+		}
+		$Succ(u) \leftarrow Expand(u)$\;
+		\For {each $v \in Succ(u)$} {
+			\If{$Closed.find(v.state) is null$} {
+				$Open.insert(v)$\;
+				$parent(v) \leftarrow u$\;
+				$Closed.insert(u)$\;
+			}
+			\Else {
+				$v' \leftarrow Closed.find(v.state)$\;
+				\If {$v.g < v'.g$} {
+					$Open.insert(v)$\;
+					$parent(v) \leftarrow u$\;
+					$Closed.insert(v)$\;
+
+					$Open.remove(v')$\;
+					$Closed.remove(v')$\;
+				}
+			}
+		}
+ 	}
+	\Return $\emptyset$\;
+\end{algorithm}
+
+
+重複検出のためには生成されたノードを\define{クローズドリスト}{closed list}に保存する。一度クローズドリストに入れられたノードはずっとクローズドリストに保持される。
+ノード展開関数から子ノードが生成されたら、その子ノードと同じ状態を保持するノードがクローズドリストに存在するかを確認する。
+もし存在しなければ、そのノードは重複ではない。なのでそのノードをオープンリストに加える。
+存在した場合の処理は少しややこしい。
+新たに生成されたノード$n$の$g$値のほうが先に生成されクローズドリストにあるノード$n'$の$g$値よりも小さい場合が存在する。このとき、$n$をそのまま捨ててしまうと、そのノードの$g$値が本来の値よりも大きく評価されてしまう。
+
+$g$値をそのノードに到達できる既知の最小コストにするためには、まずクローズドリストに保存されているノードの$g$値を$g(n')$から$g(n)$に更新しなければならない。
+加えて、ノード$n$を\define{再展開}{reexpansion}しなければならない。
+ノード$n$の子ノード$c$は$n'$の子ノードとして展開されていたわけであるが、そのとき$g(c) = g(n') + w(n', c)$として計算された。この値は$g(c) = g(n) + w(n, c)$に更新しなければならない。$w(n', c) = w(n, c)$なので、$g(n') - g(n)$だけ$g$値が小さくなる。なので、$c$の子ノードも再展開をする必要がある。そしてそのまた子ノードも。。。というように、再展開が生じるとそこから先のノードをすべて再展開する必要がある。これはかなり大きなコストになることが多いので、可能な限り避けたい処理である。
+
+%なので常に$g$値をそのノードに到達できる既知の最小コストに更新する。
+
+重複が存在した場合に必ずノードを捨てることができる場合も存在する。
+まず、解の最適性が必要でない場合$g$値を更新する必要はない。$g$値が過大に評価されても解経路は解経路のままであり、ただ解経路のコストが大きくなるだけである。
+また、例えば幅優先探索では探索の過程で生成されるノードの$d$値は単調増加する。もしユニットコストドメインならば$g$値も単調増加である。つまりノード$n$と重複したノード$n'$がクローズドリストにあったとすると、$g(n) \geq g(n')$が成立する。この場合、解最適性を保ったまま$n$を安全に捨てることができる。
+また、状態空間グラフが木である場合は重複が発生しない。
+なお、後述するA*探索\ref{sec:astar-search}ではある条件を満たせば再展開は行わずに解の最適性が満たせることが知られている。これがA*探索がstate-of-the-artとして重要視されている理由である。
+
+ここで「ノード」と「状態」の言葉の使い分けに注意したい。
+状態とは状態空間問題における状態$s$である。ノードは状態$s$を含み、$f$値、$g$値の情報を含む。
+重複検出を行わない木探索の場合、同じ状態を保持するノードが２つ以上存在しうる。
+重複検知は同じ状態を保持するノードをマージする処理に相当する。この処理を行うと同じノードに複数の経路で到達するようになり、グラフは木ではなくなる。
+
+% 重複検出を行ってもノードの再展開が必要になる場合は存在するが、ほとんどの場合重複検出を行わない場合よりもはるかに再展開の回数は少なくなる。
+% 実行時間で見ると重複検出を行ったほうがほぼ確実に効率的である。
+重複検出の問題はメモリの使用量である。重複検出を行うためには生成済みノードをすべてクローズドリストに保存しなければならない。なので展開済みノードの数に比例した空間が必要になる。
+クローズドリストの効率的な実装については\ref{sec:closed-list}節で議論をする。
+
+なお、重複検出はノードが生成されたときではなく、ノードが展開されるときに遅らせることができる。
+オープンリストには重複したノードが含まれることになるが、ノードの展開時には重複をチェックするので重複したノードの展開は防げる、ということである。これは\define{遅延重複検出}{delayed duplicate detection}と呼ばれ、\ref{sec:delayed-duplicate-detection}節で議論をする。
+
+
+
+\section{幅優先探索 (Breadth-First Search)}
+\label{sec:breadth-first-search}
+
+探索のパフォーマンスにおいて重要になるのは{\bf どのようにして次に展開するノードを選択するか}にある($Open.pop()$)。
+ヒューリスティック探索の研究の非常に大きな部分はここに費やされているといえる。
+シンプルかつ強力なノード選択方法はFirst-in-first-out (FIFO)である。あるいは幅優先探索と呼ぶ。
+
+幅優先探索の手順は非常に単純であり、FIFOの順に$Open$から取り出せばいいだけである。
+これをもう少し大きな視点で、{\it どのようなノードを優先して探索しているのか}を考えてみたい。
+初期状態から現在状態にたどり着くまでの経路の長さをノードの$d$値と定義する。
+すると、幅優先探索の$Open.pop()$はアルゴリズム\ref{alg:brfs-open}のように書くことが出来る。
+ユニットコスト問題である場合、$d$値は$g$値と一致する。
+
+幅優先探索のメリットは初めに発見した解が最短経路長であることである。
+問題がユニットコストドメインであれば、最短経路が最小コスト経路であるので、最適解が得られる。
+なお、後述するBest First Searchと区別するため、Breadth-First Searchの略称はBrFSを用いることがある (Best First SearchはBFSとなる)。
+
+\begin{algorithm}
+\caption{Breadth-First Search: $Open.pop()$}
+\label{alg:brfs-open}
+	\Output{Node $n$}
+	\Return $\arg \min_{n \in Open} d(n)$
+\end{algorithm}
+
+重複検出を用いた幅優先探索で図\ref{fig:ssp-graph}の問題を解こうとすると、オープンリスト、クローズドリストの中身は表\ref{tbl:brfs-traj}のように遷移する。
+
+\begin{table}[tbh]
+\centering
+\caption{重複検出を用いた幅優先グラフ探索のオープンリスト・クローズドリスト (\cite{edelkamp:2010:hst:1875144}より)}
+\begin{tabular}{c|c|l|l|l}
+	ステップ & ノードの選択 & オープンリスト & クローズドリスト & \\
+	1 	  & \{\}       & \{a\}      & \{\} \\
+	2     & a        & \{b,c,d\}  & \{a\} \\
+	3     & b        & \{c,d,e,f\} & \{a,b\} \\
+	4     & c        & \{d,e,f\}   & \{a,b,c\} \\
+	5     & d        & \{e,f,g\}   & \{a,b,c,d\} \\
+	6     & e        & \{f,g\}     & \{a,b,c,d,e\} \\
+	7     & f        & \{g\}       & \{a,b,c,d,e,f\} \\
+	8     & g        & \{\}        & \{a,b,c,d,e,f,g\} & ゴールを発見 \\
+\end{tabular}
+\label{tbl:brfs-traj}
+\end{table}
+
+\section{深さ優先探索 (Depth-First Search)}
+\label{sec:depth-first-search}
+
+幅優先探索が幅を優先するのに対して深さ優先探索はもっとも深いノードを優先して探索する。
+
+深さ優先探索は解がある一定の深さにあることが既知である場合に有効である。
+例えばTSPは全ての街を回ったときのみが解であるので、街の数が$n$であれば全ての解の経路長が$n$である。
+このような問題を幅優先探索で解こうとすると、解は最も深いところにしかないので、最後の最後まで解が一つも得られないということになる。一方、深さ優先探索なら$n$回目の展開で一つ目の解を見つけることが出来る。
+表\ref{tbl:dfs-traj}は図\ref{fig:ssp-graph}の問題で重複検出ありの深さ優先探索を行った場合のオープンリスト・クローズドリストの遷移を示した。図\ref{fig:ssp-tree}と合わせてノードが展開される順序を確認すると良い。
+
+良い解、最適解を見つけたい場合でも深さ優先探索が有用である場合がある。
+早めに一つ解が見つけられると、その解よりも質が悪い解にしかつながらないノードを\define{枝刈り}{pruning}することが出来る。ノード$n$を枝刈りするとは、ノード$n$をオープンリストに加えずそのまま捨てることを指す。つまりアルゴリズム\ref{alg:implicit-tree-search}における$Open.insert(v)$をスキップする。% 詳しくは\ref{sec:pruning}章で解説する。
+
+% TODO: Frequent Itemset Mining
+
+\begin{algorithm}[tbh]
+\caption{Depth-First Search: $Open.pop()$}
+\label{alg:dfs-open}
+	\Output{Node $n$}
+	\Return $\arg \max_{n \in Open} g(n)$
+\end{algorithm}
+
+\begin{table}[tbh]
+\centering
+\caption{重複検出を用いた深さ優先グラフ探索のオープンリスト・クローズドリスト (\cite{edelkamp:2010:hst:1875144}より)}
+\begin{tabular}{c|c|l|l|l}
+	ステップ & ノードの選択 & オープンリスト   & クローズドリスト & \\
+	1 	  & \{\}     & \{a\}       & \{\} \\
+	2     & a        & \{b,c,d\}   & \{a\} \\
+	3     & b        & \{e,f,c,d\} & \{a,b\} \\
+	4     & e        & \{f,c,d\}   & \{a,b,e\} \\
+	5     & f        & \{c,d\}     & \{a,b,e,f\} \\
+	6     & c        & \{d\}       & \{a,b,e,f,c\} \\
+	7     & d        & \{g\}       & \{a,b,e,f,c,d\} \\
+	8     & g        & \{\}        & \{a,b,e,f,c,d,g\} & ゴールを発見 \\
+\end{tabular}
+\label{tbl:dfs-traj}
+\end{table}
+
+\subsection{再帰による深さ優先探索}
+\label{sec:recursive-depth-first-search}
+
+上述の実装はオープンリストを利用した深さ優先探索である。
+一般的にアルゴリズム \ref{alg:implicit-tree-search}、\ref{alg:dfs-open}に従った方法の実装は効率的ではない \footnote{深さ優先探索を並列化する場合はオープンリストを用いる場合がある}。
+深さ優先探索は再帰によって効率的に実装することができる (アルゴリズム \ref{alg:recursive-dfs})。
+ここでこのアルゴリズムにはオープンリストがないことに注目したい。
+これは実装が簡単というだけではなく、消費メモリが少なく、実行時間が少ないというメリットがある。
+
+\begin{algorithm}[tbh]
+\caption{Depth-First Search (DFS)}
+\label{alg:recursive-dfs}
+	\Input{Node $s$, weight function $w$, successor generation function $Expand$, goal function $Goal$}
+	\Output{Path from $s$ to a goal node $t \in T$, or $\emptyset$ if no such path exists}
+	\If {$Goal(s)$} {
+		\Return $s$\;
+	}
+	$Succ(u) \leftarrow Expand(u)$\;
+	\For {each $v \in Succ(u)$} {
+		\If {$DFS(v) \neq \emptyset$} {
+			\Return $(s, DFS(v))$
+		}
+	}
+	\Return $\emptyset$\;
+\end{algorithm}
+
+
+\section{ダイクストラ法 (Dijkstra Algorithm)}
+\label{sec:dijkstra}
+
+\define{ダイクストラ法}{Dijkstra's Algorithm}はグラフ探索アルゴリズムの一種であり、グラフ理論の教科書な
+どでも登場する情報科学全体に多岐に渡り重要とされるアルゴリズムである \cite{dijkstra1959note}。
+例えばネットワークルーティングにおけるlink state algorithmなどにDijkstraが使われる\cite{mcquillan1980new}。
+%初期状態からノード$n$への既知の最小経路コストを$g$値と呼び、$g(n)$と書く。
+ダイクストラ法はグラフ探索において$g$値が最も小さいノードを優先して展開するアルゴリズムと説明することができる。
+つまりグラフ探索の疑似コード\ref{alg:implicit-graph-search}の$Open.pop$を以下のように実装すればダイクストラ法である。
+
+\begin{algorithm}[tbh]
+\caption{Best-First Search: $Open.pop()$}
+\label{alg:dfs-open}
+	\Output{Node $n$}
+	\Return $\arg \max_{n \in Open} g(n)$
+\end{algorithm}
+
+{\bf 深さ優先探索との違いは重複検出を行うところである。}
+ダイクストラ法は非負コストグラフにおいて最短経路を返す。
+ユニットコストドメインでは$\forall n (g(n) = d(n))$であるため、幅優先探索と同じ動作をする。
+フィボナッチヒープを用いてオープンリストを実装したダイクストラ法は$O(|E| + |V|log|V|)$時間でであることが知られている\cite{fredman1987fibonacci}。%任意の非負コスト有向グラフにおける最短経路問題を解くアルゴリズムとして知られている中で最も
+%Bellman-Fordアルゴリズムも重要である。
+そのため、後述するヒューリスティック関数が得られない問題においてはとりあえずダイクストラ法を試してみることは有効である。
+
+
+% \section{上手く行かない場合}
+
+% データ構造を確認する(\ref{ch:search-performance}章)
+
+% ヒューリスティック関数が使えるか否か(\ref{ch:heuristic-search}章)
+
+
+\section{関連文献}
+
+ダイクストラ法はコストが負のエッジを持つ場合にうまくいかない。
+負のエッジを含む問題を解くための手法としてはベルマン-フォード法が有名である \cite{bellman1958routing,ford1956network}。
+
+%状態遷移が確率的である場合(マルコフ過程問題)や敵対二人ゲームの場合は、AND/OR木による探索アルゴリズムが使われる。
+%\define{動的計画法}{dynamic programming}やモンテカルロ木探索などの手法が用いられる \cite{bellman2013dynamic}。
+
+ダイクストラ法などの情報なし探索は\define{組み合わせ最適化}{combinatorial optimization}の手法として使われることも多い\cite{tarjan1983data}。
+
+No Free Lunch定理\cite{wolpert1997no}はコンピュータサイエンスの多くの最適化問題で言及される定理である。
+状態空間問題におけるNo Free Lunch定理の主張は以下である。
+\dtheorem{
+すべての可能なコスト関数による状態空間問題の集合を考える。
+この問題集合に対する平均性能はすべての探索アルゴリズムで同じである。
+}
+つまり、問題の知識が何もなければ
+問題に対して知っている知識を利用して効率化をすることができる。
+すなわち、ある問題集合への性能を犠牲に、ある問題集合への性能を向上させることができる。
+与えられている問題の特徴を知っていれば、その問題に対する性能の良いアルゴリズムを選ぶことができる。
+それが次章で扱うヒューリスティック探索の行うことである。
+
+

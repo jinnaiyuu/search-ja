@@ -1,0 +1,287 @@
+% -*- coding: utf-8 -*-
+\chapter{グラフ探索のためのデータ構造}
+\label{ch:search-performance}
+
+ヒューリスティック探索の効率は探索効率、つまり展開したノードの数によって測られる場合が多い。本書の多くの節は探索効率を上げるためのアルゴリズムについて解説している。
+しかしヒューリスティック探索の実行時間とメモリ量はデータ構造の実装にも大きく左右される。
+
+ヒューリスティック探索ではオープンリストとクローズドリストの２つのデータ構造を保持する。
+オープンリストはインターフェイスとしてはPriority queueであり、必要な操作はpopとpushである。
+クローズドリストはHash Tableでありinsertと重複検知のためのfindである。
+
+これらのデータ構造をどのように実装するかは探索の効率に大きな影響を与える。
+歴史的な経緯からオープン・クローズドリストと呼ばれているが、リストとして実装するのは非効率的である。
+
+これらを実装するための効率的なデータ構造はアルゴリズムと問題ドメインに依存する。
+この章ではどのようなシチュエーションでどのようなデータ構造を使われるかを説明する。
+この章は実践的に非常に重要な章である。
+残念ながらヒューリスティック探索の研究論文のほとんどはこの章で扱われる内容について自明のものとして扱わない。あるいはこれらの内容を「コードの最適化」として論文中には明示しない。が、その実自明ではないので初学者の多くはここで苦労することになる。
+データ構造について議論を行っている論文としては\cite{burns2012implementing}がある。
+
+%まず、$f$値の定義域が連続値か離散値かは重要である。
+%また、$f$値が単調増加するかどうか。これはヒューリスティックが無矛盾かどうかにも依存する。
+
+
+
+\section{オープンリスト (Open List)}
+\label{sec:open-list}
+%\captionlistentry[todo]{openlist}
+オープンリストのPriority queueの実装方法は様々ある。
+まず、$f$値の定義域が連続値か離散値かは重要である。
+連続値 (e.g. 実数)である場合は二分木のような一般的なPriority queueを使うことが多い。
+離散値である場合は{\it bucket}実装をすることが出来る。
+
+次に、$f$値が同じノードが複数ある場合のタイブレーキング (tiebreaking)もパフォーマンスに影響を与える。
+$h$値が最も小さいノードを優先することが多い。
+FIFO, LIFOのどちらが良いかという問題もある。
+
+%また、無矛盾ではないヒューリスティックを用いる場合再展開をしなければならない。これを行うコストも考えなければならない。
+
+\subsection{プライオリティキュー (Priority Queue)}
+\label{sec:priority-queue}
+
+オープンリストはPriority queueである。
+ほとんどのケースで使える実装方法は二分木である。
+離散値である場合は{\it bucket}実装をすることが出来る。
+許容的なヒューリスティックである場合は$f$値の上界も分かる。
+
+% \begin{table}
+% \caption{オープンリストのデータ構造の比較}
+% \label{tbl:open-list-data-structure}
+% %\begin{adjustbox}{width=\textwidth}
+% \begin{tabular}{ccc}pests are used to
+% support farmer decisions. Such maps are costly to obtain since they require 
+% 	実装			& $pop$計算量	& $push$計算量 \\
+% 	二分木		& $O(log(n))$  	& XX \\
+% 	bucket 		& XXX			& XXX \\
+% \end{tabular}
+% %\end{adjustbox}
+% \end{table}
+
+\subsection{タイブレーキング (Tiebreaking)}
+\label{sec:tiebreaking}
+
+\ref{ch:blind-search}章、\ref{ch:heuristic-search}章ではオープンリストでどのノードを最初に展開するかによってアルゴリズムの性能が大きく変わることを示してきた。
+例えばA*探索では$f$値が最小のノードを優先して展開する (アルゴリズム\ref{alg:astar-search})。
+だが、$f$値が最小のノードは複数ある場合がある。特にユニットコストドメインにおいては$f$値が同じノードが大量にあることがほとんどである。
+このような場合、同じ$f$値のノードの中からどのノードを選ぶかを決定することを\define{タイブレーキング}{tie-breaking}と呼ぶ。
+
+A*探索で広く使われるタイブレーキング戦略は$h$値が小さいノードを優先させる方法である。
+
+\begin{algorithm}
+\caption{f, h tiebreaking: $Open.pop()$}
+\label{alg:f-h-tiebreaking}
+	\Output{Node $n$}
+	$N \leftarrow \arg \min_n (f(n))$
+	\Return $\arg \min_{n \in N} h(n)$
+\end{algorithm}
+
+$h$値が小さいノードを優先させる理由としては、$h$値がゴールへの距離の推定だからである。なのでゴールに近いノードから展開したほうがゴールにたどり着くのが早いはずだ、という直感である。
+
+もう一つはLast-in-first-out (LIFO)タイブレーキングがよく使われる。
+LIFOは最後にオープンリストに入ったノードから優先して展開する。
+LIFOを使うメリットはオープンリストをバケット実装している場合に配列の一番後ろのノードがLIFOで得られるノードであることである。
+\ref{sec:priority-queue}節にあるようにバケットは配列で実装されることが多いが、配列の末尾のノードを取り出すには定数時間しかかからない。なので自然にバケットを実装するとLIFOになる。
+
+%逆にFirst-in-first-out (FIFO)にすると
+
+% タイブレーキングは長い間ヒューリスティック探索研究の中であまり重要視されていなかった。
+% よいヒューリスティック関数をデザインすることと比較してタイブレーキングはアルゴリズムの効率に対してあまり影響を及ぼさないと考えられてきた。
+% しかし特にゼロコストアクションのあるドメインではタイブレーキングこそがアルゴリズムの実行効率に影響を与えることが実験的に示された\cite{asai2016tiebreaking}。
+タイブレーキングに関する詳細な議論と実験は\cite{asai2016tiebreaking}にある。
+
+\section{クローズドリスト (Closed List)}
+\label{sec:closed-list}
+%\captionlistentry[todo]{closedlist}
+{\TODO closed list}
+クローズドリストはハッシュテーブルであり、ハッシュキーには状態が使われ、状態と$g$値のペアが取り出せる必要がある。
+クローズドリストの実装はグラフ探索アルゴリズムの性能に大きな影響を与える。
+
+ノードが生成されるたびにfindが実行される。
+ノードが重複でなければ新たにクローズドリストに追加(insert)される。
+これらの命令を効率的に実行できる実装をしたい。
+
+
+\subsection{ハッシュテーブル (Hash Table)}
+\label{sec:hash-table}
+
+{\TODO hash table}
+
+ハッシュテーブルの効率的な実装は
+
+チェインリスト実装
+
+
+\subsection{遅延重複検出 (Delayed Duplicate Detection)}
+\label{sec:graph-search-algorithm}節ではノードを生成したタイミングで重複検出を行うアルゴリズムを説明した。この方法だとノードが生成されたその瞬間に検出を行うという意味で\define{即時重複検出}{immediate duplicate detection}と呼ぶことがある。
+それに対して、ノードを展開するタイミングで検出を行う\define{遅延重複検出}{delayed duplicate detection}という方法もある \cite{korf2003delayed}。
+ノードが生成された瞬間に重複検出を行わない場合、オープンリスト内に同じ状態を持ったノードが重複して存在する場合がある。
+しかしノードを展開するときに重複検出を行うので、クローズドリストにノードの重複はない。
+
+アルゴリズム\ref{alg:ddd}は遅延重複検出を用いる場合のグラフ探索アルゴリズムの疑似コードである。
+
+\begin{algorithm}
+\caption{Implicit Graph Search with delayed duplicate detection}
+\label{alg:ddd}
+	\Input{Implicit problem graph with initial node $s$, weight function $w$, successor generation function $Expand$, goal function $Goal$}
+	\Output{Path from $s$ to a goal node $t \in T$, or $\emptyset$ if no such path exists}
+	$Closed \leftarrow \emptyset$\;
+	$Open \leftarrow \{s\}$\;
+	\While{$Open \neq \emptyset$} {
+		$u \leftarrow Open.pop()$\;
+		\If{$Closed.find(u.state)$} {
+			$u' \leftarrow Closed$
+			Continue\;
+		}
+		$Closed.insert(u)$\;
+		
+		\If {$Goal(u)$} {
+			\Return $Path(u)$\;
+		}
+		
+		$Succ(u) \leftarrow Expand(u)$\;
+		\For {each $v \in Succ(u)$} {
+			$Open.insert(v)$\;
+			$parent(v) \leftarrow u$\;
+		}
+ 	}
+	\Return $\emptyset$\;
+\end{algorithm}
+
+
+遅延重複検出のメリットは
+
+
+\subsection{ハッシュ関数 (Hash Function)}
+\label{sec:hash-function}
+
+ハッシュ関数のキーは状態である。
+ハッシュ関数に求められる要件は主に２つである。
+一つはハッシュ値が値域内でなるべく均等に分散してほしい。
+もう一つはハッシュの計算に時間がかからない方が良い。
+
+グラフ探索のためのハッシュ関数をデザインするために考えなければならないのは、探索中に現れる状態集合、探索空間は状態空間全体のほんの一部であり、かつ偏りのある集合であるということである。
+ハッシュ関数はその探索空間内でハッシュ値が十分に均等であってほしい。
+
+
+\subsubsection{剰余法 (Remainder Method)}
+
+\subsubsection{積算ハッシュ法 (Multiplicative Hashing)}
+積算ハッシュ法は状態$s = \{v_0, v_1,...,v_n\}$以下のように定義される。
+
+\begin{equation}
+	H(s) = \floor{m (x \phi \ \floor{x \phi})}
+\end{equation}
+
+$k_i$と$d$はハッシュの変数
+
+\subsubsection{ハッシュの性質}
+
+{\TODO hash features}
+
+incremental hashing
+perfect hashing
+universal hashing
+
+%\subsubsection{ラビン-カープハッシュ法 (Rabin and Karp hashing)}
+
+%\subsection{ハッシュテーブルの圧縮}
+
+%\section{サブセット検索}
+
+
+% \subsection{外部ストレージを用いた探索 (External Search)}
+
+
+
+\section{外部メモリ探索 (External Search)}
+\label{sec:external-search}
+
+
+グラフ探索は重複検出のために今までに展開したノードをすべて保持しなければならない。
+よって、保持できるノードの量によって解ける問題が決まってくる。
+探索空間があまりに大きすぎると、ノードが多すぎてメモリに乗り切らないということが起きる。
+
+\define{外部メモリ探索}{External Search}は外部記憶、HDDやSDDを用いることでこの問題を解決する \cite{chiang1995external}。
+すなわち、Open、Closedの一部を外部記憶に保持し、必要に応じて参照しRAMに持ってくる、ということをする。
+外部メモリ探索のミソは、外部記憶へのアクセス回数をどのように減らすかにある。
+表\ref{tbl:latency}は一般的なコンピュータのキャッシュ・メモリ・ハードディスクへのアクセスレイテンシーを比較した表である\footnote{表は\url{(https://gist.github.com/jboner/2841832)}より。}。メモリから1MB{\it 逐次に}読みだすオペレーションは250,000 nanosecかかるが、ハードディスクからの読出しは20,000,000 nanosecもかかる。更にハードディスクにランダムアクセスする場合(Disk seek)は8,000,000 nanosecもかかる。
+よって、HDDは工夫して使わなければ実行時間が非常に遅くなってしまう。%\footnote{似たような理由で、HDDを用いないRAMベースの探索を効率化するためにはキャッシュ効率を工夫しなければならない。詳しくは\cite{burns2012implementing}を参照されたい。}。
+
+\begin{table}
+\centering
+\caption{一般的なハードウェアのアクセス速度。メモリへのアクセス速度に対して外部記憶のアクセスは遅い。加えて、ランダムアクセスはseekの時間がかかるためさらに遅くなる。 }
+\label{tbl:latency}
+%\begin{adjustbox}{width=\textwidth}
+\begin{tabular}{|l|r|}
+		   & nano sec \\ \hline
+	命令実行 & 1 \\
+	fetch from L1 cache memory & 0.5 \\
+	branch misprediction 		& 5 \\
+	fetch from L2 cache memory & 7 \\
+	mutex lock/unlock  			& 25 \\
+	fetch from main memory  	& 100 \\
+	Read 4K randomly from SSD         & 150,000 \\
+	read 1MB sequentially from memory & 250,000 \\
+	fetch from new disk location (seek) & 8,000,000 \\
+	Read 1 MB sequentially from SSD		& 1,000,000 \\
+	read 1MB sequentially from disk 	& 20,000,000 \\
+	
+\end{tabular}
+%\end{adjustbox}
+\end{table}
+
+\begin{comment}
+
+\subsection{外部メモリ 幅優先探索 (External BrFS)}
+\label{sec:external-brfs}
+
+%\captionlistentry[todo]{External BrFS}
+
+\cite{mehlhorn2002external}
+
+\begin{algorithm}
+\caption{External Breadth-first search}
+\label{alg:external-brfs}
+	\Input{Initial node $s$}
+	\Output{Path from $s$ to a goal node $t \in T$, or $\emptyset$ if no such path with cost $\leq cost$}
+	$Open(-1) \leftarrow \emptyset$\;
+	$Open(0) \leftarrow \{s\}$\;
+	$i \leftarrow 1$\;
+	\While {$Open(i-1) \neq \emptyset$}{
+		$A(i) \leftarrow Succ(Open(i-1))$\;
+		\If {$Goal(Open(i))$} {
+			\Return $Construct(Open(i))$\;
+		}
+		$A'(i) \leftarrow RemoveDuplicates(A(i))$\;
+		$Open(i) \leftarrow A'(i) \setminus (Open(i-1)\cup Open(i-2))$\;
+		$i \leftarrow i + 1$\;
+	}
+	\Return No solution found
+\end{algorithm}
+
+\subsection{外部メモリ A* (External A*)}
+\label{sec:external-astar}
+%\captionlistentry[todo]{external A*: ALL}
+\cite{edelkamp2004external}
+
+
+\begin{algorithm}
+\caption{External A* search}
+\label{alg:external-astar}
+	\Input{Initial node $s$}
+	\Output{Path from $s$ to a goal node $t \in T$, or $\emptyset$ if no such path with cost $\leq cost$}
+	
+	XXX
+	\Return No solution found
+\end{algorithm}
+
+\subsection{関連文献}
+Structured duplicate detection \cite{}
+Multiple Sequence Alignment
+PA* hash-based parallel external
+
+
+\end{comment}
+
+

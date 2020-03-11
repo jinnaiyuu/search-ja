@@ -1,0 +1,164 @@
+% -*- coding: utf-8 -*-
+\errorcontextlines=200
+\documentclass[11pt,dvipdfmx]{book}
+
+\usepackage{times}
+\usepackage{courier}
+\usepackage{comment}
+\usepackage{subfig}
+\usepackage{graphicx}
+
+\usepackage{enumitem}
+\usepackage{url}
+\usepackage{listings}
+\usepackage{lstlang0}
+\usepackage{tikz} % Drawing sliding-tile
+\usepackage{xcolor}
+
+
+%%%%%%%%%%%%%%%%%%%%%
+% Math
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+
+%%%%%%%%%%%%%%%%%%%%%
+% Format
+\usepackage{appendix}
+
+\usepackage{hyperref}
+\usepackage{makeidx}
+\makeindex
+
+\setcounter{secnumdepth}{3}
+
+\renewcommand{\baselinestretch}{1.15}
+
+
+%%%%%%%%%%%%%%%%%%%%
+% Algorithm
+\usepackage[boxruled,linesnumbered,noend]{algorithm2e}
+\SetKwInOut{Input}{Input}
+\SetKwInOut{Output}{Output}
+\SetKwInOut{Side}{Side effect}
+\SetKwComment{Comment}{$\triangleright$}{}
+
+
+\usepackage[framemethod=TikZ]{mdframed}
+\newcounter{DefCounter}
+\setcounter{DefCounter}{1}
+\newcommand{\ddef}[2]
+{
+\begin{mdframed}[roundcorner=5pt,
+linecolor=red,
+linewidth=2pt,
+backgroundcolor=red!6]
+\vspace{1mm}
+{\bf 定義 \theDefCounter} (#1): {\it #2}
+\stepcounter{DefCounter}
+\end{mdframed}
+}
+
+\newcounter{TheoremCounter}
+\setcounter{TheoremCounter}{1}
+\newcommand{\dtheorem}[1]
+{
+\begin{mdframed}[roundcorner=5pt,
+linecolor=blue,
+linewidth=2pt,
+backgroundcolor=blue!6]
+{\bf 定理 \theTheoremCounter}:
+#1
+\stepcounter{TheoremCounter}
+\end{mdframed}
+}
+
+\newcommand{\dproof}[1]
+{
+\begin{mdframed}[topline=false,
+bottomline=false,
+rightline=false,
+linewidth=12pt,
+linecolor=blue!6]
+{\bf 証明}:
+#1
+\end{mdframed}
+}
+
+\newcommand{\pnt}[2]
+{
+\begin{mdframed}[roundcorner=1pt, backgroundcolor=white]
+\vspace{1mm}
+{\bf ポイント} (#1): {#2}
+\end{mdframed}
+}
+
+
+
+%%%%%%%%%%%%%%%%%%%
+% Macros
+\newcommand{\define}[2]{{\bf #1} (#2) \index{#1}\index{#2}}
+\newcommand{\TODO}{{\bf TODO}}
+
+
+% Acronyms
+\newcommand{\ZHDA}{ZHDA*}
+
+
+% Environments
+\newenvironment{abst}[0]
+	{
+	\begin{quote}
+	}
+    {
+	\end{quote}
+	}
+
+
+
+%%%%%%%%%%%%%%%%
+% Style names
+%%%%%%%%%%%%%%%%
+\renewcommand{\contentsname}{目次}
+\renewcommand{\chaptername}{チャプター}
+
+
+
+\title{ヒューリスティック探索}
+\author{TODO}
+
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\newpage
+
+
+\input intro.tex
+
+\input problem.tex
+
+\input blind.tex
+
+\input heuristic.tex
+
+\input planning.tex
+
+\input data.tex
+
+\input heuristic2.tex
+
+\input working.tex
+
+\printindex
+
+\bibliographystyle{spmpsci}
+
+\bibliography{ref-jf17}
+\end{document}
+
