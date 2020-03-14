@@ -152,19 +152,13 @@ A*探索はヒューリスティック探索の代名詞である、最も広く
 A*探索は以下の$f$値が最小となるノードを優先したグラフ探索アルゴリズムである。
 
 \begin{equation}
-	f(n) = g(n) + h(n)
+  f_{\text{A*}}(s) = g(s) + h(s)
+\label{alg:astar-search}
 \end{equation}
 
 
 ノード$n$の$f$値は、初期状態から$n$を通過してゴール状態に辿り着くためのコストの見積もりである。$g$値は初期状態からノード$n$までの既知の最短経路コストである。一方$h$値はヒューリスティック関数による$n$からゴール状態までの最短経路の見積もりである。
-A*探索は非明示的グラフ探索アルゴリズム(アルゴリズム\ref{alg:implicit-graph-search})の一つであり、$Open.pop()$を$f$値最小ノードを返すようにしただけである \ref{alg:astar-search}。
-
-\begin{algorithm}[tbh]
-\caption{A* Search: $Open.pop()$}
-\label{alg:astar-search}
-	\Output{Node $n$}
-	\Return $\arg \min_n g(n) + h(n)$
-\end{algorithm}
+A*探索は非明示的グラフ探索アルゴリズム(アルゴリズム\ref{alg:implicit-graph-search})の一つであり、$f$値が最小ノードから優先して探索を行う \ref{alg:astar-search}。
 
 $g(n)$のみでノードを選択するダイクストラ法(\ref{sec:dijkstra}章)と比較すると、A*探索はゴール状態までのコストの見積もりを考慮して次に展開するノードを決めている。
 
@@ -210,77 +204,6 @@ A*探索はノードの\define{再展開}{reexpansion}{さいてんかい}が生
 % \caption{15パズルにおけるヒューリスティックの性能の比較}
 % \label{tbl:heuristic-comparison}
 % \end{table}
-
-\subsection{重み付きA*探索 (Weighted A*)}
-\label{sec:weighted-astar-search}
-
-許容的なヒューリスティックを用いたA*探索は最適解が得られるが、必ずしも最適解がほしいわけではない場合もある。解のクオリティよりもとにかく解が何か欲しい、という場合もある。
-最適解ではない解を\define{非最適解}{suboptimal solution}{ひさいてきかい}と呼び、最適解に限らず解を発見するアルゴリズムを\define{非最適探索}{suboptimal search}{ひさいてきたんさく}と呼ぶ。% あるいは\define{局所探索}{local search}と呼ぶ。 % 局所探索はまた違う文脈か
-\define{重み付きA*探索}{weighted A*}{おもみつきエースターたんさく} (wA*)は解のクオリティが落ちる代わりにより素早く解にたどり着くための手法である \cite{wilt2010comparison}。
-wA*は重み付き$f$値、$f_w$が最小のノードを優先して探索する。
-
-\begin{equation}
-	f_w(n) = g(n) + w h(n)
-\end{equation}
-
-\begin{algorithm}
-\caption{Weighted A*: $Open.pop()$}
-\label{alg:wastar-open}
-	\Output{Node $u$}
-	\Return $\arg \min_{n \in Open} f_w(n)$
-\end{algorithm}
-
-
-\dtheorem{
-許容的なヒューリスティックを用いた重み付きA*探索によって発見される解は最適解のコスト$f^*$の$w$倍以下である。
-}
-
-%\captionlistentry[todo]{wA*: 解コストの上界の証明}
-% {\TODO wA*: 解コストの上界の証明}
-%\begin{proof}
-%\end{proof}
-
-wA*の利点はA*よりもはるかに高速であることである。
-多くの場合、$w$の大きさに対して指数的な高速化が期待できる。これは深さ$d$のノードの個数は$d$に対して指数的(分枝度を$b$とすると$b^d$個)であることに対応する。
-
-wA*などの非最適探索を使う場合はいずれにせよ最適解が得られないので、許容的でないヒューリスティックと組み合わせて使われることが多い。許容的でないヒューリスティックは許容的なヒューリスティックよりも高速であることが多い。% TODO lama?
-
-wA*の解は最適解のコストの上界になるので、A*探索の枝刈りに用いることが出来る。
-A*探索を実行する前にwA*を走らせ、解の上界$c^*$を得、A*探索実行時にノード$n$に対して$f$値が$f(n) \geq c^*$である場合、そのノードを枝刈りすることができる。このテクニックは多重配列アライメントなどに使われる\cite{ikeda1999enhanced}。
-
-図\ref{fig:grid-wastar}はA*とwA*の比較である (ここではエージェントは４方向に動けるとする)。
-wA*の重み$w$は５としている。
-wA*の展開・生成ノード数がA*よりも少ない。
-その一方wA*で発見された解がA*で発見された解よりも遠回りなことがわかる。
-
-\begin{figure}
-\includegraphics[width=0.3\linewidth]{./figures/grid-astar.png} \hspace{4pt}
-\includegraphics[width=0.3\linewidth]{./figures/grid-wastar-5.png} \hspace{4pt}
-\includegraphics[width=0.3\linewidth]{./figures/grid-gbfs.png}
-\caption{A*, wA*, GBFS比較}
-\label{fig:grid-wastar}
-\end{figure}
-
-\subsection{貪欲最良優先探索 (Greedy Best-First Search)}
-\label{sec:greedy-best-first-search}
-
-wA*の例で見たように、$g$値に対して$h$値に重きを置くことによって解のクオリティを犠牲により高速に解を得ることができる。
-問題によっては解のクオリティはあまり重要でなかったり、そもそもクオリティという概念がないことがある。
-このようにとにかく解があればよいという場合は\define{貪欲最良優先探索}{Greedy Best-First Search}{どんよくさいりょうゆうせんたんさく}が使われることが多い \cite{wilt2010comparison}。
-
-\begin{algorithm}
-\caption{Greedy Best-First Search: $Open.pop()$}
-\label{alg:gfs-open}
-	\Output{Node $u$}
-	\Return $\arg \min_n h(n)$
-\end{algorithm}
-
-貪欲最良優先探索は$g$値を無視し、$h$値のみで展開順を決定する。つまりwA*の$w$を無限大にしたものである。
-
-貪欲最良優先探索は解のクオリティに保証がない。
-しかし多くの問題で高速に解を発見できるとても強力な手法である。
-
-図\ref{fig:grid-wastar}は貪欲最良優先探索である。wA*よりもさらに生成ノード数が少ないことが分かるだろう。
 
 
 \section{ヒューリスティック関数の例}
@@ -328,6 +251,68 @@ TSPの解の下界としては{\it 最小全域木} (minimum spanning tree)の�
 % \label{fig:tsp-mst}
 % \end{figure}
 
+\section{A*探索の派生}
+
+\subsection{重み付きA*探索 (Weighted A*)}
+\label{sec:weighted-astar-search}
+
+許容的なヒューリスティックを用いたA*探索は最適解が得られるが、必ずしも最適解がほしいわけではない場合もある。解のクオリティよりもとにかく解が何か欲しい、という場合もある。
+最適解ではない解を\define{非最適解}{suboptimal solution}{ひさいてきかい}と呼び、最適解に限らず解を発見するアルゴリズムを\define{非最適探索}{suboptimal search}{ひさいてきたんさく}と呼ぶ。% あるいは\define{局所探索}{local search}と呼ぶ。 % 局所探索はまた違う文脈か
+\define{重み付きA*探索}{weighted A*}{おもみつきエースターたんさく} (wA*)は解のクオリティが落ちる代わりにより素早く解にたどり着くための手法である \cite{wilt2010comparison}。
+wA*は重み付き$f$値、$f_w$が最小のノードを優先して探索する。
+
+\begin{equation}
+	f_w(n) = g(n) + w h(n)
+\end{equation}
+
+\dtheorem{
+許容的なヒューリスティックを用いた重み付きA*探索によって発見される解は最適解のコスト$f^*$の$w$倍以下である。
+}
+
+%\captionlistentry[todo]{wA*: 解コストの上界の証明}
+% {\TODO wA*: 解コストの上界の証明}
+%\begin{proof}
+%\end{proof}
+
+wA*の利点はA*よりもはるかに高速であることである。
+多くの場合、$w$の大きさに対して指数的な高速化が期待できる。これは深さ$d$のノードの個数は$d$に対して指数的(分枝度を$b$とすると$b^d$個)であることに対応する。
+
+wA*などの非最適探索を使う場合はいずれにせよ最適解が得られないので、許容的でないヒューリスティックと組み合わせて使われることが多い。許容的でないヒューリスティックは許容的なヒューリスティックよりも高速であることが多い。% TODO lama?
+
+wA*の解は最適解のコストの上界になるので、A*探索の枝刈りに用いることが出来る。
+A*探索を実行する前にwA*を走らせ、解の上界$c^*$を得、A*探索実行時にノード$n$に対して$f$値が$f(n) \geq c^*$である場合、そのノードを枝刈りすることができる。このテクニックは多重配列アライメントなどに使われる\cite{ikeda1999enhanced}。
+
+図\ref{fig:grid-wastar}はA*とwA*の比較である (ここではエージェントは４方向に動けるとする)。
+wA*の重み$w$は５としている。
+wA*の展開・生成ノード数がA*よりも少ない。
+その一方wA*で発見された解がA*で発見された解よりも遠回りなことがわかる。
+
+\begin{figure}
+\includegraphics[width=0.3\linewidth]{./figures/grid-astar.png} \hspace{4pt}
+\includegraphics[width=0.3\linewidth]{./figures/grid-wastar-5.png} \hspace{4pt}
+\includegraphics[width=0.3\linewidth]{./figures/grid-gbfs.png}
+\caption{A*, wA*, GBFS比較}
+\label{fig:grid-wastar}
+\end{figure}
+
+\subsection{貪欲最良優先探索 (Greedy Best-First Search)}
+\label{sec:greedy-best-first-search}
+
+wA*の例で見たように、$g$値に対して$h$値に重きを置くことによって解のクオリティを犠牲により高速に解を得ることができる。
+問題によっては解のクオリティはあまり重要でなかったり、そもそもクオリティという概念がないことがある。
+このようにとにかく解があればよいという場合は\define{貪欲最良優先探索}{Greedy Best-First Search}{どんよくさいりょうゆうせんたんさく}が使われることが多い \cite{wilt2010comparison}。
+
+\begin{equation}
+  f_{\text{gbfs}}(s) = h(s)
+\end{equation}
+
+貪欲最良優先探索は$g$値を無視し、$h$値のみで展開順を決定する。つまりwA*の$w$を無限大にしたものである。
+
+貪欲最良優先探索は解のクオリティに保証がない。
+しかし多くの問題で高速に解を発見できるとても強力な手法である。
+図\ref{fig:grid-wastar}は貪欲最良優先探索である。wA*よりもさらに生成ノード数が少ないことが分かるだろう。
+
+
 
 \section{上手く行かない場合}
 
@@ -364,12 +349,10 @@ wA*で非最適解を見つけられる場合なら、工夫すればA*で最適
 本書の後半で紹介する最新の手法を試してみれば解けるかもしれない。
 
 
-
-
 \section{局所探索 (Local Search)}
 \label{sec:local-search}
 
-A*探索はクローズドリストに探索済みのノードを記憶しておくことでグラフ全体を見渡して探索を進める。しかし探索済みのノードをメモリにおいておくことは時間がかかるし、メモリも消費する。局所探索 (local search)は現在見つかった最良のノードのみを記憶しておくことで効率的に(最適とは限らない)解を発見する方法である。
+A*探索はクローズドリストに探索済みのノードを記憶しておくことでグラフ全体を見渡して探索を進める。しかし探索済みのノードをメモリにおいておくことは時間がかかるし、メモリも消費する。\define{局所探索}{local search}{きょくしょたんさく}は現在見つかった最良のノードのみを記憶しておくことで効率的に(最適とは限らない)解を発見する方法である。
 
 \subsection{山登り法 (Hill Climbing)}
 \label{sec:hill-climbing}
@@ -377,36 +360,43 @@ A*探索はクローズドリストに探索済みのノードを記憶してお
 山登り法のアルゴリズムは非常に単純である。子ノードのうち最も$h$値が小さいノードを選ぶことを繰り返す。
 
 \begin{algorithm}
-\caption{Hill Climbing}
-	\Input{Initial node $s_0$}
-	\Output{Path from $s_0$ to a goal node $t \in T$}
-	$s \leftarrow \{s_0\}$\;
+\caption{山登り法 (Hill Climbing)}
+	\Input{非明示的状態空間グラフ $(s, Goal, Expand, w)$, 評価関数 $h$}
+	\Output{$s$からゴール状態$t \in T$への経路、経路が存在しなければ$\emptyset$}
 	\While {$s \notin Goal$} {
-		$s \leftarrow \arg \min_{s' \in Expand(s)} h(s)$
+	  $s' \leftarrow \arg \min_{s' \in Expand(s)} h(s)$\;
+          $parent{s'} \leftarrow s$\;
+          $s \leftarrow s'$\;
 	}
-	\Return $s$
+	\Return $Path(s)$
 \label{alg:hill-climbing}
 \end{algorithm}
 
 この手法は組み合わせ最適化・連続最適化のためによく使われる。
-しかしグラフ探索アルゴリズムでこのまま使おうとすると$h$の極小ではまってしまったり、デッドエンドに落ちてしまう可能性がある。
+しかしグラフ探索アルゴリズムでこのまま使おうとすると評価関数の極小ではまってしまったり、デッドエンドに落ちてしまう可能性がある。
 
 
 \subsection{強制山登り法 (Enforced Hill Climbing)}
 
-ヒューリスティック探索でよく使われる局所探索は\define{強制山登り法}{enforced hill-climbing}{きょうせいやまのぼりほう} (EHC)である \cite{}。
+ヒューリスティック探索でよく使われる局所探索は\define{強制山登り法}{enforced hill-climbing}{きょうせいやまのぼりほう} (EHC)である \cite{hoffmann2005ignoring}。
 EHCは幅優先探索を繰り返し、現在のノードよりも$h$値が小さいノードを発見する。発見できればそのノードから再び幅優先を行い、ゴールを発見するまで続ける。もし$h$値が小さいノードが見つからなければ極小に陥ってしまったということであるので、探索を打ち切り、失敗 (Fail)を返す。
 
 \begin{algorithm}
-\caption{Enforced Hill Climbing}
-	\Input{Initial node $s_0$}
-	\Output{Path from $s_0$ to a goal node $t \in T$}
-	$s \leftarrow \{s_0\}$\;
+\caption{強制山登り法 (Enforced Hill Climbing)}
+	\Input{非明示的状態空間グラフ $(s, Goal, Expand, w)$, 評価関数 $h$}
+	\Output{$s$からゴール状態$t \in T$への経路、経路が存在しなければ$\emptyset$}
 	\While {$s \notin Goal$} {
-		Let $T = \{v \in S | h(v) < h(s) \}$
-		$s' \leftarrow BreadthFirstSearch(s, T)$
+	  $T \leftarrow \{v \in Expand(s)\}$
+	  $T' \leftarrow \{v \in T | h(v) < h(s) \}$
+          \While {$T' = \emptyset$} {
+            $T \leftarrow \{v \in Expand(u) | u \in T\}$
+	    $T' \leftarrow \{v \in T | h(v) < h(s) \}$
+          }
+	  $s' \leftarrow \arg \min_{s' \in Expand(s)} h(s)$\;
+          $parent{s'} \leftarrow s$\;
+          $s \leftarrow s'$\;
 	}
-	\Return $s$
+	\Return $Path(s)$
 \label{alg:hill-climbing}
 \end{algorithm}
 
@@ -418,13 +408,7 @@ EHCは幅優先探索を繰り返し、現在のノードよりも$h$値が小�
 
 山登り法が記憶しなければならないノードは現在のノードとその子ノードらだけである。
 毎回次のノードを選択したら、そのノード以外のノードは捨ててしまう。
-貪欲最良優先探索(\ref{sec:greedy-best-first-search}節)も同様に$h$値のみしか見ていないが、すべての生成済みノードをオープンリストに入れることと比較すると、山登り法がいかにアグレッシブな手法であるかがうかがえるだろう。
-
-
-\subsection{遺伝的アルゴリズム・進化計算}
-{\TODO genetic algorithm}
-遺伝的アルゴリズム (Genetic Algorithm)。８クイーン問題。
-
+貪欲最良優先探索(\ref{sec:greedy-best-first-search}節)も同様に$h$値のみしか見ていないが、すべての生成済みノードをオープンリストに保存して評価値を確認していることと比較すると、山登り法がいかにアグレッシブな手法であるかがうかがえるだろう。
 
 
 
@@ -437,3 +421,6 @@ EHCは幅優先探索を繰り返し、現在のノードよりも$h$値が小�
 同じ問題に対して重み付きA*を繰り返し$w$値をだんだんと小さくしていくことでだんだんと解のクオリティを向上させることができる。
 この方法をAnytime A*と呼ぶ \cite{likhachev2004ara} \footnote{一般にいつ停止しても現時点で見つかった中で一番良い(最適とは限らない)解を返し、時間をかけるほど解のクオリティを改善していくアルゴリズムをanytimeアルゴリズムと呼ぶ。}。
 
+本書で扱わない重要な探索アルゴリズムとして遺伝的アルゴリズムがある \cite{goldberg1989}。
+遺伝的アルゴリズムはさまざまな最適化問題に適用できる。
+グラフ探索問題で使われることは少ないが、グラフ探索問題ではなかなか解けない難しい問題が遺伝的アルゴリズムによって簡単に解けることがある。例えばN-Queen問題はチェスの盤面上にクイーンを互いに移動可能範囲がぶつからないように配置する問題であるが、これはグラフ探索の手法だとなかなか解くのが難しいが遺伝的アルゴリズムだと非常に効率的に解けることが知られている。

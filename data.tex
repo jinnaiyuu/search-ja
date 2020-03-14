@@ -64,7 +64,7 @@ FIFO, LIFOのどちらが良いかという問題もある。
 \ref{ch:blind-search}章、\ref{ch:heuristic-search}章ではオープンリストでどのノードを最初に展開するかによってアルゴリズムの性能が大きく変わることを示してきた。
 例えばA*探索では$f$値が最小のノードを優先して展開する (アルゴリズム\ref{alg:astar-search})。
 だが、$f$値が最小のノードは複数ある場合がある。特にユニットコストドメインにおいては$f$値が同じノードが大量にあることがほとんどである。
-このような場合、同じ$f$値のノードの中からどのノードを選ぶかを決定することを\define{タイブレーキング}{tie-breaking}と呼ぶ。
+このような場合、同じ$f$値のノードの中からどのノードを選ぶかを決定することを\define{タイブレーキング}{tie-breaking}{タイブレーキング}と呼ぶ。
 
 A*探索で広く使われるタイブレーキング戦略は$h$値が小さいノードを優先させる方法である。
 
@@ -115,8 +115,8 @@ LIFOを使うメリットはオープンリストをバケット実装してい�
 \subsection{遅延重複検出 (Delayed Duplicate Detection)}
 \label{sec:delayed-duplicate-detection}
 
-\ref{sec:graph-search-algorithm}節ではノードを生成したタイミングで重複検出を行うアルゴリズムを説明した。この方法だとノードが生成されたその瞬間に検出を行うという意味で\define{即時重複検出}{immediate duplicate detection}と呼ぶことがある。
-それに対して、ノードを展開するタイミングで検出を行う\define{遅延重複検出}{delayed duplicate detection}という方法もある \cite{korf2003delayed}。
+\ref{sec:graph-search-algorithm}節ではノードを生成したタイミングで重複検出を行うアルゴリズムを説明した。この方法だとノードが生成されたその瞬間に検出を行うという意味で\define{即時重複検出}{immediate duplicate detection}{そくじちょうふくけんしゅつ}と呼ぶことがある。
+それに対して、ノードを展開するタイミングで検出を行う\define{遅延重複検出}{delayed duplicate detection}{ちえんちょうふくけんしゅつ}という方法もある \cite{korf2003delayed}。
 ノードが生成された瞬間に重複検出を行わない場合、オープンリスト内に同じ状態を持ったノードが重複して存在する場合がある。
 しかしノードを展開するときに重複検出を行うので、クローズドリストにノードの重複はない。
 
@@ -204,7 +204,7 @@ universal hashing
 よって、保持できるノードの量によって解ける問題が決まってくる。
 探索空間があまりに大きすぎると、ノードが多すぎてメモリに乗り切らないということが起きる。
 
-\define{外部メモリ探索}{External Search}は外部記憶、HDDやSDDを用いることでこの問題を解決する \cite{chiang1995external}。
+\define{外部メモリ探索}{External Search}{がいぶメモリたんさく}は外部記憶、HDDやSDDを用いることでこの問題を解決する \cite{chiang1995external}。
 すなわち、Open、Closedの一部を外部記憶に保持し、必要に応じて参照しRAMに持ってくる、ということをする。
 外部メモリ探索のミソは、外部記憶へのアクセス回数をどのように減らすかにある。
 表\ref{tbl:latency}は一般的なコンピュータのキャッシュ・メモリ・ハードディスクへのアクセスレイテンシーを比較した表である\footnote{表は\url{(https://gist.github.com/jboner/2841832)}より。}。メモリから1MB{\it 逐次に}読みだすオペレーションは250,000 nanosecかかるが、ハードディスクからの読出しは20,000,000 nanosecもかかる。更にハードディスクにランダムアクセスする場合(Disk seek)は8,000,000 nanosecもかかる。

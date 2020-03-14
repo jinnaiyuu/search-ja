@@ -46,8 +46,10 @@
 \SetKwInOut{Side}{Side effect}
 \SetKwComment{Comment}{$\triangleright$}{}
 
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
 
-% \titleformat{\section}{}{}{}{}{}
+
 \titleformat{\section}
   {\bfseries\Large}{\thesection}{1em}{}[\vspace{-1em}\rule{\textwidth}{0.5pt}]
 
@@ -99,6 +101,8 @@ linecolor=blue!6]
 \end{mdframed}
 }
 
+% TODO: Example?
+
 
 
 %%%%%%%%%%%%%%%%%%%
@@ -133,17 +137,17 @@ linecolor=blue!6]
 \renewcommand{\bibname}{参考文献}
 \renewcommand{\indexname}{索引}
 
-\title{ヒューリスティック探索}
-\author{TODO}
+\title{ヒューリスティック探索入門}
+\author{}
 
 
 \begin{document}
 
 \maketitle
+
 \tableofcontents
 
-\newpage
-
+\input message.tex
 
 \input intro.tex
 
@@ -153,11 +157,11 @@ linecolor=blue!6]
 
 \input heuristic.tex
 
-\input planning.tex
-
 \input data.tex
 
 \input heuristic2.tex
+
+\input planning.tex
 
 \input working.tex
 
