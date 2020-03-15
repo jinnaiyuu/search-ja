@@ -117,14 +117,14 @@ $Path(u)$はノードに対して初期状態からそこへ到達するまで�
 			\Return $Path(u)$\;
 		}
 		\For {each $v \in Expand(u)$} {
-		  \If{$v \notin Closed$} {
-                    $Closed \leftarrow Closed \cup \{u\}$\;
-                  }
 		  \If{$v \notin Closed$ {\bf or} $g(u) + w(u, v) < g(v)$} {
                     $Open \leftarrow Open \cup \{v\}$\;
 		    $d(v) \leftarrow d(u) + 1$\;
 		    $g(v) \leftarrow g(u) + w(u, v)$\;
                     $parent(v) \leftarrow u$\;
+                  }
+		  \If{$v \notin Closed$} {
+                    $Closed \leftarrow Closed \cup \{u\}$\;
                   }
 		}
  	}

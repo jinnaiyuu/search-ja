@@ -6,8 +6,8 @@
 しかしヒューリスティック探索の実行時間とメモリ量はデータ構造の実装にも大きく左右される。
 
 ヒューリスティック探索ではオープンリストとクローズドリストの２つのデータ構造を保持する。
-オープンリストはインターフェイスとしてはPriority queueであり、必要な操作はpopとpushである。
-クローズドリストはHash Tableでありinsertと重複検知のためのfindである。
+オープンリストに必要なインターフェイスは必要な操作はエンキュー (enqueue, pop)とデキュー (dequeue, push)である。
+クローズドリストに必要なインターフェイスは挿入 (insert)と重複検知のための検索 (find, lookup)である。
 
 これらのデータ構造をどのように実装するかは探索の効率に大きな影響を与える。
 歴史的な経緯からオープン・クローズドリストと呼ばれているが、リストとして実装するのは非効率的である。
@@ -26,57 +26,47 @@
 \section{オープンリスト (Open List)}
 \label{sec:open-list}
 %\captionlistentry[todo]{openlist}
-オープンリストのPriority queueの実装方法は様々ある。
-まず、$f$値の定義域が連続値か離散値かは重要である。
-連続値 (e.g. 実数)である場合は二分木のような一般的なPriority queueを使うことが多い。
-離散値である場合は{\it bucket}実装をすることが出来る。
+オープンリストのプライオリティキューの実装方法は様々ある。
+$f$値が連続値 (e.g. 実数)である場合はヒープを使うことが多い。
+$f$値の取りうる値が有限個であり、$f$値が同じノードが沢山ある場合はバケットで実装することが出来る。
+また、そのような場合は$f$値が同じノードのうちどのノードを選ぶかの\define{タイブレーキング}{tiebreaking}{タイブレーキング}も重要になってくる。
 
-次に、$f$値が同じノードが複数ある場合のタイブレーキング (tiebreaking)もパフォーマンスに影響を与える。
-$h$値が最も小さいノードを優先することが多い。
-FIFO, LIFOのどちらが良いかという問題もある。
 
-%また、無矛盾ではないヒューリスティックを用いる場合再展開をしなければならない。これを行うコストも考えなければならない。
-
-\subsection{プライオリティキュー (Priority Queue)}
+\subsection{データ構造の選択}
 \label{sec:priority-queue}
 
-オープンリストはPriority queueである。
-ほとんどのケースで使える実装方法は二分木である。
-離散値である場合は{\it bucket}実装をすることが出来る。
-許容的なヒューリスティックである場合は$f$値の上界も分かる。
+オープンリストは探索の中で沢山エンキューとデキューを行うため、これらの操作の計算時間が速いものを選択したい。
+オープンリストのシンプルな実装方法としては二分ヒープがあげられる。二分ヒープはほとんどの言語の標準ライブラリにあるため実装が簡単である。
+探索アルゴリズムはノードの数が膨大になることが多い。
+計算量のオーダーで見ると単純な二分ヒープよりも\define{フィボナッチヒープ}{Fibonacci heap}{フィボナッチヒープ}が効率が良いが、定数項が大きいため多くの場合二分ヒープが採用される。
+二分ヒープよりも効率が良いデータ構造として\define{基数ヒープ}{radix heap}{きすうヒープ}がある \cite{ahuja1990faster}。基数ヒープはエンキューできる数値は最後に取り出した数値以上のものであるという制約がある。A*探索はヒューリスティックが単調である場合この制約を満たす。
+これらのヒープの実装や性質についてはIntroduction to Algorithmsを参照されたい \cite{cormen01}。
 
-% \begin{table}
-% \caption{オープンリストのデータ構造の比較}
-% \label{tbl:open-list-data-structure}
-% %\begin{adjustbox}{width=\textwidth}
-% \begin{tabular}{ccc}pests are used to
-% support farmer decisions. Such maps are costly to obtain since they require 
-% 	実装			& $pop$計算量	& $push$計算量 \\
-% 	二分木		& $O(log(n))$  	& XX \\
-% 	bucket 		& XXX			& XXX \\
-% \end{tabular}
-% %\end{adjustbox}
-% \end{table}
+プライオリティ値が取る値が有限個である場合はバケットで実装をすることが出来る \cite{burns2012implementing}。プライオリティ値が取る値が$C_{min} \leq i \leq C_{max}$の整数値であるとする。
+バケットは長さ$C_{max} - C_{min} + 1$の配列からなる。プライオリティ値が$i$の要素は配列の$i - C_{min}$番目の位置にあるリストに追加される。バケットはエンキューもデキューも$O(C_{max} - C_{min})$で計算でき、保持しているノードの数に依存しない。そのため二分ヒープよりも高速であることが多い。
+後述するタイブレーキングを行う場合はバケットの中に更に二段階目のバケットを用意することもできる \cite{burns2012implementing}。
+
+\begin{figure}
+\caption{バケットによるプライオリティキューの実装}
+\end{figure}
+
 
 \subsection{タイブレーキング (Tiebreaking)}
 \label{sec:tiebreaking}
 
 \ref{ch:blind-search}章、\ref{ch:heuristic-search}章ではオープンリストでどのノードを最初に展開するかによってアルゴリズムの性能が大きく変わることを示してきた。
 例えばA*探索では$f$値が最小のノードを優先して展開する (アルゴリズム\ref{alg:astar-search})。
-だが、$f$値が最小のノードは複数ある場合がある。特にユニットコストドメインにおいては$f$値が同じノードが大量にあることがほとんどである。
+だが、$f$値が最小のノードは複数ある場合がある。コスト関数が離散値である場合は$f$値が同じノードが大量にあることが多い。
 このような場合、同じ$f$値のノードの中からどのノードを選ぶかを決定することを\define{タイブレーキング}{tie-breaking}{タイブレーキング}と呼ぶ。
 
-A*探索で広く使われるタイブレーキング戦略は$h$値が小さいノードを優先させる方法である。
+A*探索で広く使われるタイブレーキング戦略は$h$値が小さいノードを優先させる方法である。$\arg \min_{u' \in Open} f(u')$を選択する代わりに以下の条件を満たす$u$を選択する。
 
-\begin{algorithm}
-\caption{f, h tiebreaking: $Open.pop()$}
-\label{alg:f-h-tiebreaking}
-	\Output{Node $n$}
-	$N \leftarrow \arg \min_n (f(n))$
-	\Return $\arg \min_{n \in N} h(n)$
-\end{algorithm}
+\begin{align}
+  u =& \arg \min_{u' \in B} h(u') \\
+  s.t. \; \; & B = {u | f(u) = \min_{u' \in Open} f(u')}
+\end{align}
 
-$h$値が小さいノードを優先させる理由としては、$h$値がゴールへの距離の推定だからである。なのでゴールに近いノードから展開したほうがゴールにたどり着くのが早いはずだ、という直感である。
+$h$値が小さいノードを優先させる理由としては、$h$値がゴールへの距離の推定だからである。なのでゴールに近いノードから展開したほうがゴールにたどり着くのが早いはずだ、というヒューリスティックである。
 
 もう一つはLast-in-first-out (LIFO)タイブレーキングがよく使われる。
 LIFOは最後にオープンリストに入ったノードから優先して展開する。
@@ -88,77 +78,47 @@ LIFOを使うメリットはオープンリストをバケット実装してい�
 % タイブレーキングは長い間ヒューリスティック探索研究の中であまり重要視されていなかった。
 % よいヒューリスティック関数をデザインすることと比較してタイブレーキングはアルゴリズムの効率に対してあまり影響を及ぼさないと考えられてきた。
 % しかし特にゼロコストアクションのあるドメインではタイブレーキングこそがアルゴリズムの実行効率に影響を与えることが実験的に示された\cite{asai2016tiebreaking}。
-タイブレーキングに関する詳細な議論と実験は\cite{asai2016tiebreaking}にある。
+タイブレーキングに関する詳細な議論と実験は\cite{asai2016tiebreaking}を参照されたい。
 
 \section{クローズドリスト (Closed List)}
 \label{sec:closed-list}
-%\captionlistentry[todo]{closedlist}
-{\TODO closed list}
-クローズドリストはハッシュテーブルであり、ハッシュキーには状態が使われ、状態と$g$値のペアが取り出せる必要がある。
-クローズドリストの実装はグラフ探索アルゴリズムの性能に大きな影響を与える。
 
-ノードが生成されるたびにfindが実行される。
-ノードが重複でなければ新たにクローズドリストに追加(insert)される。
-これらの命令を効率的に実行できる実装をしたい。
+重複検出は無駄な展開を防ぐために不可欠な操作である。
+非明示的状態空間グラフではあらかじめすべての状態を知ることが出来ないので、探索中に発見された状態の集合を保持しておくための動的な辞書が必要になる。
+
+クローズドリストは生成済み・展開済みノードを保持し、新しくノードが生成されたときにすでにその中にあるかどうかを確かめる。
+一般的に辞書のデータ構造は挿入 (insert)、検索 (lookup)、削除 (delete)をサポートするが、探索アルゴリズムに必要なのは挿入と検索である。
+
+クローズドリストの実装には\define{ハッシュテーブル}{hash table}{ハッシュテーブル}が用いられることが多い。
+ハッシュテーブルは探索で一番頻繁に使われる検索が定数時間で出来るためである。
+
+% ハッシュキーには状態が使われ、状態と$g$値のペアが取り出せる必要がある。
+% クローズドリストの実装はグラフ探索アルゴリズムの性能に大きな影響を与える。
+% 
+% ノードが生成されるたびにfindが実行される。
+% ノードが重複でなければ新たにクローズドリストに追加(insert)される。
+% これらの命令を効率的に実行できる実装をしたい。
 
 
 \subsection{ハッシュテーブル (Hash Table)}
 \label{sec:hash-table}
 
-{\TODO hash table}
+集合$S = \{0, 1, ..., N - 1\}$をキーの候補とする\define{辞書}{dictionary}{じしょ}は、保持されたキーの集合$R \subseteq S$から連想情報の集合$I$への部分写像である。
+グラフ探索において状態$s \in S$を一意に表すためのキーを$k(s)$とする。
+キーは更にハッシュテーブルと呼ばれる配列$T[0, ..., m-1]$に写される。この写像$h: S \rightarrow \{0, ..., m-1\}$を\define{ハッシュ関数}{hash function}{ハッシュかんすう}と呼ぶ。
 
-ハッシュテーブルの効率的な実装は
+多くの場合$N > m$なので、このハッシュ関数は単射ではない。よって異なるキーがハッシュテーブル上の同じ位置に配置されることになる。これをハッシュの\define{衝突}{hash collision}{しょうとつ}と呼ぶ。
+ハッシュテーブルへのアクセスにかかる時間は1. ハッシュ値の計算、2. 衝突時の処理方法、3. 保持されたキーの数とハッシュテーブルの大きさの比に依存する。
 
-チェインリスト実装
+ハッシュ関数の選択はハッシュテーブルの性能に大きく影響を与える。最悪の場合、すべてのキーがテーブルの同じ位置に移される。最良の場合、一度も衝突が起こらず、アクセス時間は定数になる。最悪の場合の計算時間は理論的には興味のある話題だが、多くの場合正しくハッシュを計算することで避けられる。
 
-
-\subsection{遅延重複検出 (Delayed Duplicate Detection)}
-\label{sec:delayed-duplicate-detection}
-
-\ref{sec:graph-search-algorithm}節ではノードを生成したタイミングで重複検出を行うアルゴリズムを説明した。この方法だとノードが生成されたその瞬間に検出を行うという意味で\define{即時重複検出}{immediate duplicate detection}{そくじちょうふくけんしゅつ}と呼ぶことがある。
-それに対して、ノードを展開するタイミングで検出を行う\define{遅延重複検出}{delayed duplicate detection}{ちえんちょうふくけんしゅつ}という方法もある \cite{korf2003delayed}。
-ノードが生成された瞬間に重複検出を行わない場合、オープンリスト内に同じ状態を持ったノードが重複して存在する場合がある。
-しかしノードを展開するときに重複検出を行うので、クローズドリストにノードの重複はない。
-
-アルゴリズム\ref{alg:ddd}は遅延重複検出を用いる場合のグラフ探索アルゴリズムの疑似コードである。
-
-\begin{algorithm}
-\caption{Implicit Graph Search with delayed duplicate detection}
-\label{alg:ddd}
-	\Input{Implicit problem graph with initial node $s$, weight function $w$, successor generation function $Expand$, goal function $Goal$}
-	\Output{Path from $s$ to a goal node $t \in T$, or $\emptyset$ if no such path exists}
-	$Closed \leftarrow \emptyset$\;
-	$Open \leftarrow \{s\}$\;
-	\While{$Open \neq \emptyset$} {
-		$u \leftarrow Open.pop()$\;
-		\If{$Closed.find(u.state)$} {
-			$u' \leftarrow Closed$
-			Continue\;
-		}
-		$Closed.insert(u)$\;
-		
-		\If {$Goal(u)$} {
-			\Return $Path(u)$\;
-		}
-		
-		$Succ(u) \leftarrow Expand(u)$\;
-		\For {each $v \in Succ(u)$} {
-			$Open.insert(v)$\;
-			$parent(v) \leftarrow u$\;
-		}
- 	}
-	\Return $\emptyset$\;
-\end{algorithm}
-
-
-遅延重複検出のメリットは
+衝突したハッシュの処理方法としては\define{連鎖法}{chaining}{れんさほう}と\define{開番地法}{open addressing}{かいばんちほう}がある。連鎖法はハッシュテーブルの各位置にリストが置かれ、その位置に挿入された連想情報はそのリストに順次追加されていく。同じ位置に$n$個の状態が挿入された場合リストの長さは$n$になる。このとき、ここの位置への検索の速度は$O(n)$となる。開番地法は衝突した場合テーブル中の空いている別の位置を探し、そちらに入れる方法である。探索アルゴリズムにおいては連鎖法が使われることが多い。
 
 
 \subsection{ハッシュ関数 (Hash Function)}
 \label{sec:hash-function}
 
-ハッシュ関数のキーは状態である。
-ハッシュ関数に求められる要件は主に２つである。
+{\bf 良い}ハッシュ関数に求められる要件は主に２つである。
 一つはハッシュ値が値域内でなるべく均等に分散してほしい。
 もう一つはハッシュの計算に時間がかからない方が良い。
 
@@ -168,31 +128,80 @@ LIFOを使うメリットはオープンリストをバケット実装してい�
 
 \subsubsection{剰余法 (Remainder Method)}
 
-\subsubsection{積算ハッシュ法 (Multiplicative Hashing)}
-積算ハッシュ法は状態$s = \{v_0, v_1,...,v_n\}$以下のように定義される。
+$k(s)$を整数$\mathbb{Z}$と考えることが出来るならば、それを$m$で割った余りをハッシュ値とすることができる。
 
 \begin{equation}
-	H(s) = \floor{m (x \phi \ \floor{x \phi})}
+  h(s) := k(s) \text{mod} m
+\end{equation}
+  
+このハッシュ関数は$S$から$T$への写像になる ($h: S \rightarrow \{0, ..., m-1\}$)。$T$へ均等に分配するためには法$m$の選択が重要になる。
+例えば$m$に2の倍数を選んでしまうと、$h(s)$が偶数であるのは$k(s)$が偶数であるときであり、そのときのみである (iff)。$m$が任意の数の倍数であると同様の不均一が起きてしまうので、$m$は素数を選ぶと良い。
+
+
+\subsubsection{積算ハッシュ法 (Multiplicative Hashing)}
+積算ハッシュ法はキー$k(s)$と無理数$\phi$の積の小数部分を使ったハッシュである。
+
+\begin{equation}
+	h(s) = \floor{m (k(s) \phi - \floor{k(s) \phi})}
 \end{equation}
 
-$k_i$と$d$はハッシュの変数
+$\phi$はパラメータであり、$(\sqrt{5} - 1) / 2$の黄金比を使うと良いとされている。
 
 \subsubsection{ハッシュの性質}
 
-{\TODO hash features}
+関連して、クローズドリストにとって良い性質のハッシュがいくつかある。
 
-incremental hashing
-perfect hashing
-universal hashing
+グラフ探索では状態遷移は状態の一部分のみに作用し、状態変数のほとんどは変わらないということが多い。このとき、新しい状態のハッシュ値を一から計算するのではなく、元の状態のハッシュ値と状態遷移による差分を利用して新しい状態のハッシュ値を求めることが出来る場合がある。この方法を\define{差分ハッシュ}{incremental hashing}{さぶんハッシュ}と呼ぶ。差分ハッシュはハッシュ値の計算時間を短くできることがある。
 
-%\subsubsection{ラビン-カープハッシュ法 (Rabin and Karp hashing)}
-
-%\subsection{ハッシュテーブルの圧縮}
-
-%\section{サブセット検索}
+どのような操作があっても衝突が起こらないようなハッシュを\define{完全ハッシュ}{perfect hash function}{かんぜんハッシュ}と呼ぶ。もし$n = m$であれば最小完全ハッシュと呼ぶ。完全ハッシュがあればどのような操作も$O(1)$で行うことができる。
+問題によって完全ハッシュは簡単に計算することが出来る。例えばスライディングタイルパズルであれば状態$s = (v_0, v_1,...,v_8)$に対して$h(s) = \sum_{i = 0..8} v_i \cdot 9^i$と単純に状態変数の列を使って計算することが出来る。ただし長さ$9^9$の配列は大きすぎるので工夫が必要になる。完全ハッシュを作るのは簡単だが、小さい完全ハッシュを作るのは難しい。スライディングタイルパズルは\define{辞書順}{lexicographical order}{じしょじゅん}によって最小完全ハッシュを作ることが出来る \cite{korf2005large}。
 
 
-% \subsection{外部ストレージを用いた探索 (External Search)}
+
+\subsection{遅延重複検出 (Delayed Duplicate Detection)}
+\label{sec:delayed-duplicate-detection}
+
+\ref{sec:graph-search-algorithm}節ではノードを生成したタイミングで重複検出を行うアルゴリズムを説明した。この方法だとノードが生成されたその瞬間に検出を行うという意味で\define{即時重複検出}{immediate duplicate detection}{そくじちょうふくけんしゅつ}と呼ぶことがある。
+それに対して、ノードを展開するタイミングで検出を行う\define{遅延重複検出}{delayed duplicate detection}{ちえんちょうふくけんしゅつ}という方法もある \cite{korf2003delayed}。
+ノードが生成された瞬間に重複検出を行わない場合、オープンリスト内に同じ状態を持ったノードが重複して存在する場合がある。
+しかしノードを展開するときに重複検出を行うので、クローズドリストにノードの重複はない。
+アルゴリズム\ref{alg:ddd}は遅延重複検出を用いる場合のグラフ探索アルゴリズムの疑似コードである。
+
+遅延重複検出は展開ノード毎に重複検出の回数を減らすことができるというメリットがある。一方、オープンリスト内に重複が存在する可能性があるため、プライオリティの選択次第ではノードの再展開が増えてしまうデメリットがある。
+そのため遅延重複検出はノードの重複が少ない問題や、重複検出に時間がかかる場合に使われる。特にクローズドリストをハードディスクなどの外部メモリに置く外部メモリ探索に相性が良い。
+
+
+\begin{algorithm}
+\caption{遅延重複検出を用いたグラフ探索}
+\label{alg:ddd}
+	\Input{非明示的状態空間グラフ $(s, Goal, Expand, w)$, プライオリティ関数 $f$}
+	\Output{$s$からゴール状態$t \in T$への経路、経路が存在しなければ$\emptyset$}
+	$Closed \leftarrow \emptyset$, $Open \leftarrow \{s\}$, $d(s) \leftarrow 0$, $g(s) \leftarrow 0$\;
+	\While{$Open \neq \emptyset$} {
+                $u \leftarrow \argmin_{u' \in Open} f(u')$ \;
+	        $Open \leftarrow Open \setminus \{u\} $\;
+          
+		\If {$Goal(u)$} {
+			\Return $Path(u)$\;
+		}
+
+                $s \leftarrow parent(u)$\;
+		\If{$u \notin Closed$ {\bf or} $g(s) + w(s, u) < g(u)$} {
+                  $d(u) \leftarrow d(s) + 1$\;
+                  $d(u) \leftarrow g(s) + w(s, u)$\;
+		  $parent(u) \leftarrow s$\;
+		  \For {each $v \in Expand(u)$} {
+		    $Open \leftarrow Open \cup \{v\}$\;
+		    $parent(v) \leftarrow u$\;
+		  }
+		}
+
+                \If{$u \notin Closed$} {
+                  $Closed \leftarrow Closed \cup \{u\}$\;
+                }
+ 	}
+	\Return $\emptyset$\;
+\end{algorithm}
 
 
 
@@ -230,6 +239,8 @@ universal hashing
 	
 \end{tabular}
 \end{table}
+
+
 
 \begin{comment}
 
