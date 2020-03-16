@@ -26,14 +26,15 @@
 
 %%%%%%%%%%%%%%%%%%%%%
 % Format
-\usepackage{appendix}
-\usepackage{hyperref}
-\setcounter{secnumdepth}{3}
-\renewcommand{\baselinestretch}{1.15}
 \usepackage[Bjornstrup]{fncychap}
 \usepackage{titlesec}
 \usepackage[framemethod=TikZ]{mdframed}
 
+\setcounter{secnumdepth}{3}
+\renewcommand{\baselinestretch}{1.15}
+
+\usepackage{appendix}
+\usepackage{hyperref}
 \usepackage{makeidx}
 \makeindex
 
@@ -108,7 +109,7 @@ linecolor=blue!6]
 %%%%%%%%%%%%%%%%%%%
 % Macros
 \newcommand{\define}[3]{{\bf #1} (#2) \index{#2} \index{#3@#1}}
-\newcommand{\TODO}{{\bf TODO}}
+\newcommand{\TODO}[1]{{\bf TODO:} #1}
 
 
 % Acronyms
