@@ -1,0 +1,87 @@
+% -*- coding: utf-8 -*-
+\errorcontextlines=200
+\documentclass[11pt,dvipdfmx,b5paper]{book}
+
+\usepackage{times}
+\usepackage{courier}
+\usepackage{comment}
+\usepackage{subfig}
+\usepackage{graphicx}
+
+\usepackage{enumitem}
+\usepackage{url}
+\usepackage{listings}
+\usepackage{tikz} % Drawing sliding-tile
+\usepackage{xcolor}
+
+%%%%%%%%%%%%%%%%%%%%%
+% Math
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+
+%%%%%%%%%%%%%%%%%%%%%
+% Format
+\usepackage[Bjornstrup]{fncychap}
+\usepackage{titlesec}
+\usepackage[framemethod=TikZ]{mdframed}
+\usepackage{booktabs}
+
+\setcounter{secnumdepth}{3}
+\renewcommand{\baselinestretch}{1.15}
+
+\usepackage{appendix}
+\usepackage{hyperref}
+\usepackage{makeidx}
+\makeindex
+
+
+%%%%%%%%%%%%%%%%%%%%
+% Algorithm
+\usepackage[boxruled,linesnumbered,noend]{algorithm2e}
+\SetKwInOut{Input}{Input}
+\SetKwInOut{Output}{Output}
+\SetKwInOut{Side}{Side effect}
+\SetKwComment{Comment}{$\triangleright$}{}
+
+\begin{document}
+
+
+% \begin{figure}
+%   \begin{tikzpicture}[scale=0.5]
+%     \input{statespace.tex}
+%   \end{tikzpicture}
+% \end{figure}
+% 
+% \begin{figure}
+%   \begin{tikzpicture}[scale=0.5]
+%     \input{pathtree.tex}
+%   \end{tikzpicture}
+% \end{figure}
+
+% \begin{figure}
+%   \begin{tikzpicture}[scale=0.5]
+%     \input{gridpathfinding.tex}
+%   \end{tikzpicture}
+% \end{figure}
+
+% \begin{figure}
+%   \begin{tikzpicture}[scale=0.5]
+%     \input{slidingtile.tex}
+%   \end{tikzpicture}
+% \end{figure}
+
+% \begin{figure}
+%   \texttt{\input{msa.tex}}
+% \end{figure}
+
+\begin{figure}
+  \begin{tikzpicture}[scale=0.5]
+    \input{tsp.tex}
+  \end{tikzpicture}
+\end{figure}
+
+\end{document}

@@ -10,96 +10,32 @@
 
 \ref{sec:state-space-problem}節における定式化は\cite{russelln03}、\cite{pearl84}、\cite{edelkamp:2010:hst:1875144}などを参考にしている。本文は入門の内容であるので、研究の詳細が知りたい方はこれらの教科書を読むべきである。
 
+%\captionlistentry[todo]{状態空間問題の例示}
+
 \section{状態空間問題 (State-Space Problem)}
 \label{sec:state-space-problem}
 
-\begin{figure}
-	\centering
-    \begin{tikzpicture}[scale=0.8]
-        % MDP i
-        \node [draw, circle, minimum size=1cm] (a) at (2, 2) {$a$};
-        \node [draw, circle, minimum size=1cm] (b) at (4, 2) {$b$};
-        \node [draw, circle, minimum size=1cm] (c) at (0, 4) {$c$};
-        \node [draw, circle, minimum size=1cm] (d) at (0, 2) {$d$};
-        \node [draw, circle, minimum size=1cm] (e) at (2, 0) {$e$};
-        \node [draw, circle, minimum size=1cm] (f) at (4, 0) {$f$};
-        \node [draw, circle, minimum size=1cm] (g) at (0, 0) {$g$};
-        \node [draw, circle, minimum size=0.8cm] at (0, 0) {};
-
-        \coordinate[above of=a] (init);
-
-        \draw[->] (init) -- (a);
-        \draw[-] (a) -- (b);
-        \draw[-] (a) -- (c);
-        \draw[-] (a) -- (d);
-        \draw[-] (b) -- (e);
-        \draw[-] (b) -- (f);
-        \draw[-] (c) -- (d);
-        \draw[-] (d) -- (g);
-        \draw[-] (e) -- (f);
-        \draw[-] (d) -- (g);
-    \end{tikzpicture}
-    \caption{状態空間問題の例。エージェントはスタート地点$a$からゴール地点$g$を目指す。問題は\cite{edelkamp:2010:hst:1875144}より。
-    }
-	\label{fig:ssp-graph}
-    % TODO: なんか面白そうにする
-\end{figure}
-
-
-\begin{figure}
-	\centering
-    \begin{tikzpicture}[scale=0.5]
-        % MDP i
-        \node (a0) at (4, 6) {$a$};
-
-        \node (b1) at (2, 4) {$b$};
-        \node (c1) at (4, 4) {$c$};
-        \node (d1) at (6, 4) {$d$};
-
-        \node (e2) at (0, 2) {$e$};
-        \node (f2) at (2, 2) {$f$};
-        \node (d2) at (4, 2) {$d$};
-        \node (c2) at (6, 2) {$c$};
-        \node (g2) at (8, 2) {$g$};
-
-        \node (f3) at (0, 0) {$f$};
-        \node (e3) at (2, 0) {$e$};
-        \node (a31) at (3, 0) {$a$};
-        \node (c3) at (4, 0) {$c$};
-        \node (g3) at (5, 0) {$g$};
-        \node (a32) at (6, 0) {$a$};
-
-        \draw[-] (a0) -- (b1);
-        \draw[-] (a0) -- (c1);
-        \draw[-] (a0) -- (d1);
-        \draw[-] (b1) -- (e2);
-        \draw[-] (b1) -- (f2);
-        \draw[-] (c1) -- (d2);
-        \draw[-] (d1) -- (g2);
-        \draw[-] (d1) -- (c2);
-        \draw[-] (e2) -- (f3);
-        \draw[-] (f2) -- (e3);
-        \draw[-] (d2) -- (a31);
-        \draw[-] (d2) -- (c3);
-        \draw[-] (d2) -- (g3);
-        \draw[-] (c2) -- (a32);
-    \end{tikzpicture}
-    \caption{状態空間問題の経路木。エージェントはスタート地点$a$からゴール地点$g$を目指す。\\
-    }
-    \label{fig:ssp-tree}
-\end{figure}
-
-%\captionlistentry[todo]{状態空間問題の例示}
-
 この本では主に初期状態とゴール条件が与えられたとき、ゴール条件を満たすための経路を返す問題を探索する手法を考える。
 特に本書の主眼は\ref{ch:state-space-problem}章から\ref{ch:heuristic-search-variants}章までで扱う\define{状態空間問題}{state-space problem}{じょうたいくうかんもんだい}である。
-
 
 \ddef{ユニットコスト状態空間問題、state-space problem}{
 	ユニットコスト状態空間問題$P = (S, A, s, T)$は状態の集合$S$、初期状態$s \in S$、ゴール集合$T \in S$、アクション集合$A = {a_1, ....,a_n}$、$a_i : S \rightarrow S$が与えられ、初期状態$s$からゴール状態へ遷移させるアクションの列を返す問題である。
 }
 
-よって、ユニットコスト状態空間問題はグラフにモデルすることで考えやすくなる。
+\TODO{状態空間問題の例。それをグラフ問題に帰着させる例。}
+
+\begin{figure}[htb]
+  \centering
+  \begin{tikzpicture}[scale=0.5]
+    \input{figures/statespace.tex}
+  \end{tikzpicture}
+  \caption{状態空間問題の例。エージェントはスタート地点$a$からゴール地点$g$を目指す。
+  }
+  \label{fig:ssp-graph}
+\end{figure}
+
+
+ユニットコスト状態空間問題はグラフにモデルすることで考えやすくなる。
 ユニットコスト状態空間問題を表す\define{状態空間グラフ}{state-space graph}{じょうたいくうかんぐらふ}は以下のように定義される。
 
 \ddef{状態空間グラフ、State-space graph}{
@@ -140,11 +76,6 @@
 非明示的状態空間グラフも状態空間問題に対して定義できる。明示的状態空間グラフとの違いは次状態の情報が隣接行列ではなくノード展開関数Expandの形に表現されている点である。Expandはある状態からの可能な次の状態の集合を返す関数である。Expand関数は明示的に与えられるのではなく、ルールによって与えられることが多い。例えば将棋であれば、将棋のルールによって定められる合法手によって得られる次の状態の集合がExpand関数によって得られる。多くの場合このノード展開関数は隣接行列よりも小さな情報で表現できる。
 
 
-
-%\begin{example}
-
-%\end{example}
-
 \begin{comment}
 \section{状態空間問題の定式化}
 \label{sec:search-problem-formulation}
@@ -176,7 +107,7 @@
 \label{sec:search-problem}
 
 状態空間問題の例をいくつか紹介する。
-これらの問題はすべてヒューリスティック探索研究でベンチマークとして広く使われているものである。
+これらの問題はヒューリスティック探索研究でベンチマークとして広く使われているものである。
 
 %グリッド経路探索問題など、応用がありつつ、かつ分かりやすい問題を選んだ。
 %グラフ探索アルゴリズムによって効率的に解くことが出来ると知られているドメインをいくつか紹介する。
@@ -187,26 +118,24 @@
 %\captionlistentry[todo]{Grid Pathfinding: なんかいい感じの絵}
 %{\TODO Grid Pathfinding: なんかいい感じの絵}
 
-
 \define{グリッド経路探索問題}{grid path-finding problem}{グリッドけいろたんさくもんだい}は$k$(多くの場合$k=2$)次元のグリッド上で初期配置からゴール位置までの経路を求める問題である\cite{yap2002grid}。グリッドには障害物がおかれ、通れない箇所がある。エージェントが移動できる方向は4方向($A= \{up, down, left, right\}$)か8方向(4方向に加えて斜め移動)とする場合が多い。自由方向(Any Angle)の問題を扱う研究も存在する\cite{nash2007theta}。
 
 \begin{figure}
         \centering
-	\includegraphics[width=0.5\textwidth]{figures/grid-astar.png}
+	% \includegraphics[width=0.5\textwidth]{figures/grid-astar.png}
+        \begin{tikzpicture}[scale=0.5]
+          \input{figures/gridpathfinding.tex}
+        \end{tikzpicture}
 	\caption{グリッド経路探索問題}
 	\label{fig:grid-pathfinding}
 \end{figure}
 
 
-Web上に簡単に試せるデモがあるので、参照されたい\footnote{\url{http://qiao.github.io/PathFinding.js/visual/}}。この本の画像の一部はこのデモをもとに作成している。この本で説明する様々なグラフ探索手法をグリッド経路探索に試すことが出来る。
+Web上に簡単に試せるデモがあるので、参照されたい\footnote{\url{http://qiao.github.io/PathFinding.js/visual/}}。この本で説明する様々なグラフ探索手法をグリッド経路探索に試すことが出来る。% この本の画像の一部はこのデモをもとに作成している。
 
-グリッド経路探索はロボットのモーションプランニングやゲームAIなどで応用される\cite{algfoor2015comprehensive}。ストラテジーゲームなどでユニット（エージェント）を動かすために使われる \cite{cui2011based}。よく使われるベンチマーク問題集にもStarcraftのゲームのマップが含まれている\cite{sturtevant2012benchmarks}.
-またグリッドは様々な問題を経路探索に帰着して解くことができるという意味でも重要である。例えば多重整列問題 (Multiple Sequence Alignment)はグリッド経路探索に帰着して解くことが出来る(後述)。
-ロボットのモーションプランニングも経路探索に帰着することが出来る \cite{barraquand91}。すなわち、$k$個の関節の角度を変えて、現在状態からゴール状態へ遷移させたい。各関節の角度がグリッドの各次元に相当する。ロボットの物理的な構造により、関節のある角度の組み合わせは不可能である。不可能な組み合わせが、障害物の置かれたグリッドに相当する。よって、障害物を避けた経路というのが関節の動かし方ということになる。
-
-%Starcraft 1ではA*探索が使われていた。
-%しかしマルチエージェント
-%マルチエージェント経路探索の場合はflocking / swarm AIが使われている。Starcraft 2では
+グリッド経路探索はロボットのモーションプランニングやゲームAIなどで応用される\cite{algfoor2015comprehensive}。ストラテジーゲームなどでユニット（エージェント）を動かすために使われる \cite{cui2011based,sturtevant2012benchmarks}。% よく使われるベンチマーク問題集にもStarcraftのゲームのマップが含まれている\cite{sturtevant2012benchmarks}.
+またグリッドは様々な問題を経路探索に帰着して解くことができるという意味でも重要である。例えば多重整列問題 (Multiple Sequence Alignment)はグリッド経路探索に帰着して解くことが出来る(節 \ref{sec:msa})。
+ロボットのモーションプランニングも経路探索問題に帰着することが出来ることがある \cite{barraquand91}。$k$個の関節の角度を変えながら、現在状態から目的の状態 (Configuration)に近づけたい。各関節の角度をグリッドの各次元で表す。ロボットの物理的な構造のために不可能な角度の組み合わせを障害物の置かれたグリッドとする。このようにモデルを作ると、グリッド上で障害物を避けた経路を計算することで現在状態から目的状態へ関節をうまく動かすモーションプランが発見できる。
 
 
 \subsection{スライディングタイル (Sliding-tile Puzzle)}
@@ -216,7 +145,10 @@ $1$から$(n^2)-1$までの数字が振られたタイルが$n\times n$の正方
 
 \begin{figure}
 \centering
-\includegraphics[bb=0 0 372 373,width=0.5\textwidth]{figures/15-puzzle.png}
+% \includegraphics[bb=0 0 372 373,width=0.5\textwidth]{figures/15-puzzle.png}
+\begin{tikzpicture}[scale=0.8]
+  \input{figures/slidingtile.tex}
+\end{tikzpicture}
 \caption{15パズルのゴール状態の例}
 \label{fig:15-puzzle}
 \end{figure}
@@ -238,71 +170,58 @@ $1$から$(n^2)-1$までの数字が振られたタイルが$n\times n$の正方
 ２つの配列の編集距離は編集操作の合計コストの最小値である。
 ３つ以上の配列における距離の定義は様々考えられるが、ここでは全ての配列のペアの編集距離の総和を用いる。
 
-MSAにおける可能な編集操作は置換と挿入である。置換は配列のある要素(DNAかアミノ酸)を別の要素に入れ替える操作であり、挿入は配列のある位置に要素を挿入する操作である。例えば(ABC, BCB, CB)の３つの配列のアライメントを考える。図\ref{fig:msa-cost}は置換と編集に対するコストの例である。-は欠損、すなわち挿入操作が行われたことを示す。アミノ酸配列における有名なコスト表としてPAM250\cite{pearson1990}があるが、ここでは簡単のため仮のコスト表を用いる。
+MSAにおける可能な編集操作は置換と挿入である。置換は配列のある要素(DNAかアミノ酸)を別の要素に入れ替える操作であり、挿入は配列のある位置に要素を挿入する操作である。例えば(ATG, TGC, AGC)の３つの配列のアライメントを考える。図\ref{fig:msa-cost}は置換と編集に対するコストの例である。-は欠損を示し、対応する要素が存在しないことを表す。% アミノ酸配列における有名なコスト表としてPAM250\cite{pearson1990}があるが、ここでは簡単のため仮のコスト表を用いる。
 図\ref{fig:msa-solution}はこのコスト表を用いたアライメントの例である。
-このとき、例えば配列ABC-と-BCBの編集距離は(A,-)、 (B,B)、 (C,C)、 (-,B)のコストの総和であるので、図\ref{fig:msa-cost}を参照し、$5+0+1+5=11$である。(-BCB, --CB)の距離は$6$, (--CB, ABC-)の距離は$16$であるので、３配列の編集距離は$11+6+16=33$である。
+このとき、例えば配列ATG-と-TGCの編集距離は(A,-)、 (T,T)、 (G,G)、 (-,C)のコストの総和であるので、図\ref{fig:msa-cost}を参照し、$3+0+0+3=6$である。同様に(ATG-, A-GC)の距離は$9$, (-TGC, A-GC)の距離は$6$であるので、３配列の編集距離は$6+9+6=21$である。
 
 $n$配列のMSAは$n$次元のグリッドの経路探索問題に帰着することが出来る\cite{korf:2000}。
-図\ref{fig:msa-to-grid}は(ABC)と(BCB)の２つの配列による問題を表す。
-状態$s$は２つの変数によって表現される:$(x_0, x_1)$。$x_0$は配列0のどの位置までアライメントを完了したかを表す変数であり、配列$i$の長さを$l_i$とすると定義域は$0 \leq x_0 \leq l_0$である。
-全てのアライメントが完了した状態$s=(l_0, l_1)$がゴール状態である。
-可能なアクションは$a=(b_0, b_1), (b_i=0, 1)$の形を取り、これは配列$i$に対して欠損を挿入する場合に$b_i=0$となる。
-状態$s$に対してアクション$a$を適用した後の状態$s'$は$s'=(x_0+b_0, x_1+b_1)$となる。例えば図\ref{fig:msa-to-grid}は初期状態$s=(0,0)$に対して$a=(1,0)$を適用している。これは(A), (-)までアライメントを進めた状態に対応する。次に$a=(1,1)$が適用され、アライメントは(A,B), (-,B)という状態に至る。
+図\ref{tbl:msa-to-grid}は(ATG)と(TGC)の2つの配列によるMSAをグリッド経路探索問題に帰着した例である。
+状態$s = (x_1, x_2,...,x_n)$の各変数$x_i$は配列$i$のどの位置までアライメントを完了したかを表す変数であり、配列$i$の長さを$l_i$とすると定義域は$0 \leq x_0 \leq l_0$である。
+全てのアライメントが完了した状態$s=(l_1, l_2,...,l_n)$がゴール状態である。
+可能なアクション$a=(b_1, b_2, ..., b_n), (b_i=0, 1)$は配列$i$に対してそれぞれ欠損を挿入するか否かであり、配列$i$に対して欠損を挿入する場合に$b_i=0$、挿入しない場合は$b_i=1$となる。
+状態$s$に対してアクション$a$を適用した後の状態$s'$は$s'=(x_1+b_1, x_2+b_2,..., x_n+b_n)$となる。図\ref{tbl:msa-to-grid}は初期状態$s=(0,0)$に対して$a=(1,0)$を適用している。これは(A), (-)までアライメントを進めた状態に対応する。次に$a=(1,1)$が適用され、アライメントは(A,T), (-,T)という状態に遷移する。このようにして$(0, 0)$から$(l_1, l_2)$までたどり着くまでの最小コストを求める。
 
-このようにして、MSAはグリッド経路探索問題に帰着し、グラフ探索アルゴリズムよって解くことが出来る。
-状態空間問題として考えた場合にMSAの難しさはアクションのコストが幅広いことにある。また、可能なアクションの数も配列の数$n$に対して$2^n-1$と大きい。
-
+MSAは可能なアクションの数が配列の数$n$に対して指数的に増える ($2^n-1$)点が難しい。アミノ酸配列が対象である場合はコストの値が幅広い点も難しい \cite{pearson1990}。
 MSAは生物学研究に役立つというモチベーションから非常に熱心に研究されており、様々な定式化による解法が知られている。
 詳しくは\cite{waterman1995introduction,
 gusfield1997algorithms,edgar2006multiple}を参照されたい。
 
-
-\begin{figure}
-\centering
-\includegraphics[width=0.95\textwidth]{figures/msa.png}
-\caption{多重整列問題: 画像はwikipediaより。}
-\label{fig:msa-gif}
-\end{figure}
-
-
-\begin{figure}
-\centering
-\subfloat[MSAの解の例]{
-\begin{tabular}{ccccc}
-	A & B & C & - \\
-	- & B & C & B \\
-	- & - & C & B \\
-\end{tabular}
-\label{fig:msa-solution}
-} \hspace{4pt}
-\subfloat[操作コスト表の例]{
+\begin{table}
+  \centering
+  \caption{多重配列問題 (MSA)}
 \begin{tabular}{c|cccc}
-	  & A & B & C & - \\ \hline
-	A & 0 & 1 & 2 & 5 \\
-	B &   & 0 & 3 & 5 \\
-	C &   &   & 1 & 5 \\
-	- &   &   &   & 0 \\	
+	Sequence1 & A & T & G & - \\
+	Sequence2 & - & T & G & C \\
+	Sequence3 & A & - & G & C \\
 \end{tabular}
-\label{fig:msa-cost}
-} \hspace{4pt}
-\subfloat[グリッド経路探索への帰着]{
+\label{tbl:msa}
+\end{table}
+
+\begin{table}
+  \centering
+\caption{MSAの塩基配列のコスト表}
+\begin{tabular}{c|ccccc}
+	  & A & T & G & C & - \\ \hline
+	A & 0 & 3 & 3 & 3 & 3 \\
+	T & 3 & 0 & 3 & 3 & 3 \\
+	G & 3 & 3 & 0 & 3 & 3 \\
+	C & 3 & 3 & 3 & 0 & 3 \\
+	- & 3 & 3 & 3 & 3 & 0 \\
+\end{tabular}
+\label{tbl:msa-cost}
+\end{table}
+
+\begin{table}
+  \centering
+\caption{MSAのグリッド経路探索問題への帰着}
 \begin{tabular}{c|cccc}
-	  &   & A & B & C \\ \hline
-	  & $\rightarrow$ & $\searrow$ &   &   \\
-	B &   &   & $\searrow$ &   \\
+	  & A & T & G & - \\ \hline
+	T & $\rightarrow$ & $\searrow$ &   &   \\
+	G &   &   & $\searrow$ &   \\
 	C &   &   &   & $\downarrow$ \\
-	B &   &   &   & $\searrow$ \\
 \end{tabular}
-\label{fig:msa-to-grid}
-}
-\subfloat[グリッド経路探索への帰着]{
-\begin{tabular}{c|cccc}
-	  & A & B & C & - \\ \hline
-	  & - & B & C & B \\ \hline
-\end{tabular}
-\label{fig:msa-to-grid-align}
-}
-\end{figure}
+\label{tbl:msa-to-grid}
+\end{table}
 
 
 \subsection{倉庫番 (Sokoban)}
@@ -310,65 +229,61 @@ gusfield1997algorithms,edgar2006multiple}を参照されたい。
 プレイヤーは「荷物の後ろに回って押す」ことしか出来ず、引っ張ったり、横から動かしたりすることが出来ない。また、荷物の上を通ることも出来ない。
 PSPACE-completeであることが知られている\cite{culberson:97}。
 
+%     ####
+% #####  #
+% #   $  #
+% #  .#  #
+% ## ## ##
+% #      #
+% # @#   #
+% #  #####
+% ####
+
 \begin{figure}
 \centering
 \includegraphics[bb=0 0 213 238,width=0.5\textwidth]{figures/sokoban.eps}
-\caption{Sokoban: 画像はwikipediaより。}
+\caption{倉庫番}
 \label{fig:sokoban}
 \end{figure}
 
 状態の表現方法は２通りあり、一つはグリッドの各位置に何が置いてあるかを変数とする方法である。もうひとつはプレイヤー、各荷物の位置に対してそれぞれ変数を割り当てる方法である。
 可能なアクションは{\tt move-up}, {\tt move-left}, {\tt move-down}, {\tt move-right}, {\tt push-up}, {\tt push-left}, {\tt push-down}, {\tt push-right} の８通りである。{\tt move-*}はプレイヤーが動くアクションに対応し、コストは0である。{\tt push-*}は荷物を押すアクションであり、正のアクションコストが割当てられている。よって、倉庫番はなるべく荷物を押す回数を少なくして荷物を目的の位置に動かすことが目的となる。
 
-グラフ探索問題として倉庫番を考えるときに重要であるのは、倉庫番は{\it 不可逆な}アクション(irreversible)があることである。
-グリッド経路探索やスライディングタイルは{\it 可逆な} (reversible)問題である。
-全てのアクション$a \in A$に対して$a^{-1} \in A$が存在し、$a(a^{-1}(s)) = s$かつ$a^{-1}(a(s)) = s$となる場合、問題は可逆であると言う。
-可逆な問題は対応するアクションのコストが同じであれば無向グラフとしてモデルすることも出来、初期状態から到達できる状態は、すべて初期状態に戻ることが出来る。
-一方、不可逆な問題ではこれが保証されず、詰み(trap)状態に陥る可能性がある (\ref{sec:difficulity}節)。
+グラフ探索問題として倉庫番を考えるときに重要であるのは、倉庫番は\define{不可逆なアクション}{irreversible action}{ふかぎゃくなアクション}が存在することである。
+全てのアクション$a \in A$に対して$a^{-1} \in A$が存在し、$a(a^{-1}(s)) = s$かつ$a^{-1}(a(s)) = s$となる場合、問題は\define{可逆}{reversible}{かぎゃく}であると呼ぶ。
+例えばグリッド経路探索やスライディングタイルは可逆である。
+可逆な問題は対応するアクションのコストが同じであれば無向グラフとしてモデルすることもでき、初期状態から到達できる状態は、すべて初期状態に戻ることが出来る。
+一方、不可逆な問題ではこれが保証されず、デッドエンドにはまる可能性がある (\ref{sec:difficulity}節)。
 
 倉庫番では荷物を押すことは出来ても引っ張ることが出来ないため、不可逆な問題である。例えば、荷物を部屋の隅に置いてしまうと戻すことが出来ないため、詰み状態に陥る可能性がある問題である。
 このような性質を持つ問題では特にグラフ探索による先読みが効果的である。
 
-もうひとつ重要な問題は\define{ゼロコストアクション}{zero-cost action}{ゼロコストアクション}の存在である。ゼロコストアクションはコストが0のアクションである。%TODO
+倉庫番のもうひとつ重要な性質は\define{ゼロコストアクション}{zero-cost action}{ゼロコストアクション}の存在である。ゼロコストアクションはコストが0のアクションである。%TODO
 倉庫番のアクションのうち{\tt move-up}, {\tt move-left}, {\tt move-down}, {\tt move-right}はコストゼロ($w(e)=0$)のアクションである。ヘタなアルゴリズムを実行すると無限に無駄なアクションを繰り返し続けるということもありうるだろう。
 
 
-%倉庫の中には荷物がおかれ、エージェント(プレイヤー)は迷路を動き回り、
-%このゲームで面白い/難しいのは、「荷物の後ろに回って押す」ことしか出来ず、引っ張ったり、横から動かしたりすることが出来ないという点である。
-
 \subsection{巡回セールスパーソン問題 (Traveling Salesperson Problem, TSP)}
-
-セールスパーソンはいくつかの都市に回って営業を行わなければならない。都市間の距離(=コスト)は事前に与えられている。
-TSPは全ての都市を最短距離で回ってはじめの都市に戻る経路を求める、という問題である\cite{applegate2006traveling}。
 
 \begin{figure}
 \centering
-\includegraphics[bb=0 0 328 352,width=0.5\textwidth]{figures/tsp.eps}%TODO
-\caption{巡回セールスパーソン問題: 画像はwikipediaより。}
+% \includegraphics[bb=0 0 328 352,width=0.5\textwidth]{figures/tsp.eps}%TODO 
+\begin{tikzpicture}[scale=0.7]
+  \input{figures/tsp.tex}
+\end{tikzpicture}
+\caption{巡回セールスパーソン問題}
 \label{fig:sokoban}
 \end{figure}
 
-$n$個の都市があるとすると(最適・非最適含む)解の数は$(n-1)!/2$個である。
+
+巡回セールスパーソン問題は、地図上にある都市を全て回り最初の都市に戻るときの最短距離の経路を求める問題である \cite{applegate2006traveling}。
+$n$個の都市があるとすると(非最適解含む)解の数は$(n-1)!/2$個である。
 可能なアクションは「都市$i \in \{1..n\}$を訪れる」であり、一度訪れた都市には行けない。
-TSPのゴール条件はすべての都市を訪れることである。よって、$n$回どれかアクションを実行すれば、とりあえず解を得ることが出来る。一方、最適解を得る問題はNP完全であることが知られている。
-
-TSPの解の下界としては{\it 最小全域木} (minimum spanning tree)のコストがよく用いられる\cite{kruskal1956shortest,held1970traveling}。
-グラフの{\it 全域木} (spanning tree)は全てのノードを含むループを含まない部分グラフである。
-最小全域木は全域木のうち最もエッジコストの総和が小さいものである。
-未訪問の都市によるグラフの最小全域木はTSPの下界となることが知られている。
-
-TSPはヒューリスティック探索に限らず、様々なアプローチで研究されている問題ドメインである\cite{applegate2006traveling}。TSPについて特に詳しく知りたい方はそちらの教科書を参照されたい。
-
-
-%\subsection{ペネトレーションテスト}
-
-%\subsection{モデル検査}
+TSPのゴール条件はすべての都市を訪れることである。よって、何も考えずに$n$回アクションを実行すれば、とりあえず解を得ることが出来る。しかし最適解を得ることは難しく、NP完全問題であることが知られている。
+TSPはヒューリスティック探索に限らず、様々なアプローチで研究されている実用的に非常に重要なドメインである\cite{applegate2006traveling}。TSPについて特に詳しく知りたい方はそちらの教科書を参照されたい。
 
 
 \section{問題の性質・難しさ}
 \label{sec:difficulity}
-% TODO: どこにこの章を置くべきか？
-% この節は最初に読む際は飛ばすべきである。
 
 本書で定義した状態空間問題は小さなモデルである。
 完全情報であり、状態遷移は決定論的である。

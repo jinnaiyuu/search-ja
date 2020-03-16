@@ -1,0 +1,14 @@
+% Sliding tile puzzle
+
+\draw (0, 0) grid (4, 4);
+
+\foreach \x in {0,...,3}
+  \foreach \y in {0,...,3}
+  {
+        \pgfmathsetmacro{\val}{int(\x+3*\y+1)}
+        \ifthenelse{\x=3 \AND \y=3}{;}{
+          \node at (\x + 0.5, 3 - \y + 0.5) {\val};
+        }
+  }
+
+\draw[fill=gray] (3,0) rectangle (4, 1);

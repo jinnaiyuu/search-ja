@@ -1,0 +1,22 @@
+% MDP i
+\node [draw, circle, minimum size=0.7cm] (a) at (2, 2) {$a$};
+\node [draw, circle, minimum size=0.7cm] (b) at (4, 2) {$b$};
+\node [draw, circle, minimum size=0.7cm] (c) at (0, 4) {$c$};
+\node [draw, circle, minimum size=0.7cm] (d) at (0, 2) {$d$};
+\node [draw, circle, minimum size=0.7cm] (e) at (2, 0) {$e$};
+\node [draw, circle, minimum size=0.7cm] (f) at (4, 0) {$f$};
+\node [draw, circle, minimum size=0.7cm] (g) at (0, 0) {$g$};
+\node [draw, circle, minimum size=0.5cm] at (0, 0) {};
+
+\coordinate[above of=a] (init);
+
+\draw[->] (init) -- (a);
+\draw[-] (a) -- (b);
+\draw[-] (a) -- (c);
+\draw[-] (a) -- (d);
+\draw[-] (b) -- (e);
+\draw[-] (b) -- (f);
+\draw[-] (c) -- (d);
+\draw[-] (d) -- (g);
+\draw[-] (e) -- (f);
+\draw[-] (d) -- (g);

@@ -1,6 +1,6 @@
 % -*- coding: utf-8 -*-
 \errorcontextlines=200
-\documentclass[11pt,dvipdfmx]{book}
+\documentclass[11pt,dvipdfmx,b5paper]{book}
 
 \usepackage{times}
 \usepackage{courier}
@@ -29,6 +29,7 @@
 \usepackage[Bjornstrup]{fncychap}
 \usepackage{titlesec}
 \usepackage[framemethod=TikZ]{mdframed}
+\usepackage{booktabs}
 
 \setcounter{secnumdepth}{3}
 \renewcommand{\baselinestretch}{1.15}
@@ -138,7 +139,8 @@ linecolor=blue!6]
 \renewcommand{\bibname}{参考文献}
 \renewcommand{\indexname}{索引}
 
-\title{ヒューリスティック探索入門}
+\title{ヒューリスティック探索\\
+        新しい古典的AIへの入門}
 \author{}
 
 
@@ -148,23 +150,23 @@ linecolor=blue!6]
 
 \tableofcontents
 
-\input message.tex
+\input{message.tex}
 
-\input intro.tex
+\input{intro.tex}
 
-\input problem.tex
+\input{problem.tex}
 
-\input blind.tex
+\input{blind.tex}
 
-\input heuristic.tex
+\input{heuristic.tex}
 
-\input data.tex
+\input{data.tex}
 
-\input heuristic2.tex
+\input{heuristic2.tex}
 
-\input planning.tex
+\input{planning.tex}
 
-\input working.tex
+\input{working.tex}
 
 \bibliographystyle{spmpsci}
 
