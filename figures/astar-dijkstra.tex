@@ -1,0 +1,16 @@
+% BrFS region
+
+\pgfmathsetmacro{\x}{2}
+
+\draw[fill=red!30, fill opacity=0.4] (0, 0) circle (2*\x);
+\draw[fill=blue!30, fill opacity=0.4] ({0.9*\x}, 0) ellipse ({1.1*\x} and {0.8*\x});
+
+\node[draw,circle,fill=black] (a) at (0,0) {};
+\node (aa) at (0+0.6, 0) {$s_0$};
+
+\node[draw,circle,fill=black] (b) at (2*\x-0.25,0) {};
+\node (bb) at (2*\x+0.5,0) {$g$};
+
+
+\node (d) at (0, 2*\x+0.3) {Dijkstra};
+\node (a) at ({0.9*\x}, {0.8*\x+0.3}) {A*};

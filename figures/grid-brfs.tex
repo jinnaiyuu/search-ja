@@ -1,0 +1,23 @@
+% BrFS region
+
+\draw[rounded corners, fill=gray!20, fill opacity=0.3] (-0.4, -0.4) -- (3*1.5+0.5, -0.4) -- (3*1.5+0.5, 0.2) -- (0.2, 3*1.5+0.5) -- (-0.4, 3*1.5+0.5) -- cycle;
+
+
+% Grid pathfinding
+
+\foreach \x in {0,...,3}
+  \foreach \y in {0,...,3}
+    {\node [draw, circle, fill=black] (\x\y) at (1.5*\x, 1.5*\y) {};}
+
+\foreach \x in {0,...,3}
+  \foreach \y in {0,...,2}
+           {\draw (1.5 * \x, 1.5 * \y) -- (1.5 * \x, 1.5 * \y + 1.5);}
+
+\foreach \y in {0,...,3}
+  \foreach \x in {0,...,2}
+           {\draw (1.5 * \x, 1.5 * \y) -- (1.5 * \x + 1.5, 1.5 * \y);}
+           
+\foreach \x in {0,...,3}
+         {\node at (1.5 * \x, -1) {\x};
+          \node at (-1, 1.5 * \x) {\x};
+         }

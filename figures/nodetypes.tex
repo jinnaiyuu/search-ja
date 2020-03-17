@@ -1,0 +1,52 @@
+% Reexpansion
+
+\node [draw,circle] (a) at ( 0, 4) {a};
+
+\node [draw,circle] (b) at (-1, 2) {b};
+\node [draw,circle] (c) at ( 1, 2) {c};
+
+\node [draw,circle] (d) at (-2, 0) {d};
+\node [draw,circle] (e) at ( 0, 0) {e};
+\node [draw,circle] (f) at ( 2, 0) {f};
+
+\node [draw,circle] (g) at (-3,-2) {g};
+\node [draw,circle] (h) at (-1,-2) {h};
+\node [draw,circle] (i) at ( 1,-2) {i};
+\node [draw,circle] (j) at ( 3,-2) {j};
+
+\draw[->] (a) -- (b);
+\draw[->] (a) -- (c);
+
+\draw[->] (b) -- (d);
+\draw[->] (b) -- (e);
+\draw[->] (c) -- (e);
+\draw[->] (c) -- (f);
+
+\draw[->] (d) -- (g);
+\draw[->] (d) -- (h);
+\draw[->] (e) -- (h);
+\draw[->] (e) -- (i);
+\draw[->] (f) -- (i);
+\draw[->] (f) -- (j);
+
+
+
+% expanded nodes
+\draw[rounded corners, fill=gray!20, fill opacity=0.3] (0, 4 + 1) -- (-1 - 1.1, 2 - 0.6) -- (1 + 1.1, 2 - 0.6) -- cycle;
+
+\node (label3) at (4.2, {((4+1) + (2 - 0.6)) / 2}) {(3) Expanded nodes};
+
+\coordinate (draw3) at ({(0 + (1 + 1.1)) / 2}, {((4+1) + (2 - 0.6)) / 2});
+\draw[-] (draw3) -- (label3);
+
+% generated nodes
+\draw[rounded corners, fill=gray!10, fill opacity=0.3] (0, 4 + 1 + 0.4) -- (-2 - 1.4, 0 - 0.6) -- (2 + 1.4, 0 - 0.6) -- cycle;
+
+\node (label2) at (5.2, {((4+1+0.4) + (0 - 0.6)) / 2}) {(2) Generated nodes};
+
+\coordinate (draw2) at ({(0 + (2 + 1.4)) / 2}, {((4+1+0.4) + (0 - 0.6)) / 2});
+\draw[-] (draw2) -- (label2);
+
+
+\node at (7, -2) {(1) Undiscovered nodes};
+
