@@ -1,0 +1,18 @@
+% BrFS region
+
+\pgfmathsetmacro{\x}{3}
+
+\node[draw,circle,fill=black] (s0) at (0,0) {};
+\node (ss) at (0, 0 - 0.6) {$s_0$};
+
+\node[draw,circle,fill=black] (g) at (2*\x,0) {};
+\node (gg) at (2*\x,0 - 0.6) {$g$};
+
+
+\node[draw,circle,fill=black] (c) at (\x * 0.8, 0.5 * \x) {};
+\node (cc) at (\x * 0.8, 0.5 * \x - 0.6) {$s$};
+
+
+\draw[->] (s0) -- (c) node[above,pos=0.5] {$g(s)$};
+\draw[->,dashed] (c) -- (g) node[above,pos=0.5] {$h(s)$};
+

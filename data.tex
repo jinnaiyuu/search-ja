@@ -47,7 +47,12 @@ $f$値の取りうる値が有限個であり、$f$値が同じノードが沢�
 後述するタイブレーキングを行う場合はバケットの中に更に二段階目のバケットを用意することもできる \cite{burns2012implementing}。
 
 \begin{figure}
-\caption{バケットによるプライオリティキューの実装}
+  \centering
+  \begin{tikzpicture}[scale=0.6]
+    \input{figures/bucket.tex}
+  \end{tikzpicture}
+  \caption{バケットによるオープンリストの実装 ($C_{min} = 6$, $C_{max} = 11$)}
+  \label{fig:bucket}
 \end{figure}
 
 
@@ -61,10 +66,10 @@ $f$値の取りうる値が有限個であり、$f$値が同じノードが沢�
 
 A*探索で広く使われるタイブレーキング戦略は$h$値が小さいノードを優先させる方法である。$\arg \min_{u' \in Open} f(u')$を選択する代わりに以下の条件を満たす$u$を選択する。
 
-\begin{align}
-  u =& \arg \min_{u' \in B} h(u') \\
-  s.t. \; \; & B = \{u | f(u) = \min_{u' \in Open} f(u')\}
-\end{align}
+\begin{align*}
+  u =& \arg \min_{v \in B} h(v) \\
+  s.t. \; \; & B = \{v | v \in Open, f(v) = \min_{v' \in Open} f(v')\}
+\end{align*}
 
 $h$値が小さいノードを優先させる理由としては、$h$値がゴールへの距離の推定だからである。なのでゴールに近いノードから展開したほうがゴールにたどり着くのが早いはずだ、というヒューリスティックである。
 
@@ -95,9 +100,9 @@ LIFOを使うメリットはオープンリストをバケット実装してい�
 \subsection{ハッシュテーブル (Hash Table)}
 \label{sec:hash-table}
 
-集合$S = \{0, 1, ..., N - 1\}$をキーの候補とする\define{辞書}{dictionary}{じしょ}は、保持されたキーの集合$R \subseteq S$から連想情報の集合$I$への部分写像である。
-グラフ探索において状態$s \in S$を一意に表すためのキーを$k(s)$とする。
-キーは更にハッシュテーブルと呼ばれる配列$T[0, ..., m-1]$に写される。この写像$h: S \rightarrow \{0, ..., m-1\}$を\define{ハッシュ関数}{hash function}{ハッシュかんすう}と呼ぶ。
+集合$U = \{0, 1, ..., N - 1\}$をキーの候補とする\define{辞書}{dictionary}{じしょ}は、保持されたキーの集合$R \subseteq U$から連想情報の集合$I$への部分写像である。
+グラフ探索において状態$s \in S$を一意に表すためのキーを$k(s)$とする ($k: S \rightarrow U$)。
+キーは更にハッシュテーブルと呼ばれる配列$T[0, ..., m-1]$に写される。この写像$h: U \rightarrow \{0, ..., m-1\}$を\define{ハッシュ関数}{hash function}{ハッシュかんすう}と呼ぶ。簡単のためここでは状態から配列のインデックスまでの関数$S \rightarrow \{0, ..., m-1\}$を$h$を使って表す。
 
 多くの場合$N > m$なので、このハッシュ関数は単射ではない。よって異なるキーがハッシュテーブル上の同じ位置に配置されることになる。これをハッシュの\define{衝突}{hash collision}{しょうとつ}と呼ぶ。
 ハッシュテーブルへのアクセスにかかる時間は1. ハッシュ値の計算、2. 衝突時の処理方法、3. 保持されたキーの数とハッシュテーブルの大きさの比に依存する。
@@ -149,6 +154,14 @@ $\phi$はパラメータであり、$(\sqrt{5} - 1) / 2$の黄金比を使うと
 問題によって完全ハッシュは簡単に計算することが出来る。例えばスライディングタイルパズルであれば状態$s = (v_0, v_1,...,v_8)$に対して$h(s) = \sum_{i = 0..8} v_i \cdot 9^i$と単純に状態変数の列を使って計算することが出来る。ただし長さ$9^9$の配列は大きすぎるので工夫が必要になる。完全ハッシュを作るのは簡単だが、小さい完全ハッシュを作るのは難しい。スライディングタイルパズルは\define{辞書順}{lexicographical order}{じしょじゅん}によって最小完全ハッシュを作ることが出来る \cite{korf2005large}。
 
 
+\subsection{トランスポジションテーブル (Transposition Table)}
+
+% IDA*で必要な空間は最適解のコストに対して線形である。
+% そうすると、むしろかなりの量のメモリが余ることになる。
+% そこで、メモリの余った分だけを使って重複検出をするというTransposition Tableという手法がある。
+% A*で用いられるClosedと異なり、このテーブルはすべての生成済みノードを保持しない。
+\TODO{transposition table}
+
 
 \subsection{遅延重複検出 (Delayed Duplicate Detection)}
 \label{sec:delayed-duplicate-detection}
@@ -196,97 +209,12 @@ $\phi$はパラメータであり、$(\sqrt{5} - 1) / 2$の黄金比を使うと
 \end{algorithm}
 
 
-
-\section{外部メモリ探索 (External Search)}
-\label{sec:external-search}
-
-
-グラフ探索は重複検出のために今までに展開したノードをすべて保持しなければならない。
-よって、保持できるノードの量によって解ける問題が決まってくる。
-探索空間があまりに大きすぎると、ノードが多すぎてメモリに乗り切らないということが起きる。
-
-\define{外部メモリ探索}{External Search}{がいぶメモリたんさく}は外部記憶、HDDやSDDを用いることでこの問題を解決する \cite{chiang1995external}。
-すなわち、Open、Closedの一部を外部記憶に保持し、必要に応じて参照しRAMに持ってくる、ということをする。
-外部メモリ探索のミソは、外部記憶へのアクセス回数をどのように減らすかにある。
-表\ref{tbl:latency}は一般的なコンピュータのキャッシュ・メモリ・ハードディスクへのアクセスレイテンシーを比較した表である\footnote{表は\url{(https://gist.github.com/jboner/2841832)}より。}。メモリから1MB{\it 逐次に}読みだすオペレーションは250,000 nanosecかかるが、ハードディスクからの読出しは20,000,000 nanosecもかかる。更にハードディスクにランダムアクセスする場合(Disk seek)は8,000,000 nanosecもかかる。
-よって、HDDは工夫して使わなければ実行時間が非常に遅くなってしまう。%\footnote{似たような理由で、HDDを用いないRAMベースの探索を効率化するためにはキャッシュ効率を工夫しなければならない。詳しくは\cite{burns2012implementing}を参照されたい。}。
-
-\TODO{外部メモリ探索のアルゴリズムを一つ紹介する?}
-
-\begin{table}
-\centering
-\caption{一般的なハードウェアのアクセス速度。メモリへのアクセス速度に対して外部記憶のアクセスは遅い。加えて、ランダムアクセスはseekの時間がかかるためさらに遅くなる。 }
-\label{tbl:latency}
-\begin{tabular}{|l|r|}
-		   & nano sec \\ \hline
-	命令実行 & 1 \\
-	L1キャッシュからFetch & 0.5 \\
-	分枝予測ミス 		& 5 \\
-	L2キャッシュからFetch & 7 \\
-	mutexロック・アンロック			& 25 \\
-	メインメモリからFetch  	& 100 \\
-	SSDから4KBをランダムにRead         & 150,000 \\
-	メモリから1MBの連続した領域をRead & 250,000 \\
-	ディスクから新しい領域をFetch & 8,000,000 \\
-	SSDから1MBの連続した領域をRead		& 1,000,000 \\
-	ディスクから1MBの連続した領域をRead 	& 20,000,000 \\
-	
-\end{tabular}
-\end{table}
-
-
-
-\begin{comment}
-
-\subsection{外部メモリ 幅優先探索 (External BrFS)}
-\label{sec:external-brfs}
-
-%\captionlistentry[todo]{External BrFS}
-
-\cite{mehlhorn2002external}
-
-\begin{algorithm}
-\caption{External Breadth-first search}
-\label{alg:external-brfs}
-	\Input{Initial node $s$}
-	\Output{Path from $s$ to a goal node $t \in T$, or $\emptyset$ if no such path with cost $\leq cost$}
-	$Open(-1) \leftarrow \emptyset$\;
-	$Open(0) \leftarrow \{s\}$\;
-	$i \leftarrow 1$\;
-	\While {$Open(i-1) \neq \emptyset$}{
-		$A(i) \leftarrow Succ(Open(i-1))$\;
-		\If {$Goal(Open(i))$} {
-			\Return $Construct(Open(i))$\;
-		}
-		$A'(i) \leftarrow RemoveDuplicates(A(i))$\;
-		$Open(i) \leftarrow A'(i) \setminus (Open(i-1)\cup Open(i-2))$\;
-		$i \leftarrow i + 1$\;
-	}
-	\Return No solution found
-\end{algorithm}
-
-\subsection{外部メモリ A* (External A*)}
-\label{sec:external-astar}
-%\captionlistentry[todo]{external A*: ALL}
-\cite{edelkamp2004external}
-
-
-\begin{algorithm}
-\caption{External A* search}
-\label{alg:external-astar}
-	\Input{Initial node $s$}
-	\Output{Path from $s$ to a goal node $t \in T$, or $\emptyset$ if no such path with cost $\leq cost$}
-	
-	XXX
-	\Return No solution found
-\end{algorithm}
-
 \subsection{関連文献}
-Structured duplicate detection \cite{}
-Multiple Sequence Alignment
-PA* hash-based parallel external
 
 
-\end{comment}
+Rabin and Karp hashing
+
+Universal hash function
+
 
 

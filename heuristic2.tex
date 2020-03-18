@@ -192,31 +192,122 @@ IDA*も解がない場合に停止性を満たさない。
 \end{algorithm}
 
 
-\subsection{Transposition Table}
-% TODO
-%\captionlistentry[todo]{Transposition table: なんか説明}
-
-IDA*で必要な空間は最適解のコストに対して線形である。
-そうすると、むしろかなりの量のメモリが余ることになる。
-そこで、メモリの余った分だけを使って重複検出をするというTransposition Tableという手法がある。
-A*で用いられるClosedと異なり、このテーブルはすべての生成済みノードを保持しない。
-
 
 \section{両方向探索 (Bidirectional Search)}
 \label{sec:bidirectional-search}
 %\captionlistentry[todo]{両方向探索: 図、説明}
 
-状態空間グラフの特徴を理解するための重要な指標として枝分数(Branching factor)がある。枝分数はExpand関数によって得られる子ノードの数の平均である。
-すなわち、重複検出をしないとすると、枝分数が$b$であるグラフにおいて深さ$d$のノードの数はおおよそ$b^{d-1}$である。
-例えば２次元４方向グリッド経路探索問題はおおよそ3である。
-幅優先探索において最も浅い解の深さが$C^*$であると仮定すると、少なくとも$b^{C^*-2}$個のノードを展開しなければならない。
+\define{両方向探索}{bidirectional search}{りょうほうこうたんさく}は初期状態とゴール状態の両方から探索をする手法である。初期状態からゴールを目指して探索する方向を正方向探索、ゴール状態から初期状態を目指して探索する方向を逆方向探索と呼ぶ。
 
-\define{両方向探索}{bidirectional search}{りょうほうこうたんさく}は初期状態とゴール状態の両方から探索をする手法である。
+両方向探索のメリットは探索の深さが正方向探索のみの手法と比較して半分になることである。
+最適解の深さが$d$であると仮定すると、分枝数を$b$とすると正方向探索のみでは$O(b^d)$個程度のノードを展開しなければならない。一方、両方向探索を行った場合、正・逆方向の探索の深さが$d/2$になった時点で二つの探索がつながり、ゴールへの経路が発見できる。このとき展開しなければならないノードの数は$O(b^{d/2}) * 2$であるので、正方向探索よりも非常に小さい。直感としては、両方向探索をすると半径が半分の円が２つできるので、面積としては正方向探索よりも小さくなると考えると良い (図\ref{fig:bidirectional})。
+
+そのため、両方向探索はヒューリスティック関数が不正確な時には正方向探索よりも効率的であることが多いこと\cite{barker2015limitations}。
+一方、ヒューリスティック関数が正確である場合は正方向探索のみの方が効率的な場合が多い。
+
 両方向探索の一番のボトルネックは重複検出である。すなわち、正方向探索で生成されたノードの集合と逆方向探索で生成されたノードの集合に共通部分があるかどうかを確認しなければならない。このため生成ノード数としては両方向探索は少なくても、find命令の実行回数が片方向探索よりもかなり多くなる。
-両方向探索はヒューリスティック関数が不正確な時には片方向探索よりも効率的であることが経験的に知られている\cite{barker2015limitations}。
-正方向探索と逆方向探索がちょうど真ん中で重なる(meet-in-the-middle)ことを保証する方法がある\cite{holte2016bidirectional}
-% Meet-in-the-Middle (MM)は
 
+両方向探索は長らく最適解の保証が難しかったが、正方向探索と逆方向探索がちょうど真ん中で重なり(meet-in-the-middle)、最初に発見された解が最適解であることを保証する方法が2016年に提案された\cite{holte2016bidirectional}。
+
+\begin{figure}
+  \centering
+  \scalebox{0.75}{
+  \begin{tikzpicture}[scale=0.6]
+    \input{figures/bidirectional.tex}
+  \end{tikzpicture}
+  }
+  \caption{両方向探索}
+  \label{fig:bidirectional}
+\end{figure}
+
+
+
+\section{外部メモリ探索 (External Search)}
+\label{sec:external-search}
+
+
+グラフ探索は重複検出のために今までに展開したノードをすべて保持しなければならない。
+よって、保持できるノードの量によって解ける問題が決まってくる。
+探索空間があまりに大きすぎると、ノードが多すぎてメモリに乗り切らないということが起きる。
+
+\define{外部メモリ探索}{External Search}{がいぶメモリたんさく}は外部記憶、HDDやSDDを用いることでこの問題を解決する \cite{chiang1995external}。
+すなわち、オープンリストとクローズドリストの一部を外部記憶に保持し、必要に応じて参照しメモリに持ってくる、ということをする。
+外部メモリ探索のミソは、外部記憶へのアクセス回数をどのように減らすかにある。
+表\ref{tbl:latency}は一般的なコンピュータのキャッシュ・メモリ・ハードディスクへのアクセスレイテンシーを比較した表である\footnote{表は\url{(https://gist.github.com/jboner/2841832)}より。}。メモリから1MB{\it 逐次に}読みだすオペレーションは250,000 nanosecかかるが、ハードディスクからの読出しは20,000,000 nanosecもかかる。更にハードディスクにランダムアクセスする場合(Disk seek)は8,000,000 nanosecもかかる。
+よって、HDDは工夫して使わなければ実行時間が非常に遅くなってしまう。%\footnote{似たような理由で、HDDを用いないRAMベースの探索を効率化するためにはキャッシュ効率を工夫しなければならない。詳しくは\cite{burns2012implementing}を参照されたい。}。
+
+\begin{table}
+\centering
+\caption{一般的なハードウェアのアクセス速度。メモリへのアクセス速度に対して外部記憶のアクセスは遅い。加えて、ランダムアクセスはseekの時間がかかるためさらに遅くなる。 }
+\label{tbl:latency}
+\begin{tabular}{|l|r|}
+		   & nano sec \\ \hline
+	命令実行 & 1 \\
+	L1キャッシュからFetch & 0.5 \\
+	分枝予測ミス 		& 5 \\
+	L2キャッシュからFetch & 7 \\
+	mutexロック・アンロック			& 25 \\
+	メインメモリからFetch  	& 100 \\
+	SSDから4KBをランダムにRead         & 150,000 \\
+	メモリから1MBの連続した領域をRead & 250,000 \\
+	ディスクから新しい領域をFetch & 8,000,000 \\
+	SSDから1MBの連続した領域をRead		& 1,000,000 \\
+	ディスクから1MBの連続した領域をRead 	& 20,000,000 \\
+	
+\end{tabular}
+\end{table}
+
+\subsection{外部メモリ 幅優先探索 (External BrFS)}
+\label{sec:external-brfs}
+
+一般に外部メモリが効率的であるためには問題に何らかの制約が必要になる。
+例えばアルゴリズム\ref{alg:external-brfs}にある\define{外部メモリ幅優先探索}{external breadth-first search}{がいぶメモリはばゆうせんたんさく} (External BrFS)はグラフが無向グラフの時にしかうまくいかない \cite{mehlhorn2002external}。
+
+\begin{figure}
+  \centering
+  \scalebox{0.75}{
+  \begin{tikzpicture}[scale=0.6]
+    \input{figures/external-brfs.tex}
+  \end{tikzpicture}
+  }
+  \caption{外部メモリ幅優先探索の操作}
+  \label{fig:external-brfs}
+\end{figure}
+
+
+外部メモリ幅優先探索は深さ$i$のノードを$Open(i)$に保持する (図\ref{fig:external-brfs})。
+$Open(i)$にあるノードを全て展開し、生成されたノードを$A(i)$に保存する。
+$A(i)$にあるノードから$Open(i-1), Open(i-2)$と重複したノードを取り除き、残ったノードを$Open(i+1)$に入れる。
+このような操作をすることによって、外部メモリ幅優先探索は深さ$i$のノードを展開するときは$Open(i)$のみをメインメモリに保持し、他の展開済みノードはすべて外部メモリに置くことができる。
+
+グラフが無向グラフである場合、状態$s$と同じ状態は深さ$d(s)-2, d(s)-1, d(s)$にしか現れない。
+よって深さ$i$のノードの集合$A(i)$は深さ$i-1, i-2$で発見されたノードとだけ重複検出をすれば十分である。
+そのためオープンリストの全ノードではなく、$Open(i-1), Open(i-2)$のみを外部メモリから読み込んでくればよい。
+
+もしグラフが有向グラフである場合、$Open(0), Open(1), ..., Open(i-1)$まですべてと重複検出を行う必要があり、その場合外部メモリに何度もアクセスしなければならない。
+
+\begin{algorithm}
+\caption{外部メモリ幅優先探索 (External Breadth-first search)}
+\label{alg:external-brfs}
+	\Input{非明示的状態空間グラフ $(s, Goal, Expand, w)$}
+	\Output{$s$からゴール状態$t \in T$への経路、経路が存在しなければ$\emptyset$}
+	$Open(-1) \leftarrow \emptyset$\;
+	$Open(0) \leftarrow \{s\}$\;
+	$i \leftarrow 1$\;
+	\While {$Open(i-1) \neq \emptyset$}{
+		\If {$\exists (s \in Open(i-1)) Goal(s)$} {
+			\Return $Path(s)$\;
+		}
+                
+		$A(i) \leftarrow {u | u \in Expand(u'), u' \in Open(i-1)}$\;
+                \For {each $s \in A(i)$} {
+                  $parent(s) \leftarrow u$ s.t. $s \in Expand(u)$\;
+                }
+		$Open(i) \leftarrow A(i) \setminus (Open(i-1)\cup Open(i-2))$\;
+		$i \leftarrow i + 1$\;
+	}
+	\Return $\emptyset$\;
+\end{algorithm}
 
 
 \section{シンボリック探索 (Symbolic Search)}

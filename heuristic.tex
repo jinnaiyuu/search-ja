@@ -142,12 +142,12 @@ $h$値が常に最適解コストの下界であるヒューリスティック�
   \begin{tikzpicture}[scale=0.6]
     \input{figures/astar-dijkstra.tex}
   \end{tikzpicture}
-  \caption{A* (ヒューリスティック探索)とダイクストラ法 (情報なし探索)の比較}
+  \caption{A* (ヒューリスティック探索)とダイクストラ法 (情報なし探索)の探索範囲の比較}
 \label{fig:dijkstra-astar}  
 \end{figure}
 
-ダイクストラ法は初期状態からそのノードまでのコストである$g$値が最小のノードを展開していく。これは間違った方針ではないだろうが、理想的にはゴール状態に向かっていくノードを展開していきたい。図\ref{fig:dijkstra-astar}はダイクストラ法とヒューリスティック探索 (A*)による状態空間の探索を図示したものである。ダイクストラ法はゴールがどこにあるかということを無視して探索を進めているため、図のように初期位置からどの方向へも均等に探索を行う。
-%人間の目で見れば一目で右に探索していけばよいというのは分かる。そのような人間の持っている知識を利用して探索を効率化出来ないだろうか？
+ダイクストラ法は初期状態からそのノードまでのコストである$g$値が最小のノードを展開していく。これは間違った方針ではないだろうが、理想的にはゴール状態に向かっていくノードを展開していきたい。図\ref{fig:dijkstra-astar}の大きい方の円はダイクストラ法 (情報なし探索)による状態空間の探索を図示したものである。ダイクストラ法はゴールがどこにあるかということを無視して探索を進めているため、初期位置からどの方向へも均等に探索を行う。
+人間の目で見れば一目で右に探索していけばよいというのは分かる。そのような人間の持っている知識を利用して探索を効率化出来ないだろうか？
 \define{A*探索}{A* search}{エースターたんさく}はゴールまでの距離を見積もる\define{ヒューリスティック関数}{heuristic function}{ヒューリスティックかんすう}を用いることでゴールに向かって探索していくことを目指した手法である。
 
 A*探索はヒューリスティック探索の代名詞である、最も広く知られている手法である \cite{fikes:71}。
@@ -158,8 +158,17 @@ A*探索は以下の$f$値が最小となるノードを優先したグラフ探
 \label{alg:astar-search}
 \end{equation}
 
+\begin{figure}
+  \centering
+  \begin{tikzpicture}[scale=0.6]
+    \input{figures/fvalue.tex}
+  \end{tikzpicture}
+  \caption{$f_{\text{A*}}$値の意味}
+  \label{fig:fvalue}
+\end{figure}
 
-ノード$n$の$f$値は、初期状態から$n$を通過してゴール状態に辿り着くためのコストの見積もりである。$g$値は初期状態からノード$n$までの既知の最短経路コストである。一方$h$値はヒューリスティック関数による$n$からゴール状態までの最短経路の見積もりである。
+
+ノード$s$の$f$値は、初期状態$s_0$から$s$を通過してゴール状態$g$に辿り着くためのコストの見積もりである (図 \ref{fig:fvalue})。$g$値は初期状態からノード$s$までの既知の最短経路コストである。一方$h$値はヒューリスティック関数による$s$からゴール状態までの最短経路の見積もりである。
 A*探索は非明示的グラフ探索アルゴリズム(アルゴリズム\ref{alg:implicit-graph-search})の一つであり、$f$値が最小ノードから優先して探索を行う \ref{alg:astar-search}。
 
 % $g(n)$のみでノードを選択するダイクストラ法(\ref{sec:dijkstra}章)と比較すると、A*探索はゴール状態までのコストの見積もりを考慮して次に展開するノードを決めている。
@@ -241,16 +250,21 @@ A*探索はノードの\define{再展開}{reexpansion}{さいてんかい}が生
 %\subsection{MSA:ペア間距離和}
 
 \subsection{巡回セールスパーソン問題：最小全域木}
-TSPの解の下界としては{\it 最小全域木} (minimum spanning tree)のコストがよく用いられる。
+TSPの解の下界としては\define{最小全域木}{minimum spanning tree}{さいしょうぜんいきき}のコストがよく用いられる (図\ref{fig:tsp-mst})。
 グラフの{\it 全域木} (spanning tree)は全てのノードを含むループを含まない部分グラフである。
 最小全域木は全域木のうち最もエッジコストの総和が小さいものである。
 未訪問の都市によるグラフの最小全域木はTSPの下界となることが知られている。
+ヒューリスティック探索ではまだ訪問していない都市をカバーする最小全域木のコストをヒューリスティック関数に用いる。
+最小全域木は素早く計算ができるので探索には使いやすい。
 
-% \begin{figure}[tbh]
-% \includegraphics[width=0.3\linewidth]{./figures/tsp-mst.png}
-% \caption{巡回セールスパーソンにおける最小全域木}
-% \label{fig:tsp-mst}
-% \end{figure}
+\begin{figure}[tbh]
+  \centering
+  \begin{tikzpicture}[scale=0.6]
+    \input{figures/mst.tex}
+  \end{tikzpicture}
+\caption{巡回セールスパーソンにおけるTSP解 (左)と最小全域木 (右)}
+\label{fig:tsp-mst}
+\end{figure}
 
 \section{A*探索の派生}
 
@@ -283,17 +297,30 @@ wA*などの非最適探索を使う場合はいずれにせよ最適解が得�
 wA*の解は最適解のコストの上界になるので、A*探索の枝刈りに用いることが出来る。
 A*探索を実行する前にwA*を走らせ、解の上界$c^*$を得、A*探索実行時にノード$n$に対して$f$値が$f(n) \geq c^*$である場合、そのノードを枝刈りすることができる。このテクニックは多重配列アライメントなどに使われる\cite{ikeda1999enhanced}。
 
-図\ref{fig:grid-wastar}はA*とwA*の比較である (ここではエージェントは４方向に動けるとする)。
-wA*の重み$w$は５としている。
+図\ref{fig:grid-astar}、\ref{fig:grid-wastar}はグリッド経路探索問題でのA*とwA* ($w=5$)の比較である。
+緑のグリッドが初期位置、赤のグリッドがゴール、黒のグリッドは進行不可能の壁である。
+青のグリッドが探索終了時点に各アルゴリズムによって展開されたノード、薄緑のグリッドが各アルゴリズムに生成され、まだ展開されていないノード (オープンリストにあるノード)である。
+
 wA*の展開・生成ノード数がA*よりも少ない。
-その一方wA*で発見された解がA*で発見された解よりも遠回りなことがわかる。
+ただしwA*で発見された解はA*で発見された解よりも遠回りなことがわかる。
+A*探索は最適解を発見するが、wA*では最初に発見した解が最適とは限らない。
 
 \begin{figure}
-\includegraphics[width=0.3\linewidth]{./figures/grid-astar.png} \hspace{4pt}
-\includegraphics[width=0.3\linewidth]{./figures/grid-wastar-5.png} \hspace{4pt}
-\includegraphics[width=0.3\linewidth]{./figures/grid-gbfs.png}
-\caption{A*, wA*, GBFS比較 \TODO{位置を揃えれば良い感じになる？}}
-\label{fig:grid-wastar}
+  \centering
+  \subfloat[A*] {
+    \includegraphics[width=0.3\linewidth]{./figures/grid-astar_.png}
+    \label{fig:grid-astar}
+  } \hspace{4pt}
+  \subfloat[wA*] {
+    \includegraphics[width=0.3\linewidth]{./figures/grid-wastar-5_.png}
+    \label{fig:grid-wastar}
+  } \hspace{4pt}
+  \subfloat[GBFS] {
+    \includegraphics[width=0.3\linewidth]{./figures/grid-gbfs_.png}
+    \label{fig:grid-gbfs}
+  }
+  \caption{グリッド経路探索問題におけるA*、wA*、GBFSの比較}
+  \label{fig:grid-comparison}
 \end{figure}
 
 \subsection{貪欲最良優先探索 (Greedy Best-First Search)}
@@ -365,10 +392,10 @@ A*探索はクローズドリストに探索済みのノードを記憶してお
 \caption{山登り法 (Hill Climbing)}
 	\Input{非明示的状態空間グラフ $(s, Goal, Expand, w)$, 評価関数 $h$}
 	\Output{$s$からゴール状態$t \in T$への経路、経路が存在しなければ$\emptyset$}
-	\While {$s \notin Goal$} {
-	  $s' \leftarrow \arg \min_{s' \in Expand(s)} h(s)$\;
-          $parent{s'} \leftarrow s$\;
-          $s \leftarrow s'$\;
+	\While {{\bf not} $Goal(s)$} {
+	  $u \leftarrow \arg \min_{s' \in Expand(s)} h(s')$\;
+          $parent{u} \leftarrow s$\;
+          $s \leftarrow u$\;
 	}
 	\Return $Path(s)$
 \label{alg:hill-climbing}
@@ -387,16 +414,16 @@ EHCは幅優先探索を繰り返し、現在のノードよりも$h$値が小�
 \caption{強制山登り法 (Enforced Hill Climbing)}
 	\Input{非明示的状態空間グラフ $(s, Goal, Expand, w)$, 評価関数 $h$}
 	\Output{$s$からゴール状態$t \in T$への経路、経路が存在しなければ$\emptyset$}
-	\While {$s \notin Goal$} {
-	  $T \leftarrow \{v \in Expand(s)\}$
-	  $T' \leftarrow \{v \in T | h(v) < h(s) \}$
+	\While {{\bf not} $Goal(s)$} {
+	  $T \leftarrow \{v \in Expand(s)\}$\;
+	  $T' \leftarrow \{v \in T | h(v) < h(s) \}$\;
           \While {$T' = \emptyset$} {
-            $T \leftarrow \{v \in Expand(u) | u \in T\}$
-	    $T' \leftarrow \{v \in T | h(v) < h(s) \}$
+            $T \leftarrow \{v \in Expand(u) | u \in T\}$\;
+ 	    $T' \leftarrow \{v \in T | h(v) < h(s) \}$\;
           }
-	  $s' \leftarrow \arg \min_{s' \in Expand(s)} h(s)$\;
-          $parent{s'} \leftarrow s$\;
-          $s \leftarrow s'$\;
+	  $u \leftarrow \arg \min_{s' \in Expand(s)} h(s')$\;
+          $parent(u) \leftarrow s$\;
+          $s \leftarrow u$\;
 	}
 	\Return $Path(s)$
 \label{alg:hill-climbing}

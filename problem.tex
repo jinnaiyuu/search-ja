@@ -189,10 +189,12 @@ gusfield1997algorithms,edgar2006multiple}を参照されたい。
 \begin{table}
   \centering
   \caption{多重配列問題 (MSA)}
-\begin{tabular}{c|cccc}
+  \begin{tabular}{c|cccc}
+    \toprule
 	Sequence1 & A & T & G & - \\
 	Sequence2 & - & T & G & C \\
 	Sequence3 & A & - & G & C \\
+        \bottomrule
 \end{tabular}
 \label{tbl:msa}
 \end{table}
@@ -201,12 +203,14 @@ gusfield1997algorithms,edgar2006multiple}を参照されたい。
   \centering
 \caption{MSAの塩基配列のコスト表}
 \begin{tabular}{c|ccccc}
-	  & A & T & G & C & - \\ \hline
+  \toprule
+	  & A & T & G & C & - \\ \midrule
 	A & 0 & 3 & 3 & 3 & 3 \\
 	T & 3 & 0 & 3 & 3 & 3 \\
 	G & 3 & 3 & 0 & 3 & 3 \\
 	C & 3 & 3 & 3 & 0 & 3 \\
 	- & 3 & 3 & 3 & 3 & 0 \\
+        \bottomrule
 \end{tabular}
 \label{tbl:msa-cost}
 \end{table}
@@ -215,10 +219,12 @@ gusfield1997algorithms,edgar2006multiple}を参照されたい。
   \centering
 \caption{MSAのグリッド経路探索問題への帰着}
 \begin{tabular}{c|cccc}
-	  & A & T & G & - \\ \hline
+  \toprule
+	  & A & T & G & - \\ \midrule
 	T & $\rightarrow$ & $\searrow$ &   &   \\
 	G &   &   & $\searrow$ &   \\
 	C &   &   &   & $\downarrow$ \\
+        \bottomrule
 \end{tabular}
 \label{tbl:msa-to-grid}
 \end{table}

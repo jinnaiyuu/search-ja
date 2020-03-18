@@ -1,0 +1,34 @@
+% Array
+\draw (0, 0) grid (6, 1);
+
+% f-value and index
+\foreach \x in {0, 1, ..., 5} {
+  \pgfmathsetmacro{\fval}{int(\x + 6)}
+  \node (f\x) at (\x + 0.5, 0.5) {\fval};
+  \node (i\x) at (\x + 0.5, 1.5) {\x};
+}
+
+% label
+\node (f) at (-1, 0.5) {$f$ value};
+\node (i) at (-1, 1.5) {index};
+
+
+% items
+\node at (0 + 0.5, -1) [circle, draw] (n01) {$s$};
+\draw[->] (0 + 0.5, 0) -- (n01);
+
+\node at (2 + 0.5, -1) [circle, draw] (n21) {$s$};
+\node at (2 + 0.5, -2.5) [circle, draw] (n22) {$s$};
+\node at (2 + 0.5, -4) [circle, draw] (n23) {$s$};
+\draw[->] (2 + 0.5, 0) -- (n21);
+\draw[->] (n21) -- (n22);
+\draw[->] (n22) -- (n23);
+
+\node at (3 + 0.5, -1) [circle, draw] (n31) {$s$};
+\draw[->] (3 + 0.5, 0) -- (n31);
+
+\node at (4 + 0.5, -1) [circle, draw] (n41) {$s$};
+\node at (4 + 0.5, -2.5) [circle, draw] (n42) {$s$};
+\draw[->] (4 + 0.5, 0) -- (n41);
+\draw[->] (n41) -- (n42);
+
