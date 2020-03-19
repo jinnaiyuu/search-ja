@@ -274,18 +274,6 @@ IDA*も解がない場合に停止性を満たさない。
   \label{fig:external-brfs}
 \end{figure}
 
-
-外部メモリ幅優先探索は深さ$i$のノードを$Open(i)$に保持する (図\ref{fig:external-brfs})。
-$Open(i)$にあるノードを全て展開し、生成されたノードを$A(i)$に保存する。
-$A(i)$にあるノードから$Open(i-1), Open(i-2)$と重複したノードを取り除き、残ったノードを$Open(i+1)$に入れる。
-このような操作をすることによって、外部メモリ幅優先探索は深さ$i$のノードを展開するときは$Open(i)$のみをメインメモリに保持し、他の展開済みノードはすべて外部メモリに置くことができる。
-
-グラフが無向グラフである場合、状態$s$と同じ状態は深さ$d(s)-2, d(s)-1, d(s)$にしか現れない。
-よって深さ$i$のノードの集合$A(i)$は深さ$i-1, i-2$で発見されたノードとだけ重複検出をすれば十分である。
-そのためオープンリストの全ノードではなく、$Open(i-1), Open(i-2)$のみを外部メモリから読み込んでくればよい。
-
-もしグラフが有向グラフである場合、$Open(0), Open(1), ..., Open(i-1)$まですべてと重複検出を行う必要があり、その場合外部メモリに何度もアクセスしなければならない。
-
 \begin{algorithm}
 \caption{外部メモリ幅優先探索 (External Breadth-first search)}
 \label{alg:external-brfs}
@@ -309,31 +297,73 @@ $A(i)$にあるノードから$Open(i-1), Open(i-2)$と重複したノードを�
 	\Return $\emptyset$\;
 \end{algorithm}
 
+外部メモリ幅優先探索は深さ$i$のノードを$Open(i)$に保持する (図\ref{fig:external-brfs})。
+$Open(i)$にあるノードを全て展開し、生成されたノードを$A(i)$に保存する。
+$A(i)$にあるノードから$Open(i-1), Open(i-2)$と重複したノードを取り除き、残ったノードを$Open(i+1)$に入れる。
+このような操作をすることによって、外部メモリ幅優先探索は深さ$i$のノードを展開するときは$Open(i)$のみをメインメモリに保持し、他の展開済みノードはすべて外部メモリに置くことができる。
+
+グラフが無向グラフである場合、状態$s$と同じ状態は深さ$d(s)-2, d(s)-1, d(s)$にしか現れない。
+よって深さ$i$のノードの集合$A(i)$は深さ$i-1, i-2$で発見されたノードとだけ重複検出をすれば十分である。
+そのためオープンリストの全ノードではなく、$Open(i-1), Open(i-2)$のみを外部メモリから読み込んでくればよい。
+
+もしグラフが有向グラフである場合、$Open(0), Open(1), ..., Open(i-1)$まですべてと重複検出を行う必要があり、その場合外部メモリに何度もアクセスしなければならない。
+
 
 \section{シンボリック探索 (Symbolic Search)}
 \label{sec:symbolic-search}
 \define{二分決定グラフ}{Binary Decision Diagram}{にぶんけっていグラフ} (BDD)は二分木によってブーリアンの配列からブーリアンへの関数$(x_0,x_1,...,x_n) \rightarrow \{0, 1\}$を効率良く表すグラフ構造である \cite{akers1978binary,bryant1992symbolic}。
-シンボリック探索はBDDを使って状態の集合、アクションの集合を表し、BDD同士の演算によって状態の集合を一気に同時に展開していく手法である \cite{edelkamp1998obdds,Edelkamp99deterministicstate}。
+\define{シンボリック探索}{symbolic search}{シンボリックたんさく}はBDDを使って状態の集合、アクションの集合を表し、BDD同士の演算によって状態の集合を一気に同時に展開していく手法である \cite{edelkamp1998obdds,Edelkamp99deterministicstate}。
 A*探索がノードを一つずつ展開していき、一つずつ生成していく手間と比較して非常に効率的に演算が出来るポテンシャルを秘めている。
 また、オープン・クローズドリストをBDDで表せられるため、メモリ消費量が少なくなる場合がある。
-International Planning Competition (2014)のSequential Optimal部門(最適解を見つけるパフォーマンスを競う部門)の一位から三位までをシンボリック探索が総なめした \cite{vallati20152014}。
+2014年のInternational Planning CompetitionのSequential Optimal部門(最適解を見つけるパフォーマンスを競う部門)の一位から三位までをシンボリック探索が総なめした \cite{vallati20152014}。
 
 
 \subsection{特徴表現 (Symbolic Representation)}
 \label{sec:symbolic-representation}
 
-説明のためにシンプルなSliding-token puzzleを用いる(図\ref{fig:sliding-token})。
-初期状態でタイルは位置０にある。タイルは右か左に動かすことが出来る。ゴール状態はタイルを位置３に置いた状態である。
-タイルの位置$x (dom(x) = \{0,1,2,3\})$はバイナリ$(x_0,x_1)$に変換されている。
-状態および状態の集合は特徴関数$\phi: S \rightarrow \{0, 1\}$によって記述される。
 
-例えば$S = \{0, 1\}$とすると、$\phi_{S}(x)$は$x \in S$の場合に(かつその場合のみに)真を返す特徴関数は$\lnot x_0$である。面白いことに、1つの状態のみを含む状態集合$S' = \{0\}$を表す特徴関数よりも要素２つの$S$を表す特徴関数の方が表現がコンパクトになる。
-このように、特徴表現は明示的に列挙するよりも状態の集合をコンパクトに表現出来る場合がある。
+
+\begin{figure}
+  \centering
+  \begin{tikzpicture}[scale=0.6]
+    \input{figures/tokenpuzzle.tex}
+  \end{tikzpicture}
+\caption{特徴表現の例}
+\label{fig:sliding-token}
+\end{figure}
+
+
+説明のために非常なシンプルなスライディングタイルパズルを考える(図\ref{fig:sliding-token})。
+初期状態でタイルは位置0にあり、タイルを右か左に動かすことが出来る。タイルを位置3に動かせばゴールである。
+この問題では状態は4通り$(S = \{0,1,2,3\})$しかないが、可能な状態の集合は$2^4$通りある $(2^S = \emptyset, \{0\}, \{1\}, \{2\}, \{3\}, \{0, 1\}, ..., \{0, 1, 2, 3\})$。
+オープン・クローズドリストが保持する状態の集合はこのべき集合の要素である ($Open, Closed \in 2^S$)。
+
+\define{特徴表現}{symbolic representation}{とくちょうひょうげん}はこの状態の集合を効率よく表現するための手法である。
+状態の集合$O \in 2^S$に対して、ある状態$s$が$O$に含まれているかを返す関数$\phi_{O}: 2^S \rightarrow \{0, 1\}$を\define{特徴関数}{characteristic function}{とくちょうかんすう}と呼ぶ。
+
+\begin{table}
+\centering
+\caption{特徴関数の例}
+\label{tbl:sliding-token}
+\begin{tabular}{c|c|c|c}
+	状態 & コメント & ブーリアン表現 & 特徴関数 \\ \hline
+	0		& 初期状態	& 00				& $\lnot x_0 \lnot x_1$ \\	
+	1		& -			& 01				& $\lnot x_0  x_1$ \\	
+	2		& -			& 10				& $x_0 \lnot x_1$ \\	
+	3		& ゴール状態	& 11				& $x_0 x_1$ \\	
+\end{tabular}
+\end{table}
+
+$\phi_O$は$O$に含まれる状態を全て明に保持すれば表現することが出来るが、もっと簡潔に表現することもできる。
+まず、4通りの状態を2つのブーリアン変数 $s = (x_0, x_1)$で表すと$S = \{00, 01, 10, 11\}$になる。この表現を用いると、例えば$O = \{0\}$とすると、$\phi_{O}(x) = \lnot x_0 \lnot x_1$と表すことが出来る。$O = \{0, 1\}$ならば$\phi_{O}(x) = \lnot x_0$となる。
+
+% 面白いことに、1つの状態のみを含む状態集合$S' = \{0\}$を表す特徴関数よりも要素２つの$S$を表す特徴関数の方が表現がコンパクトになる。
+% このように、特徴表現は明示的に列挙するよりも状態の集合をコンパクトに表現出来る場合がある。
 
 アクションによる状態遷移も特徴関数$Trans: S \times S \rightarrow \{0, 1\}$によって定義される。アクション$a \in A$によって状態$x$から$x'$に遷移するならば、$Trans_a(x,x')$は真を返す(かつその時のみ)。
 アクション集合$A$による遷移は$Trans(x,x')$によって表現され、$Trans(x,x')$は$Trans_a(x,x')$が真となる$a \in A$が存在する場合に真を返す(かつその時のみ)。
 
-Sliding-token puzzleで可能なアクションは$(00) \rightarrow (01), (01) \rightarrow (00), (01) \rightarrow (10), (10) \rightarrow (01), (10) \rightarrow (11), (11) \rightarrow (10)$の６つである。これらを表す遷移関数は
+図\ref{fig:sliding-token}の問題で可能なアクションは$(00) \rightarrow (01), (01) \rightarrow (00), (01) \rightarrow (10), (10) \rightarrow (01), (10) \rightarrow (11), (11) \rightarrow (10)$の６つである。これらを表す遷移関数は
 
 \begin{equation}
 \begin{split}
@@ -350,44 +380,32 @@ Sliding-token puzzleで可能なアクションは$(00) \rightarrow (01), (01) \
 アクションのコストがある場合は$Trans(w, x, x')$として表現され、$Trans(x,x')$は$Trans_a(x,x')$が真となる$a \in A$が存在し、かつそのアクションのコストが$w$である場合に真を返す(かつその時のみ)。
 
 
-
-\begin{figure}
-\centering
-\includegraphics[width=0.8\linewidth]{./snaps/sliding-token.png}
-\caption{Sliding-token puzzleとそのバイナリ表現}
-\label{fig:sliding-token}
-\end{figure}
-
-\begin{table}
-\centering
-\caption{Sliding-token puzzleのエンコーディング}
-\label{tbl:sliding-token}
-\begin{tabular}{c|c|c|c}
-	State ID & State Role & Binary Code & Boolean Formula \\ \hline
-	0		& 初期状態	& 00				& $\lnot x_0 \lnot x_1$ \\	
-	1		& -			& 01				& $\lnot x_0  x_1$ \\	
-	2		& -			& 10				& $x_0 \lnot x_1$ \\	
-	3		& ゴール状態	& 11				& $x_0 x_1$ \\	
-\end{tabular}
-\end{table}
-
-
 \subsection{二分決定グラフ (Binary Decision Diagram)}
 \label{sec:binary-decision-diagram}
 
-%Binary Decision Diagram (BDD)は関数$(x_0,x_1,...,x_n) \rightarrow \{0, 1\}$を表す二分木である。
-状態集合およびアクション集合は二分決定グラフ (BDD)でコンパクトに表現することが出来る。
+状態の集合や遷移関数はブーリアンによる特徴関数によって表すことができる。
+この特徴関数は\define{二分決定グラフ}{binary decision diagram}{にぶんけっていグラフ} (BDD)というデータ構造によってコンパクトに保持しつつさまざまな集合演算を行うことができる。
 
-\ddef{二分決定グラフ (BDD)}{
+\ddef{二分決定グラフ、BDD}{
 BDDはループのない有向グラフであり、ノードとエッジはラベルが付いている。単一の根ノードと２つのシンクがあり、シンクのラベルは1と0である。sink以外のノードのラベルは変数$x_i (i \in \{1,...,n\})$であり、エッジのラベルは1か0である。
 }
 
+\begin{figure}
+  \centering
+  \begin{tikzpicture}[scale=0.6]
+    \input{figures/bdd.tex}
+  \end{tikzpicture}
+  \caption{$x_0 x_1$を表す決定木 (左)とBDD (右)}
+  \label{fig:bdd}
+\end{figure}
+
 BDDは決定木と同様な処理によって入力$x$に対して$\{1, 0\}$を返す。
 すなわち、根ノードから始まり、ノードのラベル$x_i$に対して、入力$x$の$x_i$が1であればラベル1が付いたエッジをたどり、0であればラベル0をたどる。これを繰り返し、シンクにたどり着いたらシンクのラベルの値を返す。
-決定木と異なりBDDは木ではなく、途中で合流などがあるため、決定木よりも空間効率が良い場合が多い。
-BDDを用いて集合演算を行うことが出来る。
+決定木と異なりBDDは木ではなく、途中で合流などがあるため、決定木よりも空間効率が良い場合が多い (図\ref{fig:bdd})。
+BDDは効率的に集合演算を行うことが出来る。
 
-BDDを使って状態やアクションの特徴関数を表現することが出来る。
+\TODO{集合演算の例}
+
 
 \subsection{特徴関数による状態空間の探索}
 
@@ -400,6 +418,7 @@ $S$のimageは以下の特徴関数によって表すことが出来る。
 	Image_S(x') = \exists x (Trans(x,x') \land \phi_S(x))
 \end{equation}
 
+これを使ってグラフ探索アルゴリズムを実装することが出来る。
 
 \subsubsection{BDD-幅優先木探索}
 
@@ -441,7 +460,7 @@ $\phi_{S_i} \land \phi_T(x)$によってゴール状態、解経路における$
 BDD-幅優先木探索は幅優先探索と同様、解の経路長が最短であることを保証する。
 
 
-\subsubsection{BDD-幅優先探索}
+\subsubsection{BDD-幅優先グラフ探索}
 
 重複検出を行う場合はクローズドリストに展開済みノードを保存する必要がある。
 この展開済みノードも特徴関数及びBDDで表すことが出来る。
@@ -522,40 +541,65 @@ $h_{i_1}(s) = h_{i_1}(s')$, $h_{i_2}(s) = h_{i_2}(s')$,...,$h_{i_n}(s) = h_{i_n}
 \label{sec:width-based-search}
 
 \define{幅制限探索}{width-based search}{はばせいげんたんさく}は状態の新奇性に基づいてノードを枝刈りする手法である \cite{lipovetzkyg12}。
-新奇性によってノードを枝刈りするので、解が存在しても発見される保証はない。
+新奇性によってノードを枝刈りするので、解が存在しても発見される保証はない (完全性を満たさない)。
 
-% \begin{definition}{幅制限探索}
-% \end{definition}
+\begin{algorithm}[tbh]
+\caption{幅制限探索 (Width-based search)}
+\label{alg:width-based-search}
+	\Input{非明示的状態空間グラフ $(s, Goal, Expand, w)$、特徴関数 $h_0, h_1,..., h_{m-1}$、幅$i$}
+	\Output{$s$からゴール状態$t \in T$への経路、経路が存在しなければ$\emptyset$}
+	$Closed \leftarrow \emptyset$, $Open \leftarrow \{s\}$, $d(s) \leftarrow 0$, $g(s) \leftarrow 0$\;
+	\While{$Open \neq \emptyset$} {
+                $u \leftarrow \argmin_{u' \in Open} f(u')$ \;
+		$Open \leftarrow Open \setminus \{u\} $\;
+		\If {$Goal(u)$} {
+			\Return $Path(u)$\;
+		}
+		\For {each $v \in Expand(u)$} {
+                  $H(v) \leftarrow \{j | j \in \{0, 1, ..., m-1\}, h_j(v) = 1\}$\;
+                  $H \leftarrow \{j | j \in \{0, 1, ..., m-1\}, h_j(v) \in Closed\}$\;
+                  \If{$|H \setminus Closed| \geq i$} {
+                    $Open \leftarrow Open \cup \{v\}$\;
+		    $d(v) \leftarrow d(u) + 1$\;
+		    $g(v) \leftarrow g(u) + w(u, v)$\;
+                    $parent(v) \leftarrow u$\;
+                  }
+                  \For {each $h \in H(v) \setminus Closed$} {
+                    $Closed \leftarrow Closed \cup \{h\}$\;
+                  }
+		}
+ 	}
+	\Return $\emptyset$\;
+\end{algorithm}
 
-% $i$が特徴関数の数と同じである場合、幅制限探索はただの(重複検知を行う)幅優先探索になる。
-IW($i$)は新奇性が$i$よりも大きい状態を枝刈りする幅優先探索とする。
-$i$を小さくすることのメリットは２つある。
+IW($i$)は新奇性が$i$よりも大きい状態を枝刈りする探索である。
+新奇性に基づく枝刈りには2つのメリットがある。
 一つは状態空間が著しく小さくなる。
 もう一つは幅を制限することで生成済みノードをクローズドリストにすべて保存する必要がなくなる。
 その代わり保存しなければならない情報は、生成済みの特徴のタプルのうち大きさが$i$以下のものの集合である。
 これがないと新奇性を計算することができない。
-生成済みタプルの集合は真偽値のテーブルによって実装することができる。
-状態$s$のある変数$X$の値が$x$であることを$s$は\define{アトム}{atom}{アトム}$(X = x)$を持つと言う。
-例えばIW($1$)であれば保存しなければならない情報は可能なアトムの数の真偽値のみである。
+IWにおけるクローズドリストは過去に真であったことのある特徴の集合である。
+状態$s$において真である特徴の集合を$H$としたとき、$H$に存在し$Closed$に存在しない特徴の数が$i$以上かどうかを確認し、$i$以上であればそのノードを生成する。そうでなければ枝刈りを行う。
 
-幅が一つ大きくなるたびに探索空間は指数的に大きくなっていく。もっと粒度を小さく探索空間の大きさを変えていくために新奇性の定義域を有理数に拡張した幅制限探索も提案されている\cite{geffner2015}。
+幅$i$を大きくするほど発見できる解のクオリティが上がりやすいが、一方探索空間は$i$に対して指数的に大きくなっていく。
+このトレードオフを調整しやすくするために新奇性の定義域を有理数に拡張した幅制限探索が提案されている\cite{geffner2015}。
 
 
 \subsection{反復幅制限探索 (Iterative Width Search)}
 \label{sec:iterative-width-search}
 
 \define{反復幅制限探索}{iterative width search}{はんぷくはばせいげんたんさく}は幅制限探索を幅を大きくしながら解を発見するまで繰り返すアルゴリズムである \cite{lipovetzkyg12}。
-IW($i$)は幅$i$が大きくなるほど大きな状態空間を探索することになる。
-幅を大きくしていくことでだんだんと探索する状態空間を大きくしていき、解を探すという手法である。
+IW($i$)は幅$i$が大きくなるほど解のクオリティが良くなるが、より大きな状態空間を探索することになる。
+反復幅制限探索は小さい幅からはじめ、解が見つからない・良い解でなければ幅を大きくして再度探索を行う手法である。
 いずれ幅の大きさが特徴の数と同じまでになるので、反復幅制限探索は解があればいずれ必ず発見する。
 
 \begin{algorithm}
-\caption{Iterative Width Search}
-$n \leftarrow 1$\;
+\caption{反復幅制限探索 (Iterative Width Search)}
+$i \leftarrow 1$\;
 $path \leftarrow \emptyset$\;
 	\While {$path = \emptyset$} {
-		$path \leftarrow IW(n)$\;
-		$n \leftarrow n + 1$\;
+		$path \leftarrow IW(i)$\;
+		$i \leftarrow i + 1$\;
 	}
 	\Return $path$
 \end{algorithm}
@@ -595,66 +639,73 @@ $path \leftarrow \emptyset$\;
 %残念ながら、探索アルゴリズムの並列化は比較的難しいと考えられる。
 %一般に並列アルゴリズムの効率は逐次実行部分と並列実行可能部分に分割される
 %グラフ探索アルゴリズムを並列化するメリットの一つはもちろん実行速度の高速化である。
-グラフ探索アルゴリズムの並列化に考えなければならないオーバーヘッドは様々であり、それらの重要性は問題、インスタンス、マシン、さまざまな状況に依存する。加えてハードウェアは刻々と変化を続けており、数年後にどのような環境がメジャーとなるのかはなかなか想像をすることが出来ないだろう。
-本書ではCPUを用いた分散メモリ並列アルゴリズムとGPU一台を用いた並列アルゴリズムについて説明する。
-CPU並列ではハッシュによってノードを各プロセスにアサインし、各プロセスはアサインされたノードのみを担当して探索を行うというフレームワークが現在のstate-of-the-artである。
+グラフ探索アルゴリズムの並列化に考えなければならないオーバーヘッドは様々であり、それらの重要性は問題、インスタンス、マシン、さまざまな状況に依存する。% 加えてハードウェアは刻々と変化を続けており、数年後にどのような環境がメジャーとなるのかはなかなか想像をすることが出来ないだろう。
+% 本書ではCPUを用いた分散メモリ並列アルゴリズムとGPU一台を用いた並列アルゴリズムについて説明する。
+CPU並列ではハッシュによってノードを各プロセスにアサインし、各プロセスはアサインされたノードのみを担当して探索を行うというフレームワークが有効である。
 より詳細な議論は\ref{fukunaga2017survey}を参照されたい。
 
 \subsection{並列化オーバーヘッド (Parallel Overheads)}
 \label{sec:parallel-overheads}
 
 理想的には$n$プロセスで並列化したら$n$倍速くなってほしい。
-逐次アルゴリズムと比較して、プロセス数倍の高速化が得られることを{\it perfect linear speedup}と呼ぶ。
-しかしながら、殆どの場合perfect linear speedupは得られない。
+逐次アルゴリズムと比較して、プロセス数倍の高速化が得られることを\define{完全線形高速化}{perfect linear speedup}{かんぜんせんけいこうそくか}と呼ぶ。
+しかしながら、殆どの場合完全線形高速化は得られない。
 それは並列化にさいして様々なオーバーヘッドがかかるからである。
 \cite{jinnai2017work}の記法に従うと、並列化オーバーヘッドは主に以下の３つに分けられる。
 
-\noindent {\bf 通信オーべーヘッド (Communication overhead, CO)}:
-通信オーバーヘッドはプロセス間で情報交換を行うことにかかるオーバーヘッドである。
+\ddef{通信オーバーヘッド、communication overhead}{
+  プロセス間で情報交換を行うことにかかる時間を\define{通信オーバーヘッド}{communication overhead}{つうしんオーバーヘッド} (CO)と呼ぶ。
+}
+
 通信する情報は様々なものが考えられるが、オーバーヘッドとなるものはノードの生成回数に比例した回数通信を必要とするものである。
 すなわち、ノードの生成回数$n$に対して$log(n)$回しか通信を行わない場合、その通信によるオーバーヘッドは無視出来るだろう。
 ここではノードの生成回数に対するメッセージ送信の割合をCOと定義する：
 \begin{equation}
-	CO := \frac{\text{\# messages sent to other threads}}{\text{\# nodes generated}}.
+	CO := \frac{\text{他プロセスへ送信されたメッセージの数}}{\text{生成されたノードの数}}.
 \end{equation}
-
-例えば、ハッシュなどによってプロセス間でノードの送受信を行いロードバランスを行う手法の場合、通信するメッセージは主にノードである。この場合：
+例えば、ハッシュなどによってプロセス間でノードの送受信を行いロードバランスを行う手法 (e.g. 後述するHDA*)の場合、通信するメッセージは主にノードである。この場合：
 
 \begin{equation}
-	CO := \frac{\text{\# nodes sent to other threads}}{\text{\# nodes generated}}.
+	CO := \frac{\text{他プロセスへ送信されたノードの数}}{\text{生成されたノードの数}}.
 \end{equation}
 となる。
 COは通信にかかるディレイだけでなく、メッセージキューなどのデータ構造の操作も行わなければならないので、特にノードの展開速度が速いドメインにおいて重要なオーバーヘッドになる。一般に、プロセス数が多いほどCOは大きくなる。
 %If nodes are assigned randomly to the threads, CO will be proportional to $1-\frac{1}{\#thread}$. 
 
+\ddef{探索オーバーヘッド、Search Overhead}{
+  並列化によって余分に増えた展開ノード数の割合を探索オーバーヘッドと呼ぶ。
+}
 
-\noindent {\bf 探索オーバーヘッド (Search Overhead, SO):}
 一般に並列探索は逐次探索より多くのノードを展開することになる。
 このとき、余分に展開したノードは逐次と比較して増えた仕事量だと言える。
 本書では以下のように探索オーバーヘッドを定義する：
 
 \begin{equation}
-SO := \frac{\text{\# nodes expanded in parallel}}{\text{\#nodes expanded in sequential search}} - 1.
+  SO := \frac{\text{並列探索で展開されるノード数}}{\text{逐次探索で展開されるノード数}} - 1.
 \end{equation}
 
-SOはロードバランス (load balance, LB)が悪い場合に生じることが多い。
+SOは\define{ロードバランス}{load balance}{ロードバランス} (LB)が悪い場合に生じることが多い。
 
 \begin{equation}
-LB := \frac{\text{Maximum number of nodes assigned to a thread}}{\text{Average number of nodes assigned to a thread}}.
+LB := \frac{\text{各プロセスに割り当てられたノード数の最大値}}{\text{各プロセスに割り当てられたノード数の平均}}.
 \end{equation}
 
-ロードバランスが悪いと、ノードが集中しているスレッドがボトルネックとなり、他のスレッドはノードがなくなるか、あるいはよりf値の大きい(有望でない)ノードを展開することになり、探索オーバーヘッドになる。
+ロードバランスが悪いと、ノードが集中しているスレッドがボトルネックとなり、他のスレッドはノードがなくなるか、あるいはより$f$値の大きい(有望でない)ノードを展開することになり、探索オーバーヘッドになる。
 
 探索オーバーヘッドは実行時間だけでなく、空間オーバーヘッドでもある。ムダに探索をした分だけ、消費するメモリ量も多くなる。分散メモリ環境においてもコア当りのRAM量は大きくなるわけではないので、探索オーバーヘッドによるメモリ消費は問題となる。
 
+\ddef{同期オーバーヘッド、Coordination Overhead} {
+  他のスレッドの処理をアイドル状態で待たなければならない時間の割合を\define{同期オーバーヘッド}{coordination overhead}{どうきオーバーヘッド}と呼ぶ。
+}
 
-\noindent {\bf 同期オーバーヘッド (Coordination Overhead)}
-同期オーバーヘッドは他のスレッドの処理を待つためにアイドル状態にならなければならない時に生じるオーバーヘッドを指す。
 アルゴリズム自体が同期を必要としないものだとしても、メモリバスのコンテンションによって同期オーバーヘッドが生じることがある\cite{burnslrz10,kishimotofb13}.
 
 
-これらのオーバーヘッドは独立ではなく、むしろ相互に関係しており、トレードオフの関係にある。
+これらのオーバーヘッドは独立ではなく、トレードオフの関係にある。
 多くの場合、通信・同期オーバーヘッドと探索オーバーヘッドがトレードオフの関係にあたる。
+
+
+\TODO{シンプルな並列化がうまくいかない理由を説明する}
 
 \subsection{ハッシュ分配A* (Hash Distributed A*)}
 \label{sec:hash-distributed-astar}

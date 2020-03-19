@@ -1,0 +1,37 @@
+% Unreduced
+\node[circle,draw] (00) at (0, 4) {$x_0$};
+
+\node[circle,draw] (10) at (-1, 2) {$x_1$};
+\node[circle,draw] (11) at (1, 2) {$x_1$};
+
+\node[rectangle,draw] (20) at (-1-0.5, 0) {$0$};
+\node[rectangle,draw] (21) at (-1+0.5, 0) {$0$};
+\node[rectangle,draw] (22) at ( 1-0.5, 0) {$0$};
+\node[rectangle,draw] (23) at ( 1+0.5, 0) {$1$};
+
+\draw[->] (00) -- (10);
+\draw[->] (00) -- (11);
+
+\draw[->] (10) -- (20);
+\draw[->] (10) -- (21);
+\draw[->] (11) -- (22);
+\draw[->] (11) -- (23);
+
+\node at (0, -1) {Unreduced};
+
+% Reduced
+\pgfmathsetmacro{\base}{5}
+\node[circle,draw] (00) at (\base+0, 4) {$x_0$};
+
+\node[circle,draw] (11) at (\base+1, 2) {$x_1$};
+
+\node[rectangle,draw] (22) at (\base-0.5, 0) {$0$};
+\node[rectangle,draw] (23) at (\base+ 0.5, 0) {$1$};
+
+\draw[->] (00) -- (22);
+\draw[->] (00) -- (11);
+
+\draw[->] (11) -- (22);
+\draw[->] (11) -- (23);
+
+\node at (\base+0, -1) {Reduced};

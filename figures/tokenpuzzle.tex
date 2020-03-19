@@ -1,0 +1,22 @@
+
+\pgfmathsetmacro{\phi}{0.15}
+
+\foreach \base in {0, 6} {
+  \draw (\base+0,0) grid (\base+4, 1);
+  
+  \foreach \x in {0, 1, 2, 3} {
+    \node at (\base+\x+0.5, 1+0.5) {\x};  
+  }
+
+  \node at (\base+0+0.5, -1+0.5) {00};
+  \node at (\base+1+0.5, -1+0.5) {01};
+  \node at (\base+2+0.5, -1+0.5) {10};
+  \node at (\base+3+0.5, -1+0.5) {11};
+
+}
+
+\draw[fill=black] (0+\phi,0+\phi) rectangle (1-\phi,1-\phi);
+
+\draw[fill=black] (6+3+\phi,0+\phi) rectangle (6+4-\phi,1-\phi);
+
+\draw[->] (4+\phi, 0.5) -- (6-\phi, 0.5);
