@@ -402,9 +402,8 @@ BDDはループのない有向グラフであり、ノードとエッジはラ�
 BDDは決定木と同様な処理によって入力$x$に対して$\{1, 0\}$を返す。
 すなわち、根ノードから始まり、ノードのラベル$x_i$に対して、入力$x$の$x_i$が1であればラベル1が付いたエッジをたどり、0であればラベル0をたどる。これを繰り返し、シンクにたどり着いたらシンクのラベルの値を返す。
 決定木と異なりBDDは木ではなく、途中で合流などがあるため、決定木よりも空間効率が良い場合が多い (図\ref{fig:bdd})。
-BDDは効率的に集合演算を行うことが出来る。
+BDDは集合演算によってたくさんの状態に対して同時に展開・重複検知を行い、探索を進めることができる。
 
-\TODO{集合演算の例}
 
 
 \subsection{特徴関数による状態空間の探索}
@@ -419,6 +418,8 @@ $S$のimageは以下の特徴関数によって表すことが出来る。
 \end{equation}
 
 これを使ってグラフ探索アルゴリズムを実装することが出来る。
+例えば$Image_{Open}(x')$はオープンリストにあるノードを全て展開して生成されるノードの集合になる。
+重複検出にはこの中から$Closed(x)$に入っていないノードを取り出せばよい ($Image_{Open}(x) \land \lnot Closed(x)$)。
 
 \subsubsection{BDD-幅優先木探索}
 
@@ -441,10 +442,10 @@ imageの計算とゴールテストによって実装することが出来る。
 \begin{algorithm}
 \caption{BDD幅優先木探索 (BDD-Breadth-first Tree Search)}
 \label{alg:bdd-brfs-tree}
-	\Input{Initial node $s_0$}
-	\Output{Path from $s_0$ to a goal node $t \in T$}
-	$S_0 \leftarrow \{s_0\}$\;
-	\For {$i \leftarrow 1...$} {
+	\Input{非明示的状態空間グラフ $P = (s, Goal, Expand, w)$、前状態 $s'$}
+	\Output{$s$からゴール状態$t \in T$への経路、経路が存在しなければ$\emptyset$}
+	$S_0 \leftarrow \{s\}$\;
+	\For {$i \leftarrow 1, 2, ...$} {
 		$\phi_{S_i}(x) \leftarrow \exists x (\phi_{S_{i-1}}(x) \land Trans(x,x'))[x'/x]$\;
 		\If {$\phi_{S_i}(x) \land \phi_T \neq false$} {
 			\Return $Construct(\phi_{S_i} \land \phi_T(x), i)$\;
@@ -470,11 +471,11 @@ BDD-幅優先木探索は幅優先探索と同様、解の経路長が最短で�
 \begin{algorithm}
 \caption{BDD幅優先探索 (BDD Breadth-first search)}
 \label{alg:bdd-brfs}
-	\Input{Initial node $s_0$}
-	\Output{Path from $s_0$ to a goal node $t \in T$}
+	\Input{非明示的状態空間グラフ $P = (s, Goal, Expand, w)$、前状態 $s'$}
+	\Output{$s$からゴール状態$t \in T$への経路、経路が存在しなければ$\emptyset$}
 	$S_0 \leftarrow \{s_0\}$\;
 	$Closed \leftarrow \{s_0\}$\;
-	\For {$i \leftarrow 1...$} {
+	\For {$i \leftarrow 1, 2,...$} {
 		$Succ(x) \leftarrow \exists x (\phi_{S_{i-1}}(x) \land Trans(x,x'))[x'/x]$\;
 		$\phi_{S_i}(x) \leftarrow Succ(x) \land \lnot Closed(x)$\;
 		$Closed(x) \leftarrow Closed(x) \lor Succ(x)$\;
@@ -548,7 +549,7 @@ $h_{i_1}(s) = h_{i_1}(s')$, $h_{i_2}(s) = h_{i_2}(s')$,...,$h_{i_n}(s) = h_{i_n}
 \label{alg:width-based-search}
 	\Input{非明示的状態空間グラフ $(s, Goal, Expand, w)$、特徴関数 $h_0, h_1,..., h_{m-1}$、幅$i$}
 	\Output{$s$からゴール状態$t \in T$への経路、経路が存在しなければ$\emptyset$}
-	$Closed \leftarrow \emptyset$, $Open \leftarrow \{s\}$, $d(s) \leftarrow 0$, $g(s) \leftarrow 0$\;
+	$Closed \leftarrow \emptyset$, $Open \leftarrow \{s\}$\;
 	\While{$Open \neq \emptyset$} {
                 $u \leftarrow \argmin_{u' \in Open} f(u')$ \;
 		$Open \leftarrow Open \setminus \{u\} $\;
@@ -560,8 +561,6 @@ $h_{i_1}(s) = h_{i_1}(s')$, $h_{i_2}(s) = h_{i_2}(s')$,...,$h_{i_n}(s) = h_{i_n}
                   $H \leftarrow \{j | j \in \{0, 1, ..., m-1\}, h_j(v) \in Closed\}$\;
                   \If{$|H \setminus Closed| \geq i$} {
                     $Open \leftarrow Open \cup \{v\}$\;
-		    $d(v) \leftarrow d(u) + 1$\;
-		    $g(v) \leftarrow g(u) + w(u, v)$\;
                     $parent(v) \leftarrow u$\;
                   }
                   \For {each $h \in H(v) \setminus Closed$} {
@@ -705,15 +704,24 @@ LB := \frac{\text{各プロセスに割り当てられたノード数の最大�
 多くの場合、通信・同期オーバーヘッドと探索オーバーヘッドがトレードオフの関係にあたる。
 
 
-\TODO{シンプルな並列化がうまくいかない理由を説明する}
+\subsection{並列A* (Parallel A*)}
+
+\define{並列A*}{parallel A*}{へいれつエースター} (PA*)はA*探索のシンプルな並列化である \cite{iranis86}。PA*は一つのオープンリスト・クローズドリストを全てのプロセスで共有してアクセスする。オープンリスト・クローズドリストには複数のプロセスが同時にアクセスできないようにロックがかけられる。
+PA*の問題点はデータ構造を一つに集中させているため、分散メモリ環境の場合はアクセスに大きな通信オーバーヘッドが生じることである。
+共有メモリ環境の場合でも、それぞれのプロセスは他のプロセスがデータ構造にアクセスしている間にはアクセスできないため、同期オーバーヘッドが生じる。この同期オーバーヘッドはプロセスの数が増えるほど問題になる。ロックフリーのデータ構造を使ってもこのオーバーヘッドは解消されない \cite{burnslrz10}。
 
 \subsection{ハッシュ分配A* (Hash Distributed A*)}
 \label{sec:hash-distributed-astar}
 
-ハッシュ分配A* (Hash Distributed A*, HDA*) \cite{kishimotofb13}はCPUを用いたstate-of-the-artの並列A*探索アルゴリズムである。
+PA*の問題点はすべてのプロセスが共有された一つのデータ構造へアクセスしなければならない点である。このような手法を\define{集中型手法}{centralized approach}{しゅうちゅうがたしゅほう}と呼ぶ。
+共有データ構造へのアクセスは計算のボトルネックとなり、スケーラビリティの限界点になってしまう。
+そのため、A*の並列化には各プロセスが自分のオープンリスト・クローズドリストを持ち、アクセスを分散させる\define{分散型手法}{decentralized approach}{ぶんさんがたしゅほう}が有力である。
+分散型手法はデータ構造へのアクセスが分散するため同期オーバーヘッドを解消される。一方、各プロセスがアクセスするデータ構造が異なるため、各プロセスの仕事量を均等に分配しずらいという\define{ロードバランシング}{load balancing}{ロードバランシング}の問題が生じる。各プロセスに対してどのようにして仕事を均等に分配するかが問題になる。
+
+\define{ハッシュ分配A*}{Hash Distributed A*}{ハッシュぶんぱいエースター} (HDA*) \cite{kishimotofb13}はstate-of-the-artの並列A*探索アルゴリズムである。
 HDA*の各プロセスはそれぞれローカルなオープンリスト、クローズドリストを保持する。ローカルとは、データ構造を保持するプロセスが独占してアクセスを行い、他のプロセスからはアクセスが不可能であるという意味である。
 グローバルなハッシュ関数によって全ての状態は一意に定まる担当のプロセスが定められる。
-各プロセス$T$の動作は以下を繰り返す：
+各プロセス$T$の動作は以下を繰り返す (アルゴリズム\ref{alg:hdastar})：
 
 \begin{enumerate}
 	\item 
@@ -722,7 +730,47 @@ HDA*の各プロセスはそれぞれローカルなオープンリスト、ク�
 		オープンリストにあるノードのうち最もプライオリティ($f$値)の高いノードを展開する。生成されたそれぞれのノード$n$についてハッシュ値$H(n)$を計算し、ハッシュ値$H(n)$を担当するプロセスに非同期的に送信される。
 \end{enumerate}
 
-\TODO{疑似コードで書き下す？}
+
+\begin{algorithm}
+  \caption{Hash Distributed A*}
+  \Input{非明示的状態空間グラフ $(s, Goal, Expand, w)$、ヒューリスティック関数$h$、ハッシュ関数 $H$}
+  \Output{$s$からゴール状態$t \in T$への経路、経路が存在しなければ$\emptyset$}
+  $Closed_p \leftarrow \emptyset$, $Open_p \leftarrow \emptyset$, $\mathit{Buffer}_p \leftarrow \emptyset$ for each thread $p$\;
+  $Open_{H(s)} \leftarrow \{s\}$, $g(s) \leftarrow 0$\;
+  $goal \leftarrow \emptyset$, $c' \leftarrow \infty$\;
+
+  \For {each process $p$} {
+  \While {{\bf not} $TerminateDetection()$} {
+    \For {each $(v, g_v, p_v) \in \mathit{Buffer}_p$} {
+      \If{$v \notin Closed$ {\bf or} $g_v < g(v)$} {
+        $Open \leftarrow Open \cup \{v\}$\;
+	$g(v) \leftarrow g_v$\;
+        $parent(v) \leftarrow p_vv$\;
+      }
+      \If{$v \notin Closed$} {
+        $Closed \leftarrow Closed \cup \{v\}$\;
+      }
+    }
+    $\mathit{Buffer}_p \leftarrow \emptyset$\;
+    \While {$Open_p \neq \emptyset$ {\bf and} $min_{s \in Open_p} f(s) < c'$} {
+      $u \leftarrow \argmin_{u' \in Open} f(u')$ \;
+      $Open \leftarrow Open \setminus \{u\} $\;
+
+      \If {$Goal(u)$ {\bf and} $g(u) < c'$} {
+        $goal \leftarrow u$\;
+        $c' \leftarrow g(u)$\;        
+      }
+
+      \For {each $v \in Expand(u)$} {
+        $g_v \leftarrow g(u) + w(u, v)$\;
+        $\mathit{Buffer}_{H(v)} \leftarrow \mathit{Buffer}_{H(v)} \cup \{(v, g_v, u)\}$\;
+      }
+    }
+  }
+  \Return $Path(goal)$\;
+  }
+  \label{alg:hdastar}
+\end{algorithm}
 
 HDA*の重要な特徴は２つある。
 まず、HDA*は非同期通信を行うため、同期オーバーヘッドが非常に小さい。
@@ -743,25 +791,25 @@ Zobrist hashingは初めにランダムテーブル$R$を初期化する\ref{alg
 これを用いてハッシュ値を計算する。
 
 \begin{algorithm}
+	\caption{Zobrist Hashing}
 	\Input{$s = (x_0, x_1,...,x_n)$}
 	$hash \leftarrow 0$\;
 	\For {each $x_i \in s$} {
 		$hash \leftarrow hash \; xor \; R[x_i]$\;
 	}
-	{\bf Return} $hash$\;
-	\caption{\ZHDA{}}
+	\Return $hash$\;
 	\label{alg:zobrist-hashing}
 \end{algorithm}
 
 \begin{algorithm}
+	\caption{Zobrist Hashingの初期化}
 	\Input{$V = (dom(x_0),dom(x_1),...)$}
 	\For {each $x_i$} {
 		\For {each $t \in dom(x_i)$ } {
 			$R_i[t] \leftarrow random()$\;
 		}
 	}
-	{\bf Return} $R = (R_1, R_2,...,R_n)$
-	\caption{Initialize \ZHDA{}}
+	\Return $R = (R_1, R_2,...,R_n)$
 	\label{alg:init-zobrist-hashing}
 \end{algorithm}
 
@@ -770,7 +818,7 @@ Zobrist hashingを使うメリットは２つある。
 もうひとつは、状態が非常にバランスよく分配され、ロードバランスが良いことである。
 一方、この手法の問題点は通信オーバーヘッドが大きくなってしまうことにある。
 この問題を解決するためにState abstractionという手法が提案された\cite{burnslrz10}。
-State abstractionは状態$s = (x_1,x_2,...,x_n)$に対して簡約化状態 (abstract state) $s' = (x_1',x_2',...,x_m'), where m < n, x_i' = x_j (1 \leq j \leq n)$. % TODO: clean up this.
+State abstractionは状態$s = (x_1,x_2,...,x_n)$に対して簡約化状態 (abstract state) $s' = (x_1',x_2',...,x_m'), \; where \; m < n, x_i' = x_j (1 \leq j \leq n)$. % TODO: clean up this.
 State abstractionは簡約化状態からハッシュ値への関数の定義はされておらず、単純なlinear congrugent hashingが用いられていた。そのため、ロードバランスが悪かった。
 
 Abstract Zobrist hashing (AZH)はZobrist hashingとAbstractionの良い点を組み合わせた手法である\cite{jinnai2016structured}。AZHはfeatureからabstract featureへのマッピングを行い、abstract featureをZobrist hashingへの入力とするという手法である：

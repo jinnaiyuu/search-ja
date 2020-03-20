@@ -70,7 +70,7 @@
 そこで、探索アルゴリズムは多くの場合初期ノードとノード展開関数による\define{非明示的状態空間グラフ}{implicit state-space graph}{ひめいじてきじょうたいくうかんぐらふ}で表せられる。
 
 \ddef{非明示的状態空間グラフ、Implicit state-space graph}{
-	非明示的状態空間グラフ $(s, Goal, Expand, w)$は初期状態$s \in V$、ゴール条件Goal: $V \rightarrow B = \{false, true\}$、ノード展開関数Expand: $V \rightarrow 2^V$\footnote{$2^V$はノード集合$V$の冪集合である。}、コスト関数$w: V \times V \rightarrow \mathbb{R}$によって与えられる。
+	非明示的状態空間グラフ $(s, Goal, Expand, w)$は初期状態$s \in V$、ゴール条件Goal: $V \rightarrow B = \{false, true\}$、ノード展開関数Expand: $V \rightarrow 2^V$、コスト関数$w: V \times V \rightarrow \mathbb{R}$によって与えられる\footnote{$2^V$はノード集合$V$のべき集合である。}。
 }
 
 非明示的状態空間グラフも状態空間問題に対して定義できる。明示的状態空間グラフとの違いは次状態の情報が隣接行列ではなくノード展開関数Expandの形に表現されている点である。Expandはある状態からの可能な次の状態の集合を返す関数である。Expand関数は明示的に与えられるのではなく、ルールによって与えられることが多い。例えば将棋であれば、将棋のルールによって定められる合法手によって得られる次の状態の集合がExpand関数によって得られる。多くの場合このノード展開関数は隣接行列よりも小さな情報で表現できる。
