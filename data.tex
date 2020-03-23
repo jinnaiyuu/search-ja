@@ -125,10 +125,10 @@ LIFOを使うメリットはオープンリストをバケット実装してい�
 
 \subsubsection{剰余法 (Remainder Method)}
 
-$k(s)$を整数$\mathbb{Z}$と考えることが出来るならば、それを$m$で割った余りをハッシュ値とすることができる。
+$k(s)$を整数と考えることが出来るならば、それを$m$で割った余りをハッシュ値として使える。
 
 \begin{equation}
-  h(s) := k(s) \text{mod} m
+  h(s) := k(s) \; \text{mod} \; m
 \end{equation}
   
 このハッシュ関数は$S$から$T$への写像になる ($h: S \rightarrow \{0, ..., m-1\}$)。$T$へ均等に分配するためには法$m$の選択が重要になる。
@@ -178,7 +178,7 @@ Stochastic node caching \cite{miura1999stochastic}は、新しく追加された
 \label{sec:delayed-duplicate-detection}
 
 \ref{sec:graph-search-algorithm}節ではノードを生成したタイミングで重複検出を行うアルゴリズムを説明した。この方法だとノードが生成されたその瞬間に検出を行うという意味で\define{即時重複検出}{immediate duplicate detection}{そくじちょうふくけんしゅつ}と呼ぶことがある。
-それに対して、ノードを展開するタイミングで検出を行う\define{遅延重複検出}{delayed duplicate detection}{ちえんちょうふくけんしゅつ}という方法もある \cite{korf2003delayed}。
+それに対して、ノードを展開するタイミングで検出を行う\define{遅延重複検出}{delayed duplicate detection}{ちえんちょうふくけんしゅつ}という方法もある \cite{korf12003delayed}。
 ノードが生成された瞬間に重複検出を行わない場合、オープンリスト内に同じ状態を持ったノードが重複して存在する場合がある。
 しかしノードを展開するときに重複検出を行うので、クローズドリストにノードの重複はない。
 アルゴリズム\ref{alg:ddd}は遅延重複検出を用いる場合のグラフ探索アルゴリズムの疑似コードである。
