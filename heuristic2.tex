@@ -103,7 +103,7 @@ DFIDをはじめとする重複検出のないアルゴリズムを用いる際�
         $path \leftarrow \emptyset$\;
         \While {$path = \emptyset$ {\bf and} $U' \neq \infty$} {
           $U \leftarrow U'$\;
-          $(U', path) \leftarrow CLDFS-DFID(s, 0, U)$\;
+          $(U', path) \leftarrow CLDFS\text{-}DFID(s, 0, U)$\;
         }
         \Return $path$\;
 \end{algorithm}
@@ -115,14 +115,15 @@ DFIDをはじめとする重複検出のないアルゴリズムを用いる際�
 	\Output{$s$からゴール状態$t \in T$への経路、経路が存在しなければ$\emptyset$}
         $U' \leftarrow \infty$\;
 	\If {$Goal(s)$} {
-		\Return $(_, Path(s))$\;
+		\Return $(U', Path(s))$\;
 	}
 	\For {each $u \in Expand(s)$} {
 		\uIf {$g + w(s, u) \leq U$} {
-			$p \leftarrow CLDFS(u, g + w(s, u), U)$\;
-			\If {$p \neq \emptyset$} {
-				\Return $(s, p)$\;
-			}
+			$U', p \leftarrow CLDFS\text{-}DFID(u, g + w(s, u), U)$\;
+		  \If {$p \neq \emptyset$} {
+                    $p' \leftarrow (s, p)$\;
+		    \Return $(U', p')$\;
+		  }
 		}
                 \uElseIf {$g + w(s, u) < U'$} {
                   $U' \leftarrow g + w(s, u)$\;
@@ -161,7 +162,7 @@ IDA*も解がない場合に停止性を満たさない。
         $path \leftarrow \emptyset$\;
         \While {$path = \emptyset$ {\bf and} $U' \neq \infty$} {
           $U \leftarrow U'$\;
-          $(U', path) \leftarrow CLDFS-IDA(s, 0, U)$\;
+          $(U', path) \leftarrow CLDFS\text{-}IDA(s, 0, U)$\;
         }
         \Return $path$\;
 \end{algorithm}
@@ -173,7 +174,7 @@ IDA*も解がない場合に停止性を満たさない。
 	\Output{$s$からゴール状態$t \in T$への経路、経路が存在しなければ$\emptyset$}
         $U' \leftarrow \infty$\;
 	\If {$Goal(s)$} {
-		\Return $(_, Path(s))$\;
+		\Return $(U', Path(s))$\;
 	}
 	\For {each $u \in Expand(s)$} {
 	  \If {$g + w(s, u) + h(u) > U$} {
@@ -182,9 +183,10 @@ IDA*も解がない場合に停止性を満たさない。
               }
             }
           \Else {
-            $p \leftarrow CLDFS-IDA(u, g + w(s, u), U)$\;
+            $U', p \leftarrow CLDFS\text{-}IDA(u, g + w(s, u), U)$\;
 	    \If {$p \neq \emptyset$} {
-	      \Return $(s, p)$\;
+              $p' \leftarrow (s, p)$\;
+	      \Return $(U', p')$\;
 	    }
           }
 	}
@@ -197,17 +199,17 @@ IDA*も解がない場合に停止性を満たさない。
 \label{sec:bidirectional-search}
 %\captionlistentry[todo]{両方向探索: 図、説明}
 
-\define{両方向探索}{bidirectional search}{りょうほうこうたんさく}は初期状態とゴール状態の両方から探索をする手法である。初期状態からゴールを目指して探索する方向を正方向探索、ゴール状態から初期状態を目指して探索する方向を逆方向探索と呼ぶ。
+\define{両方向探索}{bidirectional search}{りょうほうこうたんさく}は初期状態とゴールの両方から探索をする手法である \cite{pohl1971bi}。初期状態からゴールを目指して探索する方向を正方向探索、ゴールから初期状態を目指して探索する方向を逆方向探索と呼ぶ。
+両方向探索が可能であるためにはゴール条件が具体的にゴール状態あるいはゴール状態の集合として得られることが必要である。
 
 両方向探索のメリットは探索の深さが正方向探索のみの手法と比較して半分になることである。
-最適解の深さが$d$であると仮定すると、分枝数を$b$とすると正方向探索のみでは$O(b^d)$個程度のノードを展開しなければならない。一方、両方向探索を行った場合、正・逆方向の探索の深さが$d/2$になった時点で二つの探索がつながり、ゴールへの経路が発見できる。このとき展開しなければならないノードの数は$O(b^{d/2}) * 2$であるので、正方向探索よりも非常に小さい。直感としては、両方向探索をすると半径が半分の円が２つできるので、面積としては正方向探索よりも小さくなると考えると良い (図\ref{fig:bidirectional})。
+最適解の深さが$d$であると仮定すると、分枝数を$b$とすると正方向探索のみでは$O(b^d)$個程度のノードを展開しなければならない。一方、両方向探索を行った場合、正・逆方向の探索の深さが$d/2$になった時点で二つの探索がつながり、ゴールへの経路が発見できる。このとき展開しなければならないノードの数は$O(b^{d/2}) \cdot 2$であるので、正方向探索よりも非常に少ない展開ノード数で探索が出来るポテンシャルがある。
+直感としては、両方向探索をすると半径が半分の円が２つできるので、面積としては正方向探索よりも小さくなると考えると良い (図\ref{fig:bidirectional})。
 
-そのため、両方向探索はヒューリスティック関数が不正確な時には正方向探索よりも効率的であることが多いこと\cite{barker2015limitations}。
-一方、ヒューリスティック関数が正確である場合は正方向探索のみの方が効率的な場合が多い。
+両方向探索はヒューリスティック関数が不正確な時には正方向探索よりも効率的であることが多い\cite{barker2015limitations}。
+一方、ヒューリスティック関数が正確である場合は正方向探索のみの方が効率的な場合が多い。両方向探索は最悪の場合A*探索のおよそ倍のノード展開数になるが、単純な両方向ヒューリスティック探索だとノード展開数はA*の倍程度になることが実験的に示されている \cite{barker2015limitations}。
 
-両方向探索の一番のボトルネックは重複検出である。すなわち、正方向探索で生成されたノードの集合と逆方向探索で生成されたノードの集合に共通部分があるかどうかを確認しなければならない。このため生成ノード数としては両方向探索は少なくても、find命令の実行回数が片方向探索よりもかなり多くなる。
-
-両方向探索は長らく最適解の保証が難しかったが、正方向探索と逆方向探索がちょうど真ん中で重なり(meet-in-the-middle)、最初に発見された解が最適解であることを保証する方法が2016年に提案された\cite{holte2016bidirectional}。
+両方向探索は長らく最適解の保証が難しかったが、正方向探索と逆方向探索がちょうど真ん中で重なる(meet-in-the-middle)ことを保証する方法が2016年に提案された \cite{holte2016bidirectional}。
 
 \begin{figure}
   \centering
@@ -219,6 +221,30 @@ IDA*も解がない場合に停止性を満たさない。
   \caption{両方向探索}
   \label{fig:bidirectional}
 \end{figure}
+
+
+% \begin{algorithm}
+% \caption{両方向幅優先探索 (Bidirectional Breadth-first search)}
+% \label{alg:external-brfs}
+% 	\Input{非明示的状態空間グラフ $(s, t, Expand, w)$}
+% 	\Output{$s$からゴール状態$t$への経路、経路が存在しなければ$\emptyset$}
+%         $Open_0 \leftarrow \{s\}$, $Closed_0 \leftarrow \{s\}$, $Open_1 \leftarrow \{t\}$, $Closed_1 \leftarrow \{t\}$\;
+%         $\alpha \leftarrow \infty$\;
+%         \While {$Open_0 \neq \emptyset$ {\bf and} $Open_1 \neq \emptyset$} {
+%           $d \leftarrow 0 \; or \; 1$\;
+%           $u \leftarrow \argmin_{u' \in Open_d} f_d(u')$\;
+%           $Open_d \leftarrow Open_d \setminus \{u\}$\;
+%           $Closed_d \leftarrow Closed_d \cup \{u\}$\;
+%           \If {$f_d(u) \geq \alpha$} {
+%             \Continue
+%           }
+%           \If {$u \in Closed_{1-d}$} {
+%             $\alpha \leftarrow \min(\alpha, g_d(u) + g_{1-d}(u))$\;
+%             $path \leftarrow Path(u)$\;
+%           }
+% 
+%         }
+% \end{algorithm}
 
 
 
@@ -421,7 +447,7 @@ $S$のimageは以下の特徴関数によって表すことが出来る。
 例えば$Image_{Open}(x')$はオープンリストにあるノードを全て展開して生成されるノードの集合になる。
 重複検出にはこの中から$Closed(x)$に入っていないノードを取り出せばよい ($Image_{Open}(x) \land \lnot Closed(x)$)。
 
-\subsubsection{BDD-幅優先木探索}
+\subsubsection{シンボリック幅優先木探索}
 
 imageを繰り返し求めていくことで幅優先木探索は簡単に実装することが出来る。
 まず、初期状態$s_0$だけによる集合$S_0 = \{s_0\}$を考える。これに対して$\phi_{S_{i}}$は集合$S_i$を表す特徴関数だとする。これを用いることで次状態集合を次々と求めることが出来る：
@@ -435,12 +461,12 @@ imageを繰り返し求めていくことで幅優先木探索は簡単に実装
 ゴールテストも特徴関数を用いて表すことが出来る。
 ゴール状態集合$T$を表す特徴関数を$\phi_T$とすると、$\phi_{S_i}(x') \land \phi_T \neq false$であれば$S_i$はゴール状態を含む。
 
-アルゴリズム\ref{alg:bdd-brfs-tree}はBDD-幅優先木探索である。
+アルゴリズム\ref{alg:bdd-brfs-tree}はシンボリック幅優先木探索である。
 imageの計算とゴールテストによって実装することが出来る。
 
 
 \begin{algorithm}
-\caption{BDD幅優先木探索 (BDD-Breadth-first Tree Search)}
+\caption{シンボリック幅優先木探索 (Symbolic Breadth-first Tree Search)}
 \label{alg:bdd-brfs-tree}
 	\Input{非明示的状態空間グラフ $P = (s, Goal, Expand, w)$、前状態 $s'$}
 	\Output{$s$からゴール状態$t \in T$への経路、経路が存在しなければ$\emptyset$}
@@ -458,18 +484,18 @@ imageの計算とゴールテストによって実装することが出来る。
 $Construct$関数はゴールに至るための経路を計算する関数である。
 $\phi_{S_i} \land \phi_T(x)$によってゴール状態、解経路における$i$ステップ目の状態($s_i$)が得られる。次に$Trans(\phi_{S_{i-1}}, s_i)$によって$i-1$ステップ目の状態$s_{i-1}$が得られ、$Trans_a$を見ていくことで$i-1$ステップ目のアクションが得られる。これを繰り返すことによって元の解経路を復元することが出来る。ゴール状態は一つ取り出せば十分であるため、$Construct$の計算時間は大きくはない。
 
-BDD-幅優先木探索は幅優先探索と同様、解の経路長が最短であることを保証する。
+シンボリック幅優先木探索は幅優先探索と同様、解の経路長が最短であることを保証する。
 
 
-\subsubsection{BDD-幅優先グラフ探索}
+\subsubsection{シンボリック幅優先グラフ探索}
 
 重複検出を行う場合はクローズドリストに展開済みノードを保存する必要がある。
 この展開済みノードも特徴関数及びBDDで表すことが出来る。
-アルゴリズム\ref{alg:bdd-brfs}はBDD-幅優先探索のコードである。
+アルゴリズム\ref{alg:bdd-brfs}はシンボリック幅優先グラフ探索のコードである。
 アルゴリズム\ref{alg:bdd-brfs-tree}と異なり特徴関数$Closed$を用いて重複検出を行っている。
 
 \begin{algorithm}
-\caption{BDD幅優先探索 (BDD Breadth-first search)}
+\caption{シンボリック幅優先探索 (Symbolic Breadth-first search)}
 \label{alg:bdd-brfs}
 	\Input{非明示的状態空間グラフ $P = (s, Goal, Expand, w)$、前状態 $s'$}
 	\Output{$s$からゴール状態$t \in T$への経路、経路が存在しなければ$\emptyset$}
@@ -501,6 +527,8 @@ BDD-幅優先木探索は幅優先探索と同様、解の経路長が最短で�
 
 \section{新奇性に基づく枝刈り (Novelty-based Pruning)}
 \label{sec:novelty-based-pruning}
+
+% TODO: 他の枝刈り手法についても紹介する
 
 状態空間を広く探索することは局所最適やデッドエンドに陥らないためには必要である。
 より\define{新奇性}{novelty}{しんきせい}のある状態を優先して探索することによって広く状態空間が探索できると考えられる。
@@ -831,13 +859,33 @@ Abstract Zobrist hashing (AZH)はZobrist hashingとAbstractionの良い点を組
 ここで関数$A$はfeatureからabstract featureへのマッピングであり、$R$はabstract featureに対して定義されている。
 % Abstract featureを自動的に生成する手法は複数提案されており、最もシンプルなものはGreedy abstract feature generation \cite{jinnai2016automated}である。
 
-HDA*のための分解関数の自動生成方法は\cite{jinnai2017work}にまとめられている。
+HDA*のための分配関数の自動生成方法は\cite{jinnai2017work}にまとめられている。
 
-% \subsection{関連文献}
-% 並列深さ優先探索 \cite{kumar1988parallel}.
-% Transposition Table Driven Work Distribution (TDS) \cite{}.
-% Parallel Structured Duplicated Detection (PSDD) \cite{}.
-% Parallel Best-NBlock First (PBNF) \cite{}.
+\subsection{関連文献}
+
+両方向探索で正方向ではゴール状態までのコストの推定、逆方向では初期状態までのコストの推定を用いたヒューリスティック探索をFront-to-End戦略と呼ぶ \cite{pohl1971bi}。Front-to-Front戦略は反対方向のオープンリストに入っている状態への距離の推定を用いたアルゴリズムである \cite{sint1977improved}。
+Front-to-Front戦略はコストの推定がより正確である代わりに各オープンリストに入っている状態のペアすべてに対してヒューリスティック値を計算し、それを更新し続けなければならない。
+Perimiter searchはこの問題を解決するため、探索の方向を一度だけ変える手法である\cite{dillenburg1994perimeter,manzini1995bida}。最初は逆方向探索である深さまで探索をしてからあとは正方向で探索を行う。
+
+外部メモリA*は外部メモリを用いたA*探索である \cite{edelkamp2004external}。
+\cite{zhou2004structured}は状態空間をいくつかの部分空間に分割し、その分割内でそれぞれオープン・クローズドリストを持つというStructured Duplicate Detectionを用いた外部メモリ探索を提案した。
+
+シンボリックA*はヒューリスティック関数を用いたシンボリック探索である \cite{edelkamp1998obdds}。
+シンボリック幅優先探索では$g$値毎にオープンリストを分けていたがシンボリックA*では$f$値と$h$値のペア毎にオープンリストを分けることで$f$値の小さい状態を優先して探索する。
+現在提案されているシンボリック探索はほとんどBDDを用いたものである。
+BDD以外のデータ構造、例えばZero-surpressed Decision Diagram \cite{minato1993zero}などをヒューリスティック探索に使う例は著者の知る限りない。
+
+% TODO: Novelty-based pruning
+
+\cite{kumar1988parallel}は並列深さ優先探索のさまざまな実装を比較した。
+ハッシュ関数によって状態をプロセスに振り分けるアイディアはParallel Retracting A* (PRA*)からである\cite{evett1995massively}。PRA*はプロセス間の同期処理が行っていたのに対して、Transposition Table Driven Work Distribution (TDS) \cite{romein1999transposition}は同期処理を行わないことによって性能を改善した。
+
+執筆時現在、GPUを用いたアルゴリズムはあまり研究が進んでいない。
+GPU-Parallel A*はオープンリストをいくつものキューに分けて並列化した\cite{zhou2015massively}。
+探索にGPUを用いる場合の一番の問題はGPUのメモリが非常に小さいことである。
+そのためA*ではなくIDA*の並列化の研究もおこなわれている\cite{horie2017block}。
+GPUとCPUの両方を使った探索アルゴリズムも提案されている\cite{sulewskiek11}。
+
 % 
 % 
 % 一方、執筆時現在、GPUを用いたアルゴリズムはあまり研究が進んでいない。原因としては、既存のCPUを用いた探索アルゴリズムにはない様々な難しさがあるだろう。

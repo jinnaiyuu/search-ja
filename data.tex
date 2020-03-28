@@ -178,7 +178,7 @@ Stochastic node caching \cite{miura1999stochastic}は、新しく追加された
 \label{sec:delayed-duplicate-detection}
 
 \ref{sec:graph-search-algorithm}節ではノードを生成したタイミングで重複検出を行うアルゴリズムを説明した。この方法だとノードが生成されたその瞬間に検出を行うという意味で\define{即時重複検出}{immediate duplicate detection}{そくじちょうふくけんしゅつ}と呼ぶことがある。
-それに対して、ノードを展開するタイミングで検出を行う\define{遅延重複検出}{delayed duplicate detection}{ちえんちょうふくけんしゅつ}という方法もある \cite{korf12003delayed}。
+それに対して、ノードを展開するタイミングで検出を行う\define{遅延重複検出}{delayed duplicate detection}{ちえんちょうふくけんしゅつ}という方法もある \cite{korf2003delayed}。
 ノードが生成された瞬間に重複検出を行わない場合、オープンリスト内に同じ状態を持ったノードが重複して存在する場合がある。
 しかしノードを展開するときに重複検出を行うので、クローズドリストにノードの重複はない。
 アルゴリズム\ref{alg:ddd}は遅延重複検出を用いる場合のグラフ探索アルゴリズムの疑似コードである。
@@ -220,10 +220,10 @@ Stochastic node caching \cite{miura1999stochastic}は、新しく追加された
 \end{algorithm}
 
 
-\subsection{関連文献}
-
-\TODO{Rabin and Karp hashing}
-
-\TODO{Universal hash function}
+% \subsection{関連文献}
+% 
+% \TODO{Rabin and Karp hashing}
+% 
+% \TODO{Universal hash function}
 
 

@@ -120,7 +120,7 @@ $Path(u)$はノードに対して初期状態からそこへ到達するまで�
 \label{alg:implicit-graph-search}
 	\Input{非明示的状態空間グラフ $(s, Goal, Expand, w)$、プライオリティ関数 $f$}
 	\Output{$s$からゴール状態$t \in T$への経路、経路が存在しなければ$\emptyset$}
-	$Closed \leftarrow \emptyset$, $Open \leftarrow \{s\}$, $d(s) \leftarrow 0$, $g(s) \leftarrow 0$\;
+	$Open \leftarrow \{s\}$, $Closed \leftarrow \{s\}$, $d(s) \leftarrow 0$, $g(s) \leftarrow 0$\;
 	\While{$Open \neq \emptyset$} {
                 $u \leftarrow \argmin_{u' \in Open} f(u')$ \;
 		$Open \leftarrow Open \setminus \{u\} $\;
