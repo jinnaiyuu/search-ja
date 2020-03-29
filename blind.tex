@@ -33,7 +33,7 @@
 \caption{木探索 (Implicit Tree Search)}
 \label{alg:implicit-tree-search}
 	\Input{非明示的状態空間グラフ $(s, Goal, Expand, w)$, プライオリティ関数 $f$}
-	\Output{$s$からゴール状態$t \in T$への経路、経路が存在しなければ$\emptyset$}
+	\Output{$s$からゴール状態への経路、経路が存在しなければ$\emptyset$}
 	$Open \leftarrow \{s\}$, $d(s) \leftarrow 0$, $g(s) \leftarrow 0$\;
 	\While{$Open \neq \emptyset$} {
                 $u \leftarrow \argmin_{u' \in Open} f(u')$ \;
@@ -119,7 +119,7 @@ $Path(u)$はノードに対して初期状態からそこへ到達するまで�
 \caption{グラフ探索 (Implicit Graph Search)}
 \label{alg:implicit-graph-search}
 	\Input{非明示的状態空間グラフ $(s, Goal, Expand, w)$、プライオリティ関数 $f$}
-	\Output{$s$からゴール状態$t \in T$への経路、経路が存在しなければ$\emptyset$}
+	\Output{$s$からゴール状態への経路、経路が存在しなければ$\emptyset$}
 	$Open \leftarrow \{s\}$, $Closed \leftarrow \{s\}$, $d(s) \leftarrow 0$, $g(s) \leftarrow 0$\;
 	\While{$Open \neq \emptyset$} {
                 $u \leftarrow \argmin_{u' \in Open} f(u')$ \;
@@ -286,8 +286,8 @@ $g$値をそのノードに到達できる既知の最小コストにするた�
 \begin{algorithm}[tbh]
 \caption{DFS: 再帰による深さ優先探索 (Depth-First Search)}
 \label{alg:recursive-dfs}
-	\Input{非明示的状態空間グラフ $P = (s, Goal, Expand, w)$、前状態 $s'$}
-	\Output{$s$からゴール状態$t \in T$への経路、経路が存在しなければ$\emptyset$}
+	\Input{非明示的状態空間グラフ $(s, Goal, Expand, w)$、前状態 $s'$}
+	\Output{$s$からゴール状態への経路、経路が存在しなければ$\emptyset$}
 	\If {$Goal(s)$} {
 		\Return $s$\;
 	}

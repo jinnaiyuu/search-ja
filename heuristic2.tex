@@ -35,7 +35,7 @@ A*探索などのヒューリスティック探索は時間と空間の両方が
 \caption{深さ優先分枝限定法 (Branch-and-Bound)}
 \label{alg:branch-and-bound}
         \Input{非明示的状態空間グラフ $(s, Goal, Expand, w)$、ヒューリスティック関数 $h$}
-	\Output{$s$からゴール状態$t \in T$への経路、経路が存在しなければ$\emptyset$}
+	\Output{$s$からゴール状態への経路、経路が存在しなければ$\emptyset$}
 	$U \leftarrow \infty$\;
 	$path \leftarrow \emptyset$\;
 	$(U, path) \leftarrow DFB\&B(s, 0, U, path)$\;
@@ -98,7 +98,7 @@ DFIDをはじめとする重複検出のないアルゴリズムを用いる際�
 \caption{反復深化深さ優先 (Depth First Iterative Deepening)}
 \label{alg:depth-first-iterative-deepening}
         \Input{非明示的状態空間グラフ $(s, Goal, Expand, w)$}
-	\Output{$s$からゴール状態$t \in T$への経路、経路が存在しなければ$\emptyset$}
+	\Output{$s$からゴール状態への経路、経路が存在しなければ$\emptyset$}
         $U' \leftarrow 0$\;
         $path \leftarrow \emptyset$\;
         \While {$path = \emptyset$ {\bf and} $U' \neq \infty$} {
@@ -157,7 +157,7 @@ IDA*も解がない場合に停止性を満たさない。
 \caption{反復深化A* (Iterative Deepening A*)}
 \label{alg:ida}
         \Input{非明示的状態空間グラフ $(s, Goal, Expand, w)$、ヒューリスティック$h$}
-	\Output{$s$からゴール状態$t \in T$への経路、経路が存在しなければ$\emptyset$}
+	\Output{$s$からゴール状態への経路、経路が存在しなければ$\emptyset$}
         $U' \leftarrow h(s)$\;
         $path \leftarrow \emptyset$\;
         \While {$path = \emptyset$ {\bf and} $U' \neq \infty$} {
@@ -171,7 +171,7 @@ IDA*も解がない場合に停止性を満たさない。
 \caption{CLDFS-IDA: IDA*のためのコスト制限付き深さ優先}
 \label{alg:cldfs-ida}
 	\Input{状態 $s$、経路コスト $g$、閾値 $U$}
-	\Output{$s$からゴール状態$t \in T$への経路、経路が存在しなければ$\emptyset$}
+	\Output{コストの上界と$s$からゴール状態への経路、経路が存在しなければ$\emptyset$}
         $U' \leftarrow \infty$\;
 	\If {$Goal(s)$} {
 		\Return $(U', Path(s))$\;
@@ -468,8 +468,8 @@ imageの計算とゴールテストによって実装することが出来る。
 \begin{algorithm}
 \caption{シンボリック幅優先木探索 (Symbolic Breadth-first Tree Search)}
 \label{alg:bdd-brfs-tree}
-	\Input{非明示的状態空間グラフ $P = (s, Goal, Expand, w)$、前状態 $s'$}
-	\Output{$s$からゴール状態$t \in T$への経路、経路が存在しなければ$\emptyset$}
+	\Input{非明示的状態空間グラフ $(s, Goal, Expand, w)$、前状態 $s'$}
+	\Output{$s$からゴール状態への経路、経路が存在しなければ$\emptyset$}
 	$S_0 \leftarrow \{s\}$\;
 	\For {$i \leftarrow 1, 2, ...$} {
 		$\phi_{S_i}(x) \leftarrow \exists x (\phi_{S_{i-1}}(x) \land Trans(x,x'))[x'/x]$\;
@@ -497,8 +497,8 @@ $\phi_{S_i} \land \phi_T(x)$によってゴール状態、解経路における$
 \begin{algorithm}
 \caption{シンボリック幅優先探索 (Symbolic Breadth-first search)}
 \label{alg:bdd-brfs}
-	\Input{非明示的状態空間グラフ $P = (s, Goal, Expand, w)$、前状態 $s'$}
-	\Output{$s$からゴール状態$t \in T$への経路、経路が存在しなければ$\emptyset$}
+	\Input{非明示的状態空間グラフ $(s, Goal, Expand, w)$、前状態 $s'$}
+	\Output{$s$からゴール状態への経路、経路が存在しなければ$\emptyset$}
 	$S_0 \leftarrow \{s_0\}$\;
 	$Closed \leftarrow \{s_0\}$\;
 	\For {$i \leftarrow 1, 2,...$} {
@@ -569,15 +569,13 @@ $h_{i_1}(s) = h_{i_1}(s')$, $h_{i_2}(s) = h_{i_2}(s')$,...,$h_{i_n}(s) = h_{i_n}
 \subsection{幅制限探索 (Width-Based Search)}
 \label{sec:width-based-search}
 
-\define{幅制限探索}{width-based search}{はばせいげんたんさく}は状態の新奇性に基づいてノードを枝刈りする手法である \cite{lipovetzkyg12}。
-新奇性によってノードを枝刈りするので、解が存在しても発見される保証はない (完全性を満たさない)。
 
-\begin{algorithm}[tbh]
+\begin{algorithm}
 \caption{幅制限探索 (Width-based search)}
 \label{alg:width-based-search}
 	\Input{非明示的状態空間グラフ $(s, Goal, Expand, w)$、特徴関数 $h_0, h_1,..., h_{m-1}$、幅$i$}
-	\Output{$s$からゴール状態$t \in T$への経路、経路が存在しなければ$\emptyset$}
-	$Closed \leftarrow \emptyset$, $Open \leftarrow \{s\}$\;
+	\Output{$s$からゴール状態への経路、経路が存在しなければ$\emptyset$}
+	$Open \leftarrow \{s\}$, $Closed \leftarrow \emptyset$\;
 	\While{$Open \neq \emptyset$} {
                 $u \leftarrow \argmin_{u' \in Open} f(u')$ \;
 		$Open \leftarrow Open \setminus \{u\} $\;
@@ -598,6 +596,9 @@ $h_{i_1}(s) = h_{i_1}(s')$, $h_{i_2}(s) = h_{i_2}(s')$,...,$h_{i_n}(s) = h_{i_n}
  	}
 	\Return $\emptyset$\;
 \end{algorithm}
+
+\define{幅制限探索}{width-based search}{はばせいげんたんさく}は状態の新奇性に基づいてノードを枝刈りする手法である \cite{lipovetzkyg12}。
+新奇性によってノードを枝刈りするので、解が存在しても発見される保証はない (完全性を満たさない)。
 
 IW($i$)は新奇性が$i$よりも大きい状態を枝刈りする探索である。
 新奇性に基づく枝刈りには2つのメリットがある。
@@ -762,7 +763,7 @@ HDA*の各プロセスはそれぞれローカルなオープンリスト、ク�
 \begin{algorithm}
   \caption{Hash Distributed A*}
   \Input{非明示的状態空間グラフ $(s, Goal, Expand, w)$、ヒューリスティック関数$h$、ハッシュ関数 $H$}
-  \Output{$s$からゴール状態$t \in T$への経路、経路が存在しなければ$\emptyset$}
+  \Output{$s$からゴール状態への経路、経路が存在しなければ$\emptyset$}
   $Closed_p \leftarrow \emptyset$, $Open_p \leftarrow \emptyset$, $\mathit{Buffer}_p \leftarrow \emptyset$ for each thread $p$\;
   $Open_{H(s)} \leftarrow \{s\}$, $g(s) \leftarrow 0$\;
   $goal \leftarrow \emptyset$, $c' \leftarrow \infty$\;
