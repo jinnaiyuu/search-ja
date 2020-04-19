@@ -9,6 +9,14 @@
 このテキストを読んでヒューリスティック探索の面白さを知る方が増えてくれたら幸いです。
 
 
+# ビルド
+
+make.shでビルドが出来ます。以下の環境で実行しています。
+
+- Ubuntu 18.04およびWindows WSL内のUbuntu 18.04で確認
+- platex e-pTeX, Version 3.14159265-p3.7.1-161114-2.6 (utf8.euc) (TeX Live 2017/Debian) (preloaded format=platex)
+- mendex version 2.6f [14-Aug-2009] (utf8.euc) (TeX Live 2017).
+
 # 誤字脱字
 
 誤字脱字がありましたらIssuesを建てるかあるいは陣内 <ddyuudd@gmail.com>にご連絡いただければ幸いです。
