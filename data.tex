@@ -190,9 +190,9 @@ Stochastic node caching \cite{miura1999stochastic}は、新しく追加された
 \begin{algorithm}
 \caption{遅延重複検出を用いたグラフ探索}
 \label{alg:ddd}
-	\Input{非明示的状態空間グラフ $(s, Goal, Expand, w)$, プライオリティ関数 $f$}
-	\Output{$s$からゴール状態$t \in T$への経路、経路が存在しなければ$\emptyset$}
-	$Closed \leftarrow \emptyset$, $Open \leftarrow \{s\}$, $d(s) \leftarrow 0$, $g(s) \leftarrow 0$\;
+	\Input{非明示的状態空間グラフ $(u_0, Goal, Expand, w)$, プライオリティ関数 $f$}
+	\Output{$u_0$からゴール状態$t \in T$への経路、経路が存在しなければ$\emptyset$}
+	$Closed \leftarrow \emptyset$, $Open \leftarrow \{u_0\}$, $d(u_0) \leftarrow 0$, $g(u_0) \leftarrow 0$\;
 	\While{$Open \neq \emptyset$} {
                 $u \leftarrow \argmin_{u' \in Open} f(u')$ \;
 	        $Open \leftarrow Open \setminus \{u\} $\;
