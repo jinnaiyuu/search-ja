@@ -13,14 +13,6 @@
 古典的プランニングは完全情報\footnote{正確には完全情報ではなく、アクションの決定のために必要な情報がすべて得られると仮定される。例えば問題に全く関係ない冗長な変数が含まれ、その情報がエージェントに与えられない場合は完全情報ではないが、アクションの決定のためには不要な情報であれば古典的プランニング問題で扱うことができる。}、決定的状態遷移を仮定とするモデルであり、状態空間問題に含まれる \cite{fikes:71}。
 古典的プランニングによって様々な実問題を表すことができる。例えばロジスティック\cite{helmert2010scanalyzer,sousa2013toward}、セルアセンブリ\cite{asai2014fully}、遺伝子距離計算\cite{erdem2005genome}、ビデオゲーム\cite{lipovetzky2015a}など、様々な応用問題を含むモデルである。
 
-完全情報、決定的状態遷移の仮定を緩和した問題（確率的モデルや不完全情報モデル）もグラフ探索によって解かれることが多いが、本文の範囲外とする。詳細は詳しい教科書を参照されたい\cite{russelln03}。
-なお、プランニング問題はA*などの状態空間探索アルゴリズム以外にも、SATやCSPなどの制約充足問題に変換して解く方法もある \cite{ernst1997automatic,do2001planning}。古典的プランニングのための解法としてはグラフ探索アルゴリズムがstate-of-the-artであるが、例えばマルチエージェント経路探索問題などではSATに変換する手法が効率的であることが知られている \cite{sharon2015conflict}。
-
-プランニングの問題定義やアルゴリズムの実装を見たい方はFast Downward \cite{helmert2006}を見ると良い。
-Fast Downwardはプランニング問題を解くstate-of-the-artのプランナーである。
-本書で紹介するアルゴリズムの多くがFast Downwardに組み込まれている。
-
-
 \section{定義}
 \label{sec:planning-definition}
 
@@ -196,7 +188,7 @@ Fast DownwardはPDDLの文法の多くをサポートしているので試して
 製品の開発や受注生産などに対応して、今生産しなければならない製品を手早く作成するためのセルの行動プランを考えることが問題の目的である。
 \cite{asai2014fully}
 
-\item ゲノムリアレンジメント (Genome rearrangement)
+\item ゲノムリアレンジメント (genome rearrangement)
 ゲノムリアレンジメントは多重整列問題の一つである。
 ゲノム間の編集距離とは類似性を測るための指標として使われ、生物の進化の歴史をたどるために使われる。編集距離はあるゲノムから操作を繰り返してもう一方のゲノムに変換するためのコストの総和として定義される。
 プランニングモデルを用いることでより様々な操作を定義することができる。例えば遺伝子の位置に入れ替えなど、\ref{sec:msa}節で説明したように単純にグリッド経路探索に落とし込むことのできない複雑な操作を考えることができる。
@@ -265,7 +257,6 @@ $h^{max}$は許容的であるが、非許容的なヒューリスティック�
 ヒューリスティックの性能は$\alpha$の選択による。
 $\alpha$の選択方法としてはパターンデータベースヒューリスティック \cite{culberson1998pattern,edelkamp2001planning,holte:04,katz2008structural}、merge-and-shrink \cite{helmert2007flexible,helmert2014merge}などがある。
 
-
 \subsection{ランドマーク (Landmark)}
 
 プランニング問題の\define{ランドマーク}{landmark}{ランドマーク}とは、全ての解の中で一度でも真になることがある命題である \cite{porteous2001extraction}。
@@ -278,7 +269,14 @@ $\alpha$の選択方法としてはパターンデータベースヒューリス
 
 \define{ランドマークカット}{Landmark cut}{ランドマークカット}はランドマークカウントを一般化したヒューリスティックである \cite{helmert:09}。「全ての可能な解で真になる命題」はいくつかは発見できるが、十分な数を発見するのはかなり難しい。なのでランドマークカットはその代わりに「全ての可能な解で少なくとも一つが真になる命題の集合」を使う。このような命題の集合はjustification graphと呼ばれるランドマーク発見のためのグラフのカットに相当するため、ランドマークカットと呼ばれる。
 
+% \section{プラン認識、ゴール認識}
 
 \section{関連文献}
 
-\TODO{}
+自動行動計画を状態空間探索アルゴリズムで解くための手法はStefan Edelkamp and Stefan SchrodlのHeuristic Search Theory and Application \cite{edelkamp:2010:hst:1875144}にまとめられている。状態空間探索アルゴリズム以外にもSATやCSPなどの制約充足問題に変換して解く方法もある \cite{ernst1997automatic,do2001planning,sharon2015conflict}。
+
+状態遷移が確率的である問題を\define{確率的プランニング}{probabilistic planning}{かくりつてきプランニング}と呼ぶ。確率的プランニングはマルコフ決定過程でモデルされることが多い。更に不完全情報である場合は\define{信念空間プランニング}{belief space planning}{しんねんくうかんプランニング}問題である。これらの問題は本文の範囲外とする。詳細は教科書を参照されたい\cite{russelln03}。
+
+プランニングの問題定義やアルゴリズムの実装を見たい方はFast Downward \cite{helmert2006}をオススメする。
+Fast DownwardはPDDLで表現された古典的プランニング問題を解くstate-of-the-artのプランナーである。
+本書で紹介するアルゴリズムの多くがFast Downwardに組み込まれている。
