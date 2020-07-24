@@ -32,16 +32,16 @@
 \begin{algorithm}[h]
 \caption{木探索 (Implicit Tree Search)}
 \label{alg:implicit-tree-search}
-	\Input{非明示的状態空間グラフ $(u_0, Goal, Expand, w)$, プライオリティ関数 $f$}
+	\Input{非明示的状態空間グラフ $(\mathcal{E}, u_0, \mathcal{G}, w)$, プライオリティ関数 $f$}
 	\Output{$u_0$からゴール状態への経路、経路が存在しなければ$\emptyset$}
 	$Open \leftarrow \{u_0\}$, $d(u_0) \leftarrow 0$, $g(u_0) \leftarrow 0$\;
 	\While{$Open \neq \emptyset$} {
                 $u \leftarrow \argmin_{u' \in Open} f(u')$ \;
 		$Open \leftarrow Open \setminus \{u\} $\;
-		\If {$Goal(u)$} {
+		\If {$\mathcal{G}(u)$} {
 			\Return $Path(u)$\;
 		}
-		\For {each $v \in Expand(u)$} {
+		\For {each $v \in \mathcal{E}(u)$} {
  			$Open \leftarrow Open \cup \{u\}$\;
 		        $d(v) \leftarrow d(u) + 1$\;
 		        $g(v) \leftarrow g(u) + w(u, v)$\;
@@ -51,7 +51,7 @@
 	\Return $\emptyset$\;
 \end{algorithm}
     
-木探索はオープンリスト\footnote{歴史的な経緯でリストと呼ばれているが、データ構造がリストで実装されるという意味ではない。効率的なデータ構造は\ref{ch:search-performance}章で紹介する。}と呼ばれるノードの集合を\define{優先度付きキュー}{Priority Queue}{ゆうせんどつきキュー}に保持する。探索の開始時には、初期状態のみがオープンリストに入っている。
+木探索はオープンリスト\footnote{歴史的な経緯でリストと呼ばれているが、データ構造がリストで実装されるという意味ではない。効率的なデータ構造は\ref{ch:search-performance}章で紹介する。}と呼ばれるノードの集合を\define{優先度付きキュー}{Priority Queue}{ゆうせんどつきキュー}に保持する。探索の開始時には、初期状態$u_0$のみがオープンリストに入っている。
 木探索は、このオープンリストから一つノード$u$を選び、ゴール条件を満たしているかを確認する。満たしていれば初期状態から$u$への経路を返す。満たしていなければ、そのノードを展開する。展開とは、そのノードの子ノードを列挙し、オープンリストに入れることを指す。
 
 \begin{figure}
@@ -68,7 +68,7 @@
 \begin{enumerate}
 \item 未生成ノード (Undiscovered nodes): 状態空間内のまだ生成されていないノード。非明示的グラフでは情報は保持されていない。
 \item 生成済みノード (Generated nodes): オープンリストに一度でも入れられたノード。後述するグラフ探索ではクローズドリストに入れられる。
-\item 展開済みノード (Expanded nodes): $Expand$を実行し終えたノード。子ノードがすべて生成済みノードになる。オープンリストからは取り除かれる。
+\item 展開済みノード (Expanded nodes): 子ノード生成関数$\mathcal{E}$を実行し終えたノード。子ノードがすべて生成済みノードになる。オープンリストからは取り除かれる。
 \end{enumerate}
 
 図\ref{fig:node-life}は探索アルゴリズムが$\{a, b, c\}$を展開し終えた時点でのノードの分類の例である。
@@ -84,7 +84,7 @@ $Path(u)$はノードに対して初期状態からそこへ到達するまで�
 
 {\bf 紛らわしいが、木探索アルゴリズムは木だけでなくグラフ一般を探索するアルゴリズムである。}
 木探索の強みは生成済みノードのうち展開済みではないもののみをオープンリストに保持すればよいことにある。未生成ノード、展開済みノードはメモリ上に保持する必要がない。
-一方これの問題は、一度展開したノードが再びExpandによって現れた場合\define{再展開}{reexpansion}{さいてんかい}をすることになる。図\ref{fig:reexpansion}の例ではノード$d$に二通りの経路で到達できるが、木探索では二回目に$d$に到達したとき、すでに到達済みであることを把握できない。そのため同じノードを再び生成・展開することになる。
+一方これの問題は、一度展開したノードが再び他のノードの展開によって現れた場合\define{再展開}{reexpansion}{さいてんかい}をすることになる。図\ref{fig:reexpansion}の例ではノード$d$に二通りの経路で到達できるが、木探索では二回目に$d$に到達したとき、すでに到達済みであることを把握できない。そのため同じノードを再び生成・展開することになる。
 このように木探索は複数の経路で到達可能なノードがあるほど(グラフがより木から遠いほど)同じノードを何度も再展開することになり、効率が悪くなってしまう。
 
 また、木探索アルゴリズムは状態数が有限であっても停止しない場合がある。
@@ -118,16 +118,16 @@ $Path(u)$はノードに対して初期状態からそこへ到達するまで�
 \begin{algorithm}[tbh]
 \caption{グラフ探索 (Implicit Graph Search)}
 \label{alg:implicit-graph-search}
-	\Input{非明示的状態空間グラフ $(u_0, Goal, Expand, w)$、プライオリティ関数 $f$}
+	\Input{非明示的状態空間グラフ $(\mathcal{E}, u_0, \mathcal{G}, w)$、プライオリティ関数 $f$}
 	\Output{$u_0$からゴール状態への経路、経路が存在しなければ$\emptyset$}
 	$Open \leftarrow \{u_0\}$, $Closed \leftarrow \{u_0\}$, $d(u_0) \leftarrow 0$, $g(u_0) \leftarrow 0$\;
 	\While{$Open \neq \emptyset$} {
                 $u \leftarrow \argmin_{u' \in Open} f(u')$ \;
 		$Open \leftarrow Open \setminus \{u\} $\;
-		\If {$Goal(u)$} {
+		\If {$\mathcal{G}(u)$} {
 			\Return $Path(u)$\;
 		}
-		\For {each $v \in Expand(u)$} {
+		\For {each $v \in \mathcal{E}(u)$} {
 		  \If{$v \notin Closed$ {\bf or} $g(u) + w(u, v) < g(v)$} {
                     $Open \leftarrow Open \cup \{v\}$\;
 		    $d(v) \leftarrow d(u) + 1$\;
@@ -279,7 +279,7 @@ $g$値をそのノードに到達できる既知の最小コストにするた�
 上述の実装はオープンリストを利用した深さ優先探索である。
 アルゴリズム \ref{alg:implicit-tree-search}を元にした深さ優先探索の実装は効率的ではないことが多い。
 深さ優先探索は再帰によって効率的に実装することができる (アルゴリズム \ref{alg:recursive-dfs})。
-$||$は2つのリストに対してそのリスト結合を返す関数である。
+$||$は2つのリストに対してそのリスト結合を返す関数である。$P_0$は列$P$の$0$番目の要素である。
 
 再帰実装ではオープンリストがないことに注目したい。
 再帰を利用することでデータ構造を明に保存する必要がなくなり、キャッシュ効率が良くなることがある。
@@ -288,15 +288,15 @@ $||$は2つのリストに対してそのリスト結合を返す関数である
 \begin{algorithm}[tbh]
 \caption{DFS: 再帰による深さ優先探索 (Depth-First Search)}
 \label{alg:recursive-dfs}
-	\Input{非明示的状態空間グラフ $(u, Goal, Expand, w)$、前ノード $u'$}
+	\Input{非明示的状態空間グラフ $(\mathcal{E}, u, \mathcal{G}, w)$、前ノード $u'$}
 	\Output{$s$からゴール状態への経路、経路が存在しなければ$\emptyset$}
-	\If {$Goal(u)$} {
+	\If {$\mathcal{G}(u)$} {
 		\Return $u$\;
 	}
-	\For {each $v \in Expand(u) \setminus \{u'\}$} {
-          $P \leftarrow DFS(v, Goal, Expand, w, u)$\;
+	\For {each $v \in \mathcal{E}(u) \setminus \{u'\}$} {
+          $P \leftarrow DFS((\mathcal{E}, v, \mathcal{G}, w), u)$\;
 	  \If {$P \neq \emptyset$} {
-	    \Return $DFS(P_0, Goal, Expand, w, u) || (u)$
+	    \Return $DFS((\mathcal{E}, P_0, \mathcal{G}, w), u) || (u)$
 	  }
 	}
 	\Return $\emptyset$\;
@@ -329,10 +329,10 @@ $||$は2つのリストに対してそのリスト結合を返す関数である
 探索アルゴリズムの評価指標としては以下の四点が重要である。
 
 \begin{enumerate}
-\item 完全性: 解が存在するとき、有限時間内に解を返すか。
-\item 最適性: 最初に発見された解が最適解か。
-\item 時間: アルゴリズムの実行にかかる時間
-\item 空間: アルゴリズムの実行にかかる空間
+\item 完全性 (completeness): 解が存在するとき、有限時間内に解を返すか。
+\item 最適性 (optimality): 最初に発見された解が最適解か。
+\item 時間 (time complexity): アルゴリズムの実行にかかる時間
+\item 空間 (space complexity): アルゴリズムの実行にかかる空間
 \end{enumerate}
 
 完全なアルゴリズムであることは有用だが、時間・空間とのトレードオフにあることが多い。

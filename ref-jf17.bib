@@ -2256,6 +2256,24 @@
   year		= {2002}
 }
 
+@article{felner2004additive,
+  title={Additive pattern database heuristics},
+  author={Felner, Ariel and Korf, Richard E and Hanan, Sarit},
+  journal={Journal of Artificial Intelligence Research},
+  volume={22},
+  pages={279--318},
+  year={2004}
+}
+
+@article{yang2008general,
+  title={A general theory of additive state space abstractions},
+  author={Yang, Fan and Culberson, Joseph and Holte, Robert and Zahavi, Uzi and Felner, Ariel},
+  journal={Journal of Artificial Intelligence Research},
+  volume={32},
+  pages={631--662},
+  year={2008}
+}
+
 @Article{	  korf2005frontier,
   title		= {Frontier Search},
   author	= {Korf, Richard E and Zhang, Weixiong and Thayer, Ignacio
@@ -4366,7 +4384,7 @@ title = {{BDD-Constrained A ∗ Search : A Fast Method for Solving Constrained D
 year = {2017}
 }
 @article{VanDijk2013,
-abstract = {This paper presents scalable parallel BDD operations for modern multi-core hardware. We aim at increasing the performance of reachability analysis in the context of model checking. Existing approaches focus on performing multiple independent BDD operations rather than parallelizing the BDD operations themselves. In the past, attempts at parallelizing BDD operations have been unsuccessful due to communication costs in shared memory. We solved this problem by extending an existing lockless hashtable to support BDDs and garbage collection and by implementing a lockless memoization table. Using these lockless hashtables and the work-stealing framework Wool, we implemented a multi-core BDD package called Sylvan. We provide the experimental results of using this multi-core BDD package in the framework of the model checker LTSmin. We measured the runtime of the reachability algorithm on several models from the BEEM model database on a 48-core machine, demonstrating speedups of over 30 for some models, which is a breakthrough compared to earlier work. In addition, we improved the standard symbolic reachability algorithm to use a modified BDD operation that calculates the relational product and the variable substitution in one step. We show that this new algorithm improves the performance of symbolic reachability and decreases the memory requirements by up to 40{\%}. ?? 2013 Elsevier B.V.},
+abstract = {This paper presents scalable parallel BDD operations for modern multi-core hardware. We aim at increasing the performance of reachability analysis in the context of model checking. Existing approaches focus on performing multiple independent BDD operations rather than parallelizing the BDD operations themselves. In the past, attempts at parallelizing BDD operations have been unsuccessful due to communication costs in shared memory. We solved this problem by extending an existing lockless hashtable to support BDDs and garbage collection and by implementing a lockless memoization table. Using these lockless hashtables and the work-stealing framework Wool, we implemented a multi-core BDD package called Sylvan. We provide the experimental results of using this multi-core BDD package in the framework of the model checker LTSmin. We measured the runtime of the reachability algorithm on several models from the BEEM model database on a 48-core machine, demonstrating speedups of over 30 for some models, which is a breakthrough compared to earlier work. In addition, we improved the standard symbolic reachability algorithm to use a modified BDD operatcion that calculates the relational product and the variable substitution in one step. We show that this new algorithm improves the performance of symbolic reachability and decreases the memory requirements by up to 40{\%}. ?? 2013 Elsevier B.V.},
 author = {{Van Dijk}, Tom and Laarman, Alfons and {Van De Pol}, Jaco},
 doi = {10.1016/j.entcs.2013.07.009},
 file = {:home/yuu/Dropbox/papers/Planning/BDD/ModelChecking/2013 Multi-Core BDD Operations for Symbolic Reachability.pdf:pdf},
@@ -4475,6 +4493,51 @@ year = {2001}
   year={2007}
 }
 
+@article{daniel2010theta,
+  title={Theta*: Any-angle path planning on grids},
+  author={Daniel, Kenny and Nash, Alex and Koenig, Sven and Felner, Ariel},
+  journal={Journal of Artificial Intelligence Research},
+  volume={39},
+  pages={533--579},
+  year={2010}
+}
+
+@inproceedings{harabor2014improving,
+  title={Improving jump point search},
+  author={Harabor, Daniel Damir and Grastien, Alban},
+  booktitle={Twenty-Fourth International Conference on Automated Planning and Scheduling},
+  year={2014}
+}
+
+@inproceedings{harabor2011online,
+  title={Online graph pruning for pathfinding on grid maps},
+  author={Harabor, Daniel Damir and Grastien, Alban},
+  booktitle={Twenty-Fifth AAAI Conference on Artificial Intelligence},
+  year={2011}
+}
+
+@inproceedings{bjornsson2003comparison,
+  title={Comparison of different grid abstractions for pathfinding on maps},
+  author={Bj{\"o}rnsson, Yngvi and Enzenberger, Markus and Holte, Robert and Schaeffer, Jonathan and Yap, Peter},
+  booktitle={IJCAI},
+  pages={1511--1512},
+  year={2003}
+}
+
+@inproceedings{rabin2016combining,
+  title={Combining bounding boxes and jps to prune grid pathfinding},
+  author={Rabin, Steve and Sturtevant, Nathan R},
+  booktitle={Thirtieth AAAI Conference on Artificial Intelligence},
+  year={2016}
+}
+
+@inproceedings{rivera2017grid,
+  title={Grid Pathfinding on the 2 k Neighborhoods},
+  author={Rivera, Nicol{\'a}s and Hern{\'a}ndez, Carlos and Baier, Jorge A},
+  booktitle={Thirty-First AAAI Conference on Artificial Intelligence},
+  year={2017}
+}
+
 @article{algfoor2015comprehensive,
   title={A comprehensive study on pathfinding techniques for robotics and video games},
   author={Algfoor, Zeyad Abd and Sunar, Mohd Shahrizal and Kolivand, Hoshang},
@@ -4510,6 +4573,17 @@ year = {2001}
   publisher={Elsevier}
 }
 
+@article{corpet1988multiple,
+  title={Multiple sequence alignment with hierarchical clustering},
+  author={Corpet, Florence},
+  journal={Nucleic acids research},
+  volume={16},
+  number={22},
+  pages={10881--10890},
+  year={1988},
+  publisher={Oxford University Press}
+}
+
 @book{waterman1995introduction,
   title={Introduction to computational biology: maps, sequences and genomes},
   author={Waterman, Michael S},
@@ -4533,6 +4607,15 @@ year = {2001}
   pages={341--374},
   year={1999},
   publisher={Elsevier}
+}
+
+
+% Sokoban
+@inproceedings{asai2016tiebreaking,
+  title={Tiebreaking strategies for A* search: How to explore the final frontier},
+  author={Asai, Masataro and Fukunaga, Alex},
+  booktitle={Thirtieth AAAI Conference on Artificial Intelligence},
+  year={2016}
 }
 
 @inproceedings{junghanns1997sokoban,
@@ -4681,6 +4764,13 @@ year = {2001}
   author={B{\"a}ckstr{\"o}m, Christer and Jonsson, Peter and St{\aa}hlberg, Simon},
   booktitle={Sixth Annual Symposium on Combinatorial Search},
   year={2013}
+}
+
+@inproceedings{eriksson2017unsolvability,
+  title={Unsolvability certificates for classical planning},
+  author={Eriksson, Salom{\'e} and R{\"o}ger, Gabriele and Helmert, Malte},
+  booktitle={Twenty-Seventh International Conference on Automated Planning and Scheduling},
+  year={2017}
 }
 
 @inproceedings{hoffmann2014distance,
@@ -5293,4 +5383,35 @@ publisher = {Addison-Wesley Longman Publishing Co., Inc.}
   pages={671--680},
   year={1983},
   publisher={American association for the advancement of science}
+}
+
+@inproceedings{wilt2012does,
+  title={When does weighted A* fail?},
+  author={Wilt, Christopher Makoto and Ruml, Wheeler},
+  booktitle={SOCS},
+  pages={137--144},
+  year={2012}
+}
+
+@inproceedings{xie2015understanding,
+  title={Understanding and improving local exploration for GBFS},
+  author={Xie, Fan and M{\"u}ller, Martin and Holte, Robert},
+  booktitle={Twenty-Fifth International Conference on Automated Planning and Scheduling},
+  year={2015}
+}
+
+@inproceedings{cohen2017problem,
+  title={Problem difficulty and the phase transition in heuristic search},
+  author={Cohen, Eldan and Beck, J Christopher},
+  booktitle={Thirty-First AAAI Conference on Artificial Intelligence},
+  year={2017}
+}
+
+@article{backstrom2017time,
+  title={Time and space bounds for planning},
+  author={B{\"a}ckstr{\"o}m, Christer and Jonsson, Peter},
+  journal={Journal of Artificial Intelligence Research},
+  volume={60},
+  pages={595--638},
+  year={2017}
 }

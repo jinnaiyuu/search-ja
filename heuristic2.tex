@@ -4,7 +4,7 @@
 
 
 A*探索などのヒューリスティック探索は時間と空間の両方がボトルネックとなりうる。
-すなわち、A*はノードを一つずつ展開していかなければならないので、その数だけExpandを実行しなければならない。また、A*は重複検出のために展開済みノードをすべてクローズドリストに保存する。なので、必要な空間も展開ノード数に応じて増えていく。
+すなわち、A*はノードを一つずつ展開していかなければならないので、その数だけノード展開関数を実行しなければならない。また、A*は重複検出のために展開済みノードをすべてクローズドリストに保存する。なので、必要な空間も展開ノード数に応じて増えていく。
 
 残念ながら、ほぼ正しいコストを返すヒューリスティック関数を使っても、A*が展開するノードの数は指数的に増加することが知られている\cite{helmert:08}。
 
@@ -34,32 +34,32 @@ A*探索などのヒューリスティック探索は時間と空間の両方が
 \begin{algorithm}
 \caption{深さ優先分枝限定法 (Branch-and-Bound)}
 \label{alg:branch-and-bound}
-        \Input{非明示的状態空間グラフ $(u_0, Goal, Expand, w)$、ヒューリスティック関数 $h$}
+        \Input{非明示的状態空間グラフ $(\mathcal{E}, u_0, \mathcal{G}, w)$、ヒューリスティック関数 $h$}
 	\Output{$u_0$からゴール状態への経路、経路が存在しなければ$\emptyset$}
 	$U \leftarrow \infty$\;
-	$path \leftarrow \emptyset$\;
-	$(U, path) \leftarrow DFB\&B(u_0, 0, U, path)$\;
-	\Return $path$\;
+	$P \leftarrow \emptyset$\;
+	$(U, P) \leftarrow DFB\&B((\mathcal{E}, u_0, \mathcal{G}, w), 0, U, P)$\;
+	\Return $P$\;
 \end{algorithm}
 
 \begin{algorithm}
-\caption{DFB\&B(u, g, U, path): 分枝限定法の再帰計算}
+\caption{DFB\&B$((\mathcal{E}, u, \mathcal{G}, w), g, U, P)$: 分枝限定法の再帰計算}
 \label{alg:branch-and-bound-rec}
-	\If {$Goal(u)$} {
+	\If {$\mathcal{G}(u)$} {
 		\If {$g < U$} {
 			$U \leftarrow g$\;
-			$path \leftarrow Path(u)$\;
+			$P \leftarrow Path(u)$\;
 		}
 	}
   \Else {
-    $Succ(u) \leftarrow Expand(u)$, sorted according to $h$\;
+    $Succ(u) \leftarrow \mathcal{E}(u)$, sorted according to $h$\;
 	  \For {$v \in Succ(u)$} {
 	    \If {$g + h(v) < U$} {
-	      $(U, path) \leftarrow DFB\&B(v, g + w(u, v), U, path)$\;
+	      $(U, P) \leftarrow DFB\&B((\mathcal{E}, v, \mathcal{G}, w), g + w(u, v), U, P)$\;
 	    }
 	  }
   }
-  \Return $(U, path)$
+  \Return $(U, P)$
 \end{algorithm}
 
 一般に、アルゴリズムの実行に従って最適解とは限らない解を次々と発見する手法において分枝限定法の考え方が採用できる。すなわち現在発見された中でもっとも良い解(incumbent solution)を用いて探索範囲を限定していくアイディアである。
@@ -97,32 +97,32 @@ DFIDをはじめとする重複検出のないアルゴリズムを用いる際�
 \begin{algorithm}
 \caption{反復深化深さ優先 (Depth First Iterative Deepening)}
 \label{alg:depth-first-iterative-deepening}
-  \Input{非明示的状態空間グラフ $(u_0, Goal, Expand, w)$}
-	\Output{$s$からゴール状態への経路、経路が存在しなければ$\emptyset$}
+  \Input{非明示的状態空間グラフ $(\mathcal{E}, u_0, \mathcal{G}, w)$}
+	\Output{$u_0$からゴール状態への経路、経路が存在しなければ$\emptyset$}
         $U' \leftarrow 0$\;
-        $path \leftarrow \emptyset$\;
-        \While {$path = \emptyset$ {\bf and} $U' \neq \infty$} {
+        $P \leftarrow \emptyset$\;
+        \While {$P = \emptyset$ {\bf and} $U' \neq \infty$} {
           $U \leftarrow U'$\;
-          $(U', path) \leftarrow CLDFS\text{-}DFID(u_0, 0, U)$\;
+          $(U', P) \leftarrow CLDFS\text{-}DFID((\mathcal{E}, u_0, \mathcal{G}, w), 0, U)$\;
         }
-        \Return $path$\;
+        \Return $P$\;
 \end{algorithm}
 
 \begin{algorithm}
 \caption{CLDFS-DFID: DFIDのためのコスト制限付き深さ優先}
 \label{alg:cldfs}
-	\Input{状態 $u$、経路コスト $g$、閾値 $U$}
-	\Output{$u$からゴール状態$t \in T$への経路、経路が存在しなければ$\emptyset$}
+	\Input{非明示的状態空間グラフ $(\mathcal{E}, u, \mathcal{G}, w)$、経路コスト $g$、閾値 $U$}
+	\Output{$u$からゴール状態への経路、経路が存在しなければ$\emptyset$}
         $U' \leftarrow \infty$\;
-	\If {$Goal(u)$} {
+	\If {$\mathcal{G}(u)$} {
 		\Return $(U', Path(u))$\;
 	}
-	\For {each $v \in Expand(u)$} {
+	\For {each $v \in \mathcal{E}(u)$} {
 		\uIf {$g + w(u, v) \leq U$} {
-			$U', p \leftarrow CLDFS\text{-}DFID(v, g + w(u, v), U)$\;
-		  \If {$p \neq \emptyset$} {
-        $p' \leftarrow (u, p)$\;
-		    \Return $(U', p')$\;
+			$U', P \leftarrow CLDFS\text{-}DFID((\mathcal{E}, v, \mathcal{G}, w), g + w(u, v), U)$\;
+		  \If {$P \neq \emptyset$} {
+        $P' \leftarrow (u, P)$\;
+		    \Return $(U', P')$\;
 		  }
 		}
     \uElseIf {$g + w(u, v) < U'$} {
@@ -156,37 +156,37 @@ IDA*も解がない場合に停止性を満たさない。
 \begin{algorithm}
 \caption{反復深化A* (Iterative Deepening A*)}
 \label{alg:ida}
-  \Input{非明示的状態空間グラフ $(u_0, Goal, Expand, w)$、ヒューリスティック$h$}
+  \Input{非明示的状態空間グラフ $(\mathcal{E}, u_0, \mathcal{G}, w)$、ヒューリスティック$h$}
 	\Output{$u_0$からゴール状態への経路、経路が存在しなければ$\emptyset$}
         $U' \leftarrow h(u_0)$\;
-        $path \leftarrow \emptyset$\;
-        \While {$path = \emptyset$ {\bf and} $U' \neq \infty$} {
+        $P \leftarrow \emptyset$\;
+        \While {$P = \emptyset$ {\bf and} $U' \neq \infty$} {
           $U \leftarrow U'$\;
-          $(U', path) \leftarrow CLDFS\text{-}IDA(u_0, 0, U)$\;
+          $(U', P) \leftarrow CLDFS\text{-}IDA((\mathcal{E}, u_0, \mathcal{G}, w), 0, U)$\;
         }
-        \Return $path$\;
+        \Return $P$\;
 \end{algorithm}
 
 \begin{algorithm}
 \caption{CLDFS-IDA: IDA*のためのコスト制限付き深さ優先}
 \label{alg:cldfs-ida}
-	\Input{状態 $u$、経路コスト $g$、閾値 $U$}
+	\Input{非明示的状態空間グラフ $(\mathcal{E}, u, \mathcal{G}, w)$、経路コスト $g$、閾値 $U$}
 	\Output{コストの上界と$u$からゴール状態への経路、経路が存在しなければ$\emptyset$}
         $U' \leftarrow \infty$\;
-	\If {$Goal(s)$} {
+	\If {$\mathcal{G}(s)$} {
 		\Return $(U', Path(u))$\;
 	}
-	\For {each $v \in Expand(u)$} {
+	\For {each $v \in \mathcal{E}(u)$} {
 	  \If {$g + w(u, v) + h(v) > U$} {
             \If {$g + w(u, v) + h(v) < U$} {
               $U' \leftarrow g + w(u, v) + h(v)$\;
             }
      }
      \Else {
-      $U', p \leftarrow CLDFS\text{-}IDA(v, g + w(u, v), U)$\;
-	    \If {$p \neq \emptyset$} {
-        $p' \leftarrow p || u$\;
-	      \Return $(U', p')$\;
+      $U', P \leftarrow CLDFS\text{-}IDA(v, g + w(u, v), U)$\;
+	    \If {$P \neq \emptyset$} {
+        $P' \leftarrow P || u$\;
+	      \Return $(U', P')$\;
 	    }
      }
 	}
@@ -303,19 +303,19 @@ IDA*も解がない場合に停止性を満たさない。
 \begin{algorithm}
 \caption{外部メモリ幅優先探索 (External Breadth-first search)}
 \label{alg:external-brfs}
-	\Input{非明示的状態空間グラフ $(u_0, Goal, Expand, w)$}
-	\Output{$u_0$からゴール状態$t \in T$への経路、経路が存在しなければ$\emptyset$}
+	\Input{非明示的状態空間グラフ $(\mathcal{E}, u_0, \mathcal{G}, w)$}
+	\Output{$u_0$からゴール状態への経路、経路が存在しなければ$\emptyset$}
 	$Open(-1) \leftarrow \emptyset$\;
 	$Open(0) \leftarrow \{u_0\}$\;
 	$i \leftarrow 1$\;
 	\While {$Open(i-1) \neq \emptyset$}{
-		\If {$\exists (u \in Open(i-1)) Goal(u)$} {
+		\If {$\exists (u \in Open(i-1)) \mathcal{G}(u)$} {
 			\Return $Path(u)$\;
 		}
                 
-		$R(i) \leftarrow {u | u \in Expand(u'), u' \in Open(i-1)}$\;
+		$R(i) \leftarrow {u | u \in \mathcal{E}(u'), u' \in Open(i-1)}$\;
     \For {each $v \in R(i)$} {
-      $parent(v) \leftarrow u$ s.t. $v \in Expand(u)$\;
+      $parent(v) \leftarrow u$ s.t. $v \in \mathcal{E}(u)$\;
     }
 		$Open(i) \leftarrow R(i) \setminus (Open(i-1)\cup Open(i-2))$\;
 		$i \leftarrow i + 1$\;
@@ -468,7 +468,7 @@ imageの計算とゴールテストによって実装することが出来る。
 \begin{algorithm}
 \caption{シンボリック幅優先木探索 (Symbolic Breadth-first Tree Search)}
 \label{alg:bdd-brfs-tree}
-	\Input{非明示的状態空間グラフ $(u_0, Goal, Expand, w)$}
+	\Input{非明示的状態空間グラフ $(\mathcal{E}, u_0, \mathcal{G}, w)$}
 	\Output{$u_0$からゴール状態への経路、経路が存在しなければ$\emptyset$}
 	$S_0 \leftarrow \{u_0\}$\;
 	\For {$i \leftarrow 1, 2, ...$} {
@@ -497,7 +497,7 @@ $\phi_{S_i} \land \phi_T(x)$によってゴール状態、解経路における$
 \begin{algorithm}
 \caption{シンボリック幅優先探索 (Symbolic Breadth-first search)}
 \label{alg:bdd-brfs}
-	\Input{非明示的状態空間グラフ $(u_0, Goal, Expand, w)$}
+	\Input{非明示的状態空間グラフ $(\mathcal{E}, u_0, \mathcal{G}, w)$}
 	\Output{$u_0$からゴール状態への経路、経路が存在しなければ$\emptyset$}
 	$S_0 \leftarrow \{u_0\}$\;
 	$Closed \leftarrow \{u_0\}$\;
@@ -573,16 +573,16 @@ $h_{i_1}(s) = h_{i_1}(s')$, $h_{i_2}(s) = h_{i_2}(s')$,...,$h_{i_n}(s) = h_{i_n}
 \begin{algorithm}
 \caption{幅制限探索 (Width-based search)}
 \label{alg:width-based-search}
-	\Input{非明示的状態空間グラフ $(u_0, Goal, Expand, w)$、特徴関数 $h_0, h_1,..., h_{m-1}$、幅$i$}
+	\Input{非明示的状態空間グラフ $(\mathcal{E}, u_0, \mathcal{G}, w)$、特徴関数 $h_0, h_1,..., h_{m-1}$、幅$i$}
 	\Output{$u_0$からゴール状態への経路、経路が存在しなければ$\emptyset$}
 	$Open \leftarrow \{u_0\}$, $Closed \leftarrow \emptyset$\;
 	\While{$Open \neq \emptyset$} {
                 $u \leftarrow \argmin_{u' \in Open} f(u')$ \;
 		$Open \leftarrow Open \setminus \{u\} $\;
-		\If {$Goal(u)$} {
+		\If {$\mathcal{G}(u)$} {
 			\Return $Path(u)$\;
 		}
-		\For {each $v \in Expand(u)$} {
+		\For {each $v \in \mathcal{E}(u)$} {
                   $H(v) \leftarrow \{j | j \in \{0, 1, ..., m-1\}, h_j(v) = 1\}$\;
                   $H \leftarrow \{j | j \in \{0, 1, ..., m-1\}, h_j(v) \in Closed\}$\;
                   \If{$|H \setminus Closed| \geq i$} {
@@ -624,9 +624,9 @@ IW($i$)は幅$i$が大きくなるほど解のクオリティが良くなるが�
 \begin{algorithm}
 \caption{反復幅制限探索 (Iterative Width Search)}
 $i \leftarrow 1$\;
-$path \leftarrow \emptyset$\;
-	\While {$path = \emptyset$} {
-		$path \leftarrow IW(i)$\;
+$P \leftarrow \emptyset$\;
+	\While {$P = \emptyset$} {
+		$P \leftarrow IW(i)$\;
 		$i \leftarrow i + 1$\;
 	}
 	\Return $path$
@@ -761,7 +761,7 @@ HDA*の各プロセスはそれぞれローカルなオープンリスト、ク�
 
 \begin{algorithm}
   \caption{Hash Distributed A*}
-  \Input{非明示的状態空間グラフ $(u_0, Goal, Expand, w)$、ヒューリスティック関数$h$、ハッシュ関数 $H$}
+  \Input{非明示的状態空間グラフ $(\mathcal{E}, u_0, \mathcal{G}, w)$、ヒューリスティック関数$h$、ハッシュ関数 $H$}
   \Output{$u_0$からゴール状態への経路、経路が存在しなければ$\emptyset$}
   $Closed_p \leftarrow \emptyset$, $Open_p \leftarrow \emptyset$, $\mathit{Buffer}_p \leftarrow \emptyset$ for each thread $p$\;
   $Open_{H(u_0)} \leftarrow \{u_0\}$, $g(u_0) \leftarrow 0$\;
@@ -784,12 +784,12 @@ HDA*の各プロセスはそれぞれローカルなオープンリスト、ク�
       $u \leftarrow \argmin_{u' \in Open} f(u')$ \;
       $Open \leftarrow Open \setminus \{u\} $\;
 
-      \If {$Goal(u)$ {\bf and} $g(u) < c'$} {
+      \If {$\mathcal{G}(u)$ {\bf and} $g(u) < c'$} {
         $goal \leftarrow u$\;
         $c' \leftarrow g(u)$\;        
       }
 
-      \For {each $v \in Expand(u)$} {
+      \For {each $v \in \mathcal{E}(u)$} {
         $g_v \leftarrow g(u) + w(u, v)$\;
         $\mathit{Buffer}_{H(v)} \leftarrow \mathit{Buffer}_{H(v)} \cup \{(v, g_v, u)\}$\;
       }
