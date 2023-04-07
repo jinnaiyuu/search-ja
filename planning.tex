@@ -271,6 +271,20 @@ $\alpha$の選択方法としてはパターンデータベースヒューリス
 
 % \section{プラン認識、ゴール認識}
 
+
+\section{まとめ}
+
+ヒューリスティック探索はPDDLで記述された幅広い問題を自動行動計画問題として解くことができる。
+ヒューリスティック関数は人間がデザインする必要はなく、PDDLから自動抽出した関数を利用して探索を効率化することができる。
+
+
+\section{練習問題}
+\begin{enumerate}
+	\item オンラインで提供されている自動行動計画のソルバーがある \footnote{\url{http://solver.planning.domains/}}。スライディングタイル問題をPDDLで記述し、それをオンラインソルバーへ入力して解いてみよう。
+	
+	\item (難問) ヒューリスティック探索は幅広い自動行動計画問題を解くことができる。では、それぞれ個別の問題を解くためのアルゴリズムを考える必要はあるのか？例えば巡回セールスパーソン問題はヒューリスティック探索以外だとどのような手法が使われているか？ヒューリスティック探索で解こうとすると、どのような問題があるのか？
+\end{enumerate}
+
 \section{関連文献}
 
 自動行動計画を状態空間探索アルゴリズムで解くための手法はStefan Edelkamp and Stefan SchrodlのHeuristic Search Theory and Application \cite{edelkamp:2010:hst:1875144}にまとめられている。状態空間探索アルゴリズム以外にもSATやCSPなどの制約充足問題に変換して解く方法もある \cite{ernst1997automatic,do2001planning,sharon2015conflict}。
