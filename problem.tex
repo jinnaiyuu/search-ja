@@ -310,6 +310,33 @@ TSPはヒューリスティック探索に限らず、様々なアプローチ�
 
 \end{enumerate}
 
+\section{Python実装}
+
+状態空間問題$P = (S, A, s, T, w)$のインターフェイスをPythonで実装すると以下のように書ける。
+
+\inputpython{python/state_space_problem.py}{1}{21}
+
+状態空間問題の構成要素とPythonの実装は以下のように対応している。
+
+\begin{itemize}
+  \item 状態集合$S$ \\
+  状態集合は明示的にコード中には現れない。
+  \item  行動集合$A$: \code{get\_available\_actions} \\
+  状態に対してそれに適用できる行動の集合を返す関数$S \rightarrow A$として表現される。
+  \item 初期状態$s$: \code{get\_init\_state} \\
+  初期状態を返す関数。
+  \item 遷移関数$T$: \code{get\_next\_state} \\
+  状態と行動を受け取り、次の状態を返す関数$S, A \rightarrow S$として表現される。
+  \item コスト関数$w$: \code{get\_action\_cost} \\
+  行動を受け取り、その行動のコストを返す関数$A \rightarrow \mathbb{R}$として表現される。
+\end{itemize}
+
+このクラスを親としてグリッド経路探索問題を実装すると、以下のようなコードになる。
+
+\inputpython{python/grid_pathfinding.py}{1}{63}
+
+本書で扱う探索アルゴリズム含めほとんどの状態空間問題の解法は以上の構成要素を含んでいればこのインターフェイスに対応して実装が出来る。
+
 
 \section{まとめ}
 
