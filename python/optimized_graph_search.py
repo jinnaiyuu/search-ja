@@ -14,7 +14,7 @@ def is_explored(node, closed_list):
             return True
     return False
 
-def GraphSearch(problem, priority_f=None):
+def OptimizedGraphSearch(problem, priority_f, open_list, closed_list):
     class SearchNode:
         def __init__(self, state):
             self.state = state
@@ -28,9 +28,6 @@ def GraphSearch(problem, priority_f=None):
         def set_prev_n(self, prev_n):
             self.prev_n = prev_n
 
-    open = []
-    closed = []
-
     init_state = problem.get_init_state()
 
     init_node = SearchNode(init_state)
@@ -38,14 +35,11 @@ def GraphSearch(problem, priority_f=None):
     init_node.set_d(0)
     init_node.set_prev_n = 0
 
-    open.append(init_node)
-    closed.append(init_node)
+    open_list.push(init_node, priority_f(init_node))
+    closed_list.push(init_node)
 
-
-    while (len(open) > 0):
-        open.sort(key=lambda node: priority_f(node), reverse=True)
-
-        node = open.pop()
+    while (len(open_list) > 0):
+        node = open_list.pop()
 
         if problem.is_goal(node.state):
             return get_path(node, init_state)
@@ -59,19 +53,26 @@ def GraphSearch(problem, priority_f=None):
                 next_node = SearchNode(next_state)
                 next_node.set_g(node.g + problem.get_action_cost(a))
                 next_node.set_d(node.d + 1)
-                if not is_explored(next_node, closed):
+
+                if not closed_list.explored(next_node):
                     next_node.set_prev_n(node)
-                    open.append(next_node)
-                    closed.append(next_node)
+                    open_list.push(next_node, priority_f(next_node))
+                    closed_list.push(next_node)
     return None
 
 
 if __name__ == "__main__":
     from grid_pathfinding import GridPathfinding
+    from bucket_openlist import BucketOpenList
+    from hash_closedlist import HashClosedList
 
     problem = GridPathfinding()
     priority_f = lambda node: node.g
-    path = GraphSearch(problem, priority_f)
+
+    init_h_value = problem.heuristic(problem.get_init_state())
+    open_list = BucketOpenList(C_min=init_h_value, C_max=init_h_value*8)
+    closed_list = HashClosedList()
+    path = OptimizedGraphSearch(problem, priority_f, open_list, closed_list)
 
     print(problem.init_state.x, problem.init_state.y)
     for s in reversed(path):
