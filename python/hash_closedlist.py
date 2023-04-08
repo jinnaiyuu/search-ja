@@ -7,7 +7,7 @@ class HashClosedList:
 
     def __len__(self):
         return self.size
-    
+
     def push(self, item):
         hash_value = hash(item.state) % self.table_size
 

@@ -8,12 +8,6 @@ def get_path(node, init_state):
 
     return path
 
-def is_explored(node, closed_list):
-    for n in closed_list:
-        if (n.state == node.state) and (n.g <= node.g):
-            return True
-    return False
-
 def OptimizedGraphSearch(problem, priority_f, open_list, closed_list):
     class SearchNode:
         def __init__(self, state):
@@ -44,7 +38,6 @@ def OptimizedGraphSearch(problem, priority_f, open_list, closed_list):
         if problem.is_goal(node.state):
             return get_path(node, init_state)
         else:
-            # Expand the node
             actions = problem.get_available_actions(node.state)
 
             for a in actions:
