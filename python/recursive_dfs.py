@@ -31,7 +31,6 @@ def RecursiveDepthFirstSearch(problem):
     init_node = SearchNode(init_state)
     init_node.set_g(0)
     init_node.set_d(0)
-    init_node.set_prev_n = 0
 
     logger.start()
 

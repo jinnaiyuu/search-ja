@@ -125,19 +125,20 @@ def HashDistributedGraphSearch(problem, priority_f=None, n_threads=2):
     threads = []
     for i in range(n_threads):
 
-        t = Thread(target=search_thread, args=(problem,
-                                               priority_f,
-                                               opens[i], 
-                                               closeds[i], 
-                                               waiting_buffers, 
-                                               n_threads, 
-                                               i, 
-                                               incumbent_cost, 
-                                               incumbent_goal_node_pos, 
-                                               incumbent_lock,
-                                               terminating,
-                                               confirm_terminating,
-                                               loggings[i]))
+        t = Thread(target=search_thread, 
+                   args=(problem,
+                         priority_f,
+                         opens[i], 
+                         closeds[i], 
+                         waiting_buffers, 
+                         n_threads, 
+                         i, 
+                         incumbent_cost, 
+                         incumbent_goal_node_pos, 
+                         incumbent_lock,
+                         terminating,
+                         confirm_terminating,
+                         loggings[i]))
         threads.append(t)
 
     global_logger = SearchLogger()

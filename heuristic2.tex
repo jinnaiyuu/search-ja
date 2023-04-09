@@ -22,6 +22,53 @@ A*探索などのヒューリスティック探索は時間と空間の両方が
 \define{並列探索}{parallel search}{へいれつたんさく}は複数のコアや計算機を使うことでメモリと計算時間の両方の問題を解決する。
 
 \section{ビームサーチ (Beam Search)}
+\label{sec:beam-search}
+
+\define{ビームサーチ}{beam-search}{ビームサーチ}は実行時間・メモリ消費の双方が限られた状況においてなるべく良い解を見つけたい場合に使われる。
+実装は非常にシンプルである。探索中にオープンリストがビーム幅よりも大きくなった場合、最も有望ではないノードを取り除いていくというものである。
+プライオリティ関数を$g$とする場合、すなわち幅優先探索とする場合を特にビームサーチと呼ぶ場合もある。
+ビームサーチは許容的ではない。有望ではないノードを探索から取り除いているため、最適解を発見する保証がない。
+ビームサーチのメリットはメモリ効率である。オープンリストの大きさを一定に保つため、メモリの消費量が抑えられる。
+より正確にはビームサーチのメモリ消費量はビーム幅と探索の深さの積に比例する ($O(kd)$)。
+特に重複検出を必要としないような問題であればクローズドリストも取り除くことでメモリ消費量を探索ノード数に関わらず一定にすることができる。
+メモリにハード制約があるような状況下であるときに有効である。
+ビームサーチはビーム幅を適切に設定することが良い解を発見するために重要である。
+ビーム幅を動的に設定する方法はいくつか提案されている \cite{lemons2022beam}。
+
+
+\begin{algorithm}
+	\caption{ビームサーチ (Beam Search)}
+	\label{alg:beam-search}
+		\Input{非明示的状態空間グラフ $(s, Goal, Expand, w)$、プライオリティ関数 $f$、ビーム幅 $k$}
+		\Output{$s$からゴール状態への経路、経路が存在しなければ$\emptyset$}
+		$Open \leftarrow \{s\}$, $Closed \leftarrow \{s\}$, $d(s) \leftarrow 0$, $g(s) \leftarrow 0$\;
+		\While{$Open \neq \emptyset$} {
+					$u \leftarrow \argmin_{u' \in Open} f(u')$ \;
+			$Open \leftarrow Open \setminus \{u\} $\;
+
+			\While {$|Open| > k$} {
+				$u \leftarrow \argmax_{u' \in Open} f(u')$
+				$Open \leftarrow Open \setminus \{u\}$\;
+			}
+
+			\If {$Goal(u)$} {
+				\Return $Path(u)$\;
+			}
+			\For {each $v \in Expand(u)$} {
+			  \If{$v \notin Closed$ {\bf or} $g(u) + w(u, v) < g(v)$} {
+						$Open \leftarrow Open \cup \{v\}$\;
+				$d(v) \leftarrow d(u) + 1$\;
+				$g(v) \leftarrow g(u) + w(u, v)$\;
+						$parent(v) \leftarrow u$\;
+					  }
+			  \If{$v \notin Closed$} {
+						$Closed \leftarrow Closed \cup \{v\}$\;
+					  }
+			}
+		 }
+		\Return $\emptyset$\;
+\end{algorithm}
+
 
 \section{分枝限定法 (Branch-and-Bound)}
 \label{sec:branch-and-bound}
