@@ -14,7 +14,7 @@ class StateSpaceProblem:
     def get_next_state(self, state, action):
         assert False
 
-    def get_action_cost(self, action):
+    def get_action_cost(self, state, action):
         assert False
 
     def heuristic(self, state):

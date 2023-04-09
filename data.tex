@@ -247,14 +247,16 @@ Pythonの場合タプルをsortで渡せば先頭の値からタイブレーキ�
 バケットプライオリティキューの実装のためにはオープンリスト・クローズドリストを選べるようにグラフ探索のコードを書き換える必要がある。
 以下のコードは\code{GraphSearch}の引数にオープンリストとクローズドリストを渡せるようにしたものである。
 
-\inputpython{python/optimized_graph_search.py}{1}{72}
+\inputpython{python/optimized_graph_search.py}{1}{46}
 
 バケットオープンリストおよびハッシュテーブルによるクローズドリストは以下のように実装できる。
 
-\inputpython{python/bucket_openlist.py}{1}{21}
+\inputpython{python/bucket_openlist.py}{1}{37}
 
 \inputpython{python/hash_closedlist.py}{1}{33}
 
+バケットオープンリストにある\code{beam width}は後述するビームサーチのために用いる。
+ビームサーチを利用する予定がなければ無視してよい。
 
 \section{まとめ}
 

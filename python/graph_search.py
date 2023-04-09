@@ -1,12 +1,5 @@
-def get_path(node, init_state):
-    cur_node = node
-    path = []
-    
-    while (not cur_node.state == init_state):
-        path.append(cur_node)
-        cur_node = cur_node.prev_n
-
-    return path
+from search_node import SearchNode
+from util import SearchLogger
 
 def is_explored(node, closed_list):
     for n in closed_list:
@@ -15,19 +8,6 @@ def is_explored(node, closed_list):
     return False
 
 def GraphSearch(problem, priority_f=None):
-    class SearchNode:
-        def __init__(self, state):
-            self.state = state
-
-        def set_g(self, g):
-            self.g = g
-        
-        def set_d(self, d):
-            self.d = d
-
-        def set_prev_n(self, prev_n):
-            self.prev_n = prev_n
-
     open = []
     closed = []
 
@@ -36,7 +16,9 @@ def GraphSearch(problem, priority_f=None):
     init_node = SearchNode(init_state)
     init_node.set_g(0)
     init_node.set_d(0)
-    init_node.set_prev_n = 0
+
+    logger = SearchLogger()
+    logger.start()
 
     open.append(init_node)
     closed.append(init_node)
@@ -46,9 +28,12 @@ def GraphSearch(problem, priority_f=None):
         open.sort(key=lambda node: priority_f(node), reverse=True)
 
         node = open.pop()
+        logger.expanded += 1
 
         if problem.is_goal(node.state):
-            return get_path(node, init_state)
+            logger.end()
+            logger.print()
+            return node.get_path()
         else:
             # Expand the node
             actions = problem.get_available_actions(node.state)
@@ -57,12 +42,17 @@ def GraphSearch(problem, priority_f=None):
                 next_state = problem.get_next_state(node.state, a)
 
                 next_node = SearchNode(next_state)
-                next_node.set_g(node.g + problem.get_action_cost(a))
+                next_node.set_g(node.g + problem.get_action_cost(node.state, a))
                 next_node.set_d(node.d + 1)
                 if not is_explored(next_node, closed):
                     next_node.set_prev_n(node)
                     open.append(next_node)
                     closed.append(next_node)
+                    logger.generated += 1
+                else:
+                    logger.pruned += 1
+    logger.end()
+    logger.print()
     return None
 
 
@@ -75,4 +65,4 @@ if __name__ == "__main__":
 
     print(problem.init_state.x, problem.init_state.y)
     for s in reversed(path):
-        print(s.state.x, s.state.y)
+        print(s)

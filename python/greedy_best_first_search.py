@@ -1,7 +1,7 @@
 from graph_search import GraphSearch
 
 def GreedyBestFirstSearch(problem):
-    h = lambda node: problem.heuristic(node)
+    h = lambda node: problem.heuristic(node.state)
     return GraphSearch(problem, h)
 
 
@@ -11,6 +11,5 @@ if __name__ == "__main__":
     problem = GridPathfinding()
     path = GreedyBestFirstSearch(problem)
 
-    print(problem.init_state.x, problem.init_state.y)
     for s in reversed(path):
-        print(s.state.x, s.state.y)
+        print(s)

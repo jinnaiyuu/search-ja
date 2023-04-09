@@ -6,6 +6,9 @@ class TileState:
 
     def __eq__(self, other):
         return (self.tile == other.tile)
+
+    def __hash__(self):
+        return hash(tuple(self.tile))
     
     def __str__(self):
         return self.tile.__str__()
@@ -36,7 +39,7 @@ class SlidingTile(StateSpaceProblem):
         blank_position = state.tile.index(0)
 
         b_pos_x = blank_position % self.width
-        b_pos_y = blank_position / self.width
+        b_pos_y = blank_position // self.width
 
         actions = []
         if b_pos_x > 0:
@@ -69,7 +72,7 @@ class SlidingTile(StateSpaceProblem):
 
         return TileState(next_state_tile)
 
-    def get_action_cost(self, action):
+    def get_action_cost(self, state, action):
         return 1
 
     def heuristic(self, state):
@@ -78,14 +81,14 @@ class SlidingTile(StateSpaceProblem):
     
     def manhattan_distance(self, state):
         dist = 0
-        for tile_id in range(len(state.tile)):
+        for tile_id in range(1, len(state.tile)):
             position = state.tile.index(tile_id)
 
             pos_x = position % self.width
-            pos_y = position / self.width
+            pos_y = position // self.width
 
             goal_x = tile_id % self.width
-            goal_y = tile_id / self.width
+            goal_y = tile_id // self.width
 
             dist += abs(goal_x - pos_x) + abs(goal_y - pos_y)
         return dist
@@ -103,3 +106,5 @@ if __name__ == "__main__":
     print(problem.get_init_state())
     for p in reversed(path):
         print(p)
+
+        

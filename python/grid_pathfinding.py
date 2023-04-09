@@ -15,6 +15,8 @@ class GridState:
         return "(" + self.x.__str__() + ", " + self.y.__str__() + ")"
 
 class GridPathfinding(StateSpaceProblem):
+    state_type = GridState
+
     def __init__(self, 
                  width=5, 
                  height=5, 
@@ -59,7 +61,7 @@ class GridPathfinding(StateSpaceProblem):
         else:
             raise Exception("Invalid action: " + action)
         
-    def get_action_cost(self, action):
+    def get_action_cost(self, state, action):
         return 1
 
     def heuristic(self, state):
