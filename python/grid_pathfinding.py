@@ -28,7 +28,6 @@ class GridPathfinding(StateSpaceProblem):
         self.init_position = init_position
         self.goal_position = goal_position
 
-        # TODO: make state class?
         self.init_state = GridState(self.init_position)
 
     def get_init_state(self):

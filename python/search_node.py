@@ -12,13 +12,15 @@ class SearchNode:
         self.prev_n = prev_n
 
     def __str__(self):
-        return self.state.__str__() + ": g=" + str(self.g) + ", d=" + str(self.d)
+        return self.state.__str__() + \
+            ": g=" + str(self.g) + ", d=" + str(self.d)
 
     def get_path(self):
         cur_node = self
         path = []
         
-        while (cur_node is not None and hasattr(cur_node, 'prev_n')):
+        while (cur_node is not None \
+               and hasattr(cur_node, 'prev_n')):
             path.append(cur_node)
             cur_node = cur_node.prev_n
 

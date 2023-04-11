@@ -25,6 +25,7 @@ class BucketOpenList:
             self.shrink()
 
     def shrink(self, beam_width=None):
+        # For limited memory search like beam search
         if beam_width is None:
             beam_width = self.beam_width
         if beam_width is not None:

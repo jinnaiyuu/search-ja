@@ -1,6 +1,5 @@
 class HashClosedList:
     def __init__(self, max_size=10000):
-        # This assumes that the hash function is not always a perfect hasing.
         self.table = [[]] * max_size
         self.table_size = max_size
         self.size = 0

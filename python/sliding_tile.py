@@ -76,7 +76,6 @@ class SlidingTile(StateSpaceProblem):
         return 1
 
     def heuristic(self, state):
-        # Manhattan distance heuristic
         return self.manhattan_distance(state)
     
     def manhattan_distance(self, state):

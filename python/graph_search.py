@@ -12,7 +12,6 @@ def GraphSearch(problem, priority_f=None):
     closed = []
 
     init_state = problem.get_init_state()
-
     init_node = SearchNode(init_state)
     init_node.set_g(0)
     init_node.set_d(0)
@@ -22,7 +21,6 @@ def GraphSearch(problem, priority_f=None):
 
     open.append(init_node)
     closed.append(init_node)
-
 
     while (len(open) > 0):
         open.sort(key=lambda node: priority_f(node), reverse=True)
@@ -35,7 +33,6 @@ def GraphSearch(problem, priority_f=None):
             logger.print()
             return node.get_path()
         else:
-            # Expand the node
             actions = problem.get_available_actions(node.state)
 
             for a in actions:

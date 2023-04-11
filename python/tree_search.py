@@ -5,7 +5,6 @@ def TreeSearch(problem, priority_f=None):
     open = []
 
     init_state = problem.get_init_state()
-
     init_node = SearchNode(init_state)
     init_node.set_g(0)
     init_node.set_d(0)
@@ -50,6 +49,5 @@ if __name__ == "__main__":
     priority_f = lambda node: node.g
     path = TreeSearch(problem, priority_f)
 
-    print(problem.init_state.x, problem.init_state.y)
     for s in reversed(path):
         print(s)
